@@ -1,6 +1,6 @@
 package config
 
-type file struct {
+type File struct {
 	Name       string  `json:"name" yaml:"name"`
 	Driver     string  `json:"driver" yaml:"driver"`         // 类型 cos:腾讯云COS; oss:阿里云OSS; local:本地文件存储；
 	Bucket     string  `json:"bucket" yaml:"bucket"`         // 储存桶

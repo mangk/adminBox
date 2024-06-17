@@ -48,6 +48,16 @@ func Panicf(format string, args ...interface{}) {
 	_log.Panicf(format, args...)
 }
 
+func Print(args ...interface{}) {
+	if len(args) > 0 {
+		format := ""
+		for i := 0; i < len(args); i++ {
+			format += "%+v\n"
+		}
+		_log.Infof(format, args...)
+	}
+}
+
 func Logger() *Log {
 	return _log
 }

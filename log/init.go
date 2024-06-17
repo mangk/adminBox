@@ -1,12 +1,13 @@
 package log
 
 import (
+	"github.com/mangk/adminX/moduleRegister"
 	"os"
 	"path"
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/mangk/gAdmin/config"
+	"github.com/mangk/adminX/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -14,6 +15,12 @@ import (
 var _log *Log
 
 func init() {
+	moduleRegister.ModuleAdd(log{})
+}
+
+type log struct{}
+
+func (log) InitModule() {
 	// 日志基础配置
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder

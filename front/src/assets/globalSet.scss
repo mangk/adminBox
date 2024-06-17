@@ -1,0 +1,24 @@
+:root {
+  --global-interval: 0px;
+  --global-padding: 10px;
+  --global-transition: 0.2s;
+
+  --global-content-bg: #fff;
+  --global-box-bg: #eff2f8;
+
+  --global-border-radius: 0px;
+
+  --global-header-height: 56px;
+  --global-tab-height: 40px;
+
+  --global-search-form-height: 42px;
+  --global-pagination-height: 42px;
+  --global-table: calc(
+    100vh - var(--global-header-height) - var(--global-tab-height) - var(--global-padding) * 4 - var(
+        --global-search-form-height
+      ) - var(--global-pagination-height)
+  );
+
+  --el-border-radius-base: 0px;
+  --el-menu-base-level-padding: 12px;
+}

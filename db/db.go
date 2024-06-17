@@ -1,10 +1,11 @@
 package db
 
 import (
+	"github.com/mangk/adminX/moduleRegister"
 	"time"
 
-	"github.com/mangk/gAdmin/config"
-	"github.com/mangk/gAdmin/log"
+	"github.com/mangk/adminX/config"
+	"github.com/mangk/adminX/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"
@@ -16,6 +17,12 @@ import (
 var _dbList map[string]*gorm.DB
 
 func init() {
+	moduleRegister.ModuleAdd(db{})
+}
+
+type db struct{}
+
+func (db) InitModule() {
 	_dbList = make(map[string]*gorm.DB)
 	for name, dbCfg := range config.DBCfg() {
 		db, err := gorm.Open(dialectorBuild(dbCfg), &gorm.Config{

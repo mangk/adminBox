@@ -2,10 +2,10 @@ package cache
 
 import (
 	"context"
-
 	"github.com/go-redis/redis/v8"
-	"github.com/mangk/gAdmin/config"
-	"github.com/mangk/gAdmin/log"
+	"github.com/mangk/adminX/config"
+	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminX/moduleRegister"
 	"github.com/songzhibin97/gkit/cache/local_cache"
 )
 
@@ -13,6 +13,12 @@ var _blackCache local_cache.Cache
 var _redisList map[string]*redis.Client
 
 func init() {
+	moduleRegister.ModuleAdd(cache{})
+}
+
+type cache struct{}
+
+func (cache) InitModule() {
 	// 初始化redis
 	_redisList = make(map[string]*redis.Client)
 	for name, redisCfg := range config.CacheCfg() {

@@ -19,7 +19,7 @@ func CORSCfg() cors {
 	return _config.Server.CORS
 }
 
-func JwtCfg() jwt {
+func JwtCfg() JWT {
 	return _config.Server.Jwt
 }
 
@@ -39,6 +39,6 @@ func CacheCfg() map[string]cache {
 	return *_config.Cache
 }
 
-func FileCfg() map[string]file {
+func FileCfg() map[string]File {
 	return *_config.Server.File
 }

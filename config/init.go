@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/mangk/adminX/moduleRegister"
 	"os"
 
 	"github.com/spf13/viper"
@@ -13,6 +14,12 @@ var _config *config
 var _viper *viper.Viper
 
 func init() {
+	moduleRegister.ModuleAdd(cfg{})
+}
+
+type cfg struct{}
+
+func (cfg) InitModule() {
 	cfgFilePath := flag.String("c", "./config.yaml", "config file path")
 	flag.Parse()
 

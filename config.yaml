@@ -1,18 +1,18 @@
 server:
-  name: goAdmin80
+  name: adminX
   env: debug # debug | test | release
   host: 127.0.0.1
-  port: 8888
+  port: 8910
   useMultipoint: false
   ipLimitCount: 15000
   ipLimitTime: 3600
   frontRouterPrefix:
+  backendRouterPrefix: _
   captcha:
-    keyLong: 1
+    keyLong: 4
     imgWidth: 240
     imgHeight: 80
-    openCaptcha: 0
-    openCaptchaTimeout: 3600
+    overtime: 120
   jwt:
     signingKey: 273628f7-9fb4-4e73-8f8d-ca954710d01d # uuid
     expiresTime: 7d
@@ -62,7 +62,7 @@ db: # 最少提供 default 模块
     path: 127.0.0.1
     port: 3306
     config: charset=utf8mb4&parseTime=True&loc=Local
-    dbname: erp_data
+    dbname: adminx
     username: root
     password: 123456
     prefix:
@@ -96,8 +96,8 @@ log:
   prefix:
   maxAge: 30
   level: debug
-  format: json
+  format: console
   encodeLevel: 0
   output: # 可以设置多个日志输出位置
-    - logs # 日志输出到可执行文件目录下的 log 文件夹
+    # - logs # 日志输出到可执行文件目录下的 log 文件夹
     - console # 日志会输出到stdout
