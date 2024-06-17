@@ -1,0 +1,103 @@
+server:
+  name: goAdmin80
+  env: debug # debug | test | release
+  host: 127.0.0.1
+  port: 8888
+  useMultipoint: false
+  ipLimitCount: 15000
+  ipLimitTime: 3600
+  frontRouterPrefix:
+  captcha:
+    keyLong: 1
+    imgWidth: 240
+    imgHeight: 80
+    openCaptcha: 0
+    openCaptchaTimeout: 3600
+  jwt:
+    signingKey: 273628f7-9fb4-4e73-8f8d-ca954710d01d # uuid
+    expiresTime: 7d
+    bufferTime: 1d
+    issuer: qmPlus
+  file:
+    default:
+      name: 本地
+      limit: 1 # 上传文件大小限制 MB
+      driver: local # 类型 cos:腾讯云COS; oss:阿里云OSS; local:本地文件存储；
+      bucket:
+      region:
+      id:
+      key:
+      prefixPath: local
+      cdnUrl: local.cdn
+      storePath: uploads/file
+    # another:
+    #   name: 腾讯云
+    #   limit: 1 # 上传文件大小限制 MB
+    #   driver: cos
+    #   bucket: bucketName
+    #   region: location
+    #   id: id
+    #   key: key
+    #   prefixPath: tencent
+    #   cdnUrl: tencent.cdn
+    #   storePath:
+  cors:
+    mode: allowAll # allowAll:允许所有跨域 | strictWhitelist:白名单模式
+    whitelist:
+      - allowOrigin: example1.com
+        allowMethods: POST, GET
+        allowHeaders: Content-Type,AccessToken,X-CSRF-Token, Authorization, Token,X-Token,X-User-Id
+        exposeHeaders: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers,Content-Type
+        allowCredentials: true
+      - allowOrigin: example2.com
+        allowMethods: GET, POST
+        allowHeaders: content-type
+        exposeHeaders: Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers,Content-Type
+        allowCredentials: true
+
+# 数据库
+db: # 最少提供 default 模块
+  default:
+    driver: mysql
+    path: 127.0.0.1
+    port: 3306
+    config: charset=utf8mb4&parseTime=True&loc=Local
+    dbname: erp_data
+    username: root
+    password: 123456
+    prefix:
+    singular: false
+    maxIdleConn: 10
+    maxOpenConn: 20
+    logMode: 3
+  # another:
+  #   driver: mysql
+  #   path:
+  #   port: 3306
+  #   config: charset=utf8mb4&parseTime=True&loc=Local
+  #   dbname:
+  #   username:
+  #   password:
+  #   prefix:
+  #   singular: false
+  #   maxIdleConn: 10
+  #   maxOpenConn: 20
+  #   logMode: 4
+cache:
+  default:
+    db: 0
+    addr: 127.0.0.1:6379
+    password: ""
+  # another:
+  #   db: 1
+  #   addr:
+  #   password:
+log:
+  prefix:
+  maxAge: 30
+  level: debug
+  format: json
+  encodeLevel: 0
+  output: # 可以设置多个日志输出位置
+    - logs # 日志输出到可执行文件目录下的 log 文件夹
+    - console # 日志会输出到stdout
