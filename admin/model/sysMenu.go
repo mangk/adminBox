@@ -133,13 +133,10 @@ func (s *SysMenu) BeforeSave(tx *gorm.DB) error {
 func (s SysMenu) TranMap() map[int]string {
 	dat := cache.RedisHasOrQuery(sysMenuTranMapKey, func() string {
 		data := make(map[int]string)
-		data[-1] = "系统设置"
-		data[-2] = "菜单管理"
-		data[-3] = "API管理"
-		data[-4] = "用户管理"
 
 		list := []SysMenu{}
 		db.DB().Find(&list)
+		list = append(list, s.SystemMenu()...)
 		for _, menu := range list {
 			data[menu.ID] = menu.Title
 		}
