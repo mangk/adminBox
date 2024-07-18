@@ -36,7 +36,8 @@ func (db) InitModule() {
 				TablePrefix:   dbCfg.Prefix,
 				SingularTable: dbCfg.Singular,
 			},
-			DisableAutomaticPing: true,
+			DisableAutomaticPing:                     true,
+			DisableForeignKeyConstraintWhenMigrating: true,
 		})
 
 		if err != nil {

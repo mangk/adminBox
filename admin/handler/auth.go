@@ -10,7 +10,6 @@ import (
 	"github.com/mangk/adminX/db"
 	"github.com/mangk/adminX/http/request"
 	"github.com/mangk/adminX/http/response"
-	"github.com/mangk/adminX/log"
 	"github.com/mojocn/base64Captcha"
 	"gorm.io/gorm"
 )
@@ -73,7 +72,6 @@ func AuthVerificationCode(ctx *gin.Context) {
 func AuthUserPermission(ctx *gin.Context) {
 	// TODO 根据用户身份角色查询
 	userid := request.JWTUserId(ctx)
-	log.Infof("jfdklsajfdla  %d", userid)
 	tree, err := (model.SysMenu{}).Tree(true, false, true, userid)
 	if err != nil {
 		response.FailWithMsg(ctx, err.Error())
