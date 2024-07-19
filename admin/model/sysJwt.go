@@ -62,8 +62,8 @@ func (j *JWT) Parse(token string) (jud *jwtUserInfo, err error) {
 		if j, ok := t.Claims.(*jwtUserInfo); ok && t.Valid {
 			return j, nil
 		}
-		return nil, errors.New("Token 解析失败")
+		return nil, errors.New("token 解析失败")
 	}
 
-	return nil, errors.New("Token 解析失败")
+	return nil, errors.New("token 解析失败")
 }

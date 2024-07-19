@@ -103,7 +103,7 @@ func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (fi
 	oss := upload.NewOss(driver)
 	filePath, key, _, uploadErr := oss.UploadFile(header)
 	if uploadErr != nil {
-		panic(err)
+		panic(uploadErr)
 	}
 	if noSave == "0" {
 		t := model.LocalTime(time.Now())
