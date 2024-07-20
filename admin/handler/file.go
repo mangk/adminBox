@@ -34,7 +34,7 @@ func FileUpload(ctx *gin.Context) {
 		response.FailWithMsg(ctx, "接收文件失败")
 		return
 	}
-	file, err = uploadFile(header, noSave, driver, request.JWTUserId(ctx)) // 文件上传后拿到文件路径
+	file, err = uploadFile(header, noSave, driver, request.JWTLoginUserId(ctx)) // 文件上传后拿到文件路径
 	if err != nil {
 		log.Errorf("修改数据库链接失败! %s", err)
 		response.FailWithMsg(ctx, "修改数据库链接失败")
@@ -49,7 +49,7 @@ func FileList(ctx *gin.Context) {
 	var count int64
 	list := []model.SysFileUpload{}
 
-	query := db.DB().Model(list).Where("cb = ?", request.JWTUserId(ctx))
+	query := db.DB().Model(list).Where("cb = ?", request.JWTLoginUserId(ctx))
 
 	if err := query.Count(&count).Error; err != nil {
 		response.FailWithMsg(ctx, err.Error())

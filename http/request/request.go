@@ -6,7 +6,9 @@ import (
 )
 
 const ContextPublicRequestKey = "__public_request__"
-const ContextUserKey = "__user__"
+const ContextLoginUserKey = "__login_user__"
+const ContextRoleUserTypeKey = "__role_user_type__"
+const ContextRoleUserIdKey = "__role_user_id__"
 
 type PublicPageRequest struct {
 	Query    map[string]interface{} `json:"query,omitempty"`
@@ -22,12 +24,28 @@ func PublicRequest(ctx *gin.Context) PublicPageRequest {
 }
 
 // 获取 JWT 中存储的用户信息
-func JWTUserId(ctx *gin.Context) int {
-	return ctx.GetInt(ContextUserKey)
+func JWTLoginUserId(ctx *gin.Context) int {
+	return ctx.GetInt(ContextLoginUserKey)
 }
 
 // 结合数据库获取用户最新信息
-func JWTUserFetch(ctx *gin.Context) model.SysUser {
-	u, _ := model.SysUser{}.Detail(ctx.MustGet(ContextUserKey).(int))
+func JWTLoginUserFetch(ctx *gin.Context) model.SysUser {
+	u, _ := model.SysUser{}.Detail(ctx.MustGet(ContextLoginUserKey).(int))
 	return u
+}
+
+// 身份用户ID
+func RoleUserId(ctx *gin.Context) int {
+	return ctx.GetInt(ContextRoleUserIdKey)
+}
+
+// 结合数据库获取用户最新信息
+func RoleUserFetch(ctx *gin.Context) model.SysUser {
+	u, _ := model.SysUser{}.Detail(ctx.MustGet(ContextRoleUserIdKey).(int))
+	return u
+}
+
+// 身份用类型
+func RoleUserType(ctx *gin.Context) string {
+	return ctx.GetString(ContextRoleUserTypeKey)
 }

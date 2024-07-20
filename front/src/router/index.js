@@ -10,7 +10,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/' + prefix
+      redirect: '/' + `${prefix}/welcome`
     },
     // 后台管理页面
     {

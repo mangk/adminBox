@@ -8,7 +8,9 @@ import { useRouterStore } from './useRouterStore'
 export const useUserStore = defineStore('user', () => {
   const initialized = ref(0)
   const user = ref({})
-  const _tokenStorageKey = 'token'
+  const _tokenStorageKey = 'x-token'
+  const _userTypeStroageKey = 'x-user-type'
+  const _userIdStroageKey = 'x-user-id'
 
   const token = () => {
     var token = localStorage.getItem(_tokenStorageKey)
@@ -17,6 +19,14 @@ export const useUserStore = defineStore('user', () => {
       return
     }
     return token
+  }
+
+  const userType = () => {
+    return localStorage.getItem(_userTypeStroageKey)
+  }
+
+  const userId = () => {
+    return localStorage.getItem(_userIdStroageKey)
   }
 
   const userInfo = (refresh = false) => {
@@ -36,6 +46,8 @@ export const useUserStore = defineStore('user', () => {
     user.value = res.data
     initialized.value = 1
     await localStorage.setItem(_tokenStorageKey, res.data.jwt_token)
+    await localStorage.setItem(_userTypeStroageKey, 'default')
+    await localStorage.setItem(_userIdStroageKey, res.data.id)
 
     const routerStore = useRouterStore()
     await routerStore.loadServerRouter(true)
@@ -46,7 +58,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const logOut = () => {
-    localStorage.removeItem(_tokenStorageKey)
+    localStorage.clear()
     router.replace({ name: 'login' })
   }
 
@@ -54,6 +66,8 @@ export const useUserStore = defineStore('user', () => {
     initialized,
     userInfo,
     token,
+    userType,
+    userId,
     logIn,
     logOut
   }

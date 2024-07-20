@@ -43,6 +43,9 @@ http.interceptors.request.use(
     config.headers = {
       'Content-Type': 'application/json; charset=utf-8',
       Authorization: 'Bearer ' + userStore.token(),
+      'X-User-Type': userStore.userType(),
+      'X-User-Id': userStore.userId(),
+
       ...config.headers
     }
     return config

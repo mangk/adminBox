@@ -71,7 +71,7 @@ func AuthVerificationCode(ctx *gin.Context) {
 
 func AuthUserPermission(ctx *gin.Context) {
 	// TODO 根据用户身份角色查询
-	userid := request.JWTUserId(ctx)
+	userid := request.JWTLoginUserId(ctx)
 	tree, err := (model.SysMenu{}).Tree(true, false, true, userid)
 	if err != nil {
 		response.FailWithMsg(ctx, err.Error())
