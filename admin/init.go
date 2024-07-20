@@ -35,7 +35,7 @@ func dbAutoMigrate() {
 		model.SysUserRole{},
 		model.SysUserDepartment{},
 		model.SysFileUpload{},
-	)
+	) // TODO 这里是否删除
 }
 
 func routerCreate() {

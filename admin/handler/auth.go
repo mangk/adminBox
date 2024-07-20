@@ -46,6 +46,11 @@ func AuthLogin(ctx *gin.Context) {
 
 	user.JwtToken = jwtToken
 
+	if err := (model.SysCasbinRole{}).UpdateCasbin(user.ID); err != nil {
+		response.FailWithMsg(ctx, err.Error())
+		return
+	}
+
 	response.OkWithData(ctx, user)
 }
 
@@ -70,15 +75,9 @@ func AuthVerificationCode(ctx *gin.Context) {
 }
 
 func AuthUserPermission(ctx *gin.Context) {
-	// TODO 根据用户身份角色查询
 	userid := request.JWTLoginUserId(ctx)
 	tree, err := (model.SysMenu{}).Tree(true, false, true, userid)
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
-		return
-	}
-
-	if err := (model.SysCasbinRole{}).UpdateCasbin(userid); err != nil {
 		response.FailWithMsg(ctx, err.Error())
 		return
 	}
