@@ -103,6 +103,7 @@ const userStore = useUserStore()
 
 const model = defineModel()
 const multiple = defineModel('multiple', { default: 1, type: Number })
+const type = defineModel('type', { default: 'obj', type: String }) // string | obj
 const multipleSelectModel = ref([])
 
 const uploadConfig = ref({})
@@ -215,6 +216,18 @@ const showDrawer = () => {
 }
 
 const handleClose = () => {
+  if (type.value == 'string') {
+    if (multiple.value == 1) {
+      model.value = multipleSelectModel.value[0].url
+    } else {
+      let urls = []
+      for (let i = 0; i < multipleSelectModel.value.length; i++) {
+        const element = multipleSelectModel.value[i]
+        urls.push(element.url)
+      }
+      model.value = urls
+    }
+  }
   show.value = false
 }
 </script>

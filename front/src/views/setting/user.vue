@@ -130,7 +130,29 @@
           </el-select>
         </el-form-item>
         <el-form-item label="头像" prop="avatar" style="width: 40%">
-          <el-input v-model="form.avatar" />
+          <el-image
+            style="
+              width: 75px;
+              height: 75px;
+              border: 1px dashed var(--el-border-color);
+              border-radius: 5px;
+            "
+            :src="form.avatar"
+            :fit="'contain'"
+          />
+          <FileUpload v-model="form.avatar" type="string">
+            <el-icon
+              style="
+                width: 75px;
+                height: 75px;
+                border: 1px dashed var(--el-border-color);
+                border-radius: 5px;
+                margin-left: 10px;
+              "
+            >
+              <Plus />
+            </el-icon>
+          </FileUpload>
         </el-form-item>
         <el-form-item label="是否启用" prop="enable" style="width: 40%">
           <el-switch
@@ -160,6 +182,7 @@ import { userCreate, userDelete, userDetail, userPage, userUpdate } from '@/api/
 import PermissionSet from '@/views/setting/premissionSet.vue'
 import { departmentPage } from '@/api/department.js'
 import { roleAll } from '@/api/role'
+import FileUpload from '../util/fileUpload.vue'
 
 const { proxy } = getCurrentInstance()
 
@@ -262,7 +285,7 @@ const submitForm = async (formEl) => {
       console.log('error submit!', fields)
     } else {
       let req = {}
-      console.log(form.id)
+
       if (form.id) {
         req = userUpdate(form)
       } else {

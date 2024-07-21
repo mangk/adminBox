@@ -36,6 +36,10 @@ export const useUserStore = defineStore('user', () => {
     return user.value
   }
 
+  const setUserData = (u) => {
+    user.value = u
+  }
+
   const logIn = async (form) => {
     const backendPrefix = loadBackendPrefix()
     var res = await login(form)
@@ -65,6 +69,7 @@ export const useUserStore = defineStore('user', () => {
   return {
     initialized,
     userInfo,
+    setUserData,
     token,
     userType,
     userId,

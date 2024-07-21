@@ -75,8 +75,8 @@ func AuthVerificationCode(ctx *gin.Context) {
 }
 
 func AuthUserPermission(ctx *gin.Context) {
-	userid := request.JWTLoginUserId(ctx)
-	tree, err := (model.SysMenu{}).Tree(true, false, true, userid)
+	user := request.JWTLoginUserFetch(ctx)
+	tree, err := (model.SysMenu{}).Tree(true, false, true, user.ID)
 	if err != nil {
 		response.FailWithMsg(ctx, err.Error())
 		return
@@ -84,6 +84,7 @@ func AuthUserPermission(ctx *gin.Context) {
 
 	response.OkWithData(ctx, map[string]interface{}{
 		"menu": tree,
+		"user": user,
 	})
 }
 

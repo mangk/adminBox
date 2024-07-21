@@ -32,7 +32,7 @@ type SysUser struct {
 	DepartmentIds  []int            `json:"department_ids" gorm:"-"`                               // 用户部门 Id 集合
 	RoleList       []*SysRole       `json:"role_list" gorm:"many2many:sys_user_role;"`             // 用户角色
 	RoleIds        []int            `json:"role_ids" gorm:"-"`                                     // 用户角色 Id 集合
-	JwtToken       string           `json:"jwt_token" gorm:"-"`
+	JwtToken       string           `json:"jwt_token,omitempty" gorm:"-"`
 }
 
 type UserConfig struct {

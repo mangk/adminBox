@@ -41,7 +41,7 @@ func dbAutoMigrate() {
 func routerCreate() {
 	router := myHttp.HttpEngine()
 
-	router.Use(middleware.Cors())
+	router.Use(middleware.Cors()) // TODO 跨域限制基于配置
 
 	backend := router.Group(strings.Trim(config.ServerCfg().BackendRouterPrefix, "/") + "/sys")
 	backend.POST("login", handler.AuthLogin)

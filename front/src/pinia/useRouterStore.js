@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { userPermission } from '@/api/auth'
 import { formatRouter, importView, loadBackendPrefix } from '@/utils/routerFormat'
 import router from '@/router/index.js'
+import { useUserStore } from './useUserStore'
 
 const prefix = loadBackendPrefix()
 
@@ -15,8 +16,10 @@ export const useRouterStore = defineStore('router', () => {
   const loadServerRouter = async (refresh = false) => {
     if (refresh || initialized.value === 0) {
       initialized.value = 1
-      const menuList = await userPermission()
-      serverRouter.value = menuList.data.menu[0].children
+      const userStore = useUserStore()
+      const permissionData = await userPermission()
+      serverRouter.value = permissionData.data.menu[0].children
+      userStore.setUserData(permissionData.data.user)
       formatRouter(serverRouter.value)
     }
     router.addRoute({
