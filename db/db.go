@@ -1,8 +1,9 @@
 package db
 
 import (
-	"github.com/mangk/adminX/moduleRegister"
 	"time"
+
+	"github.com/mangk/adminX/moduleRegister"
 
 	"github.com/mangk/adminX/config"
 	"github.com/mangk/adminX/log"
@@ -38,6 +39,7 @@ func (db) InitModule() {
 			},
 			DisableAutomaticPing:                     true,
 			DisableForeignKeyConstraintWhenMigrating: true,
+			IgnoreRelationshipsWhenMigrating:         true,
 		})
 
 		if err != nil {
