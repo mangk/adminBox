@@ -95,7 +95,6 @@ func (s SysUser) Update(data SysUser) error {
 			create := []SysUserDepartment{}
 			for _, v := range data.DepartmentIds {
 				create = append(create, SysUserDepartment{
-					Model:           Model{Cb: data.Cb},
 					SysUserId:       data.ID,
 					SysDepartmentId: v,
 				})
@@ -115,7 +114,6 @@ func (s SysUser) Update(data SysUser) error {
 			create := []SysUserRole{}
 			for _, v := range data.RoleIds {
 				create = append(create, SysUserRole{
-					Model:     Model{Cb: data.Cb},
 					SysUserId: data.ID,
 					SysRoleId: v,
 				})
