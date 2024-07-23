@@ -14,11 +14,11 @@ import (
 
 type Model struct {
 	ID     int            `json:"id" gorm:"type:int(11);primaryKey;comment:主键" uri:"id"`
-	Cb     int            `json:"cb" gorm:"type:int(11);comment:创建者"`
-	Ub     int            `json:"ub" gorm:"type:int(11);comment:更新者"`
+	Cb     int            `json:"cb,omitempty" gorm:"type:int(11);comment:创建者"`
+	Ub     int            `json:"ub,omitempty" gorm:"type:int(11);comment:更新者"`
 	Db     int            `json:"-" gorm:"type:int(11);comment:删除者"`
-	Ct     *LocalTime     `json:"ct" gorm:"type:datetime;default:CURRENT_TIMESTAMP;autoCreateTime;comment:创建时间"`
-	Ut     *LocalTime     `json:"ut" gorm:"type:datetime;default:NULL ON UPDATE CURRENT_TIMESTAMP;autoUpdateTime;comment:更新时间"`
+	Ct     *LocalTime     `json:"ct,omitempty" gorm:"type:datetime;default:CURRENT_TIMESTAMP;autoCreateTime;comment:创建时间"`
+	Ut     *LocalTime     `json:"ut,omitempty" gorm:"type:datetime;default:NULL ON UPDATE CURRENT_TIMESTAMP;autoUpdateTime;comment:更新时间"`
 	Dt     gorm.DeletedAt `json:"-" gorm:"type:datetime;index;comment:删除时间"`
 	CbName string         `json:"cb_name,omitempty" gorm:"-:all"` // 创建者
 	UbName string         `json:"ub_name,omitempty" gorm:"-:all"` // 更新者
