@@ -327,4 +327,43 @@ onUnmounted(() => {
   border-bottom: 1px solid #e4e7ed;
   border-top: 1px solid #e4e7ed;
 }
+
+.contextmenu {
+  width: 100px;
+  margin: 0;
+  border: 1px solid #ccc;
+  background: #fff;
+  z-index: 3000;
+  position: absolute;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #333;
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+.el-tabs__item .el-icon-close {
+  color: initial !important;
+}
+
+.el-tabs__item .dot {
+  content: '';
+  width: 9px;
+  height: 9px;
+  margin-right: 8px;
+  display: inline-block;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.contextmenu li {
+  margin: 0;
+  padding: 7px 16px;
+}
+
+.contextmenu li:hover {
+  background: #f2f2f2;
+  cursor: pointer;
+}
 </style>
