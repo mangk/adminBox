@@ -16,6 +16,7 @@
     :before-close="handleClose"
     :show-close="false"
     size="50%;"
+    style="max-width: 600px"
   >
     <template #header>
       <el-pagination
@@ -36,17 +37,45 @@
         v-for="(item, index) in tableData"
         @mouseleave="mouseLeave(item.id)"
         @mouseover="mouseOver(item.id)"
+        @click="selectFile(item)"
       >
         <el-icon class="img-del" v-if="curMouseOnId == item.id" @click="delImage(item.id)">
           <CircleClose />
         </el-icon>
-        <el-image
-          style="width: 100%"
-          :src="item.url"
-          fit="scale-down"
-          lazy
-          @click="selectFile(item)"
-        />
+        <el-image style="width: 100%" :src="item.url" fit="scale-down" lazy>
+          <template #error>
+            <div
+              style="
+                font-size: 30px;
+                text-align: center;
+                margin: var(--global-padding);
+                margin-bottom: 0;
+              "
+            >
+              <el-icon style="font-size: 28px">
+                <Document />
+              </el-icon>
+            </div>
+            <div style="font-size: 12px; line-height: 12px; padding: 3px; text-align: center">
+              {{ item.name.split('.')[0] }}
+            </div>
+            <div
+              style="
+                font-size: 12px;
+                line-height: 12px;
+                padding: 3px;
+                position: absolute;
+                left: 0;
+                top: 0;
+                background-color: #409eff;
+                color: #fff;
+                border-radius: 0 0 5px 0;
+              "
+            >
+              {{ item.name.split('.')[1] }}
+            </div>
+          </template>
+        </el-image>
       </div>
     </div>
 
@@ -103,7 +132,8 @@ const userStore = useUserStore()
 
 const model = defineModel()
 const multiple = defineModel('multiple', { default: 1, type: Number })
-const type = defineModel('type', { default: 'obj', type: String }) // string | obj
+const onlyPath = defineModel('onlyPath', { default: false, type: Boolean })
+const suffixList = defineModel('suffixList', { default: [], type: Array })
 const multipleSelectModel = ref([])
 
 const uploadConfig = ref({})
@@ -121,7 +151,7 @@ const pageSize = ref(25)
 const total = ref(0)
 
 const loadData = () => {
-  fileUploadPage(page.value, pageSize.value).then((res) => {
+  fileUploadPage(page.value, pageSize.value, { tag: suffixList.value }).then((res) => {
     tableData.value = res.data.list
     page.value = res.data.page
     pageSize.value = res.data.page_size
@@ -216,16 +246,18 @@ const showDrawer = () => {
 }
 
 const handleClose = () => {
-  if (type.value == 'string') {
-    if (multiple.value == 1) {
-      model.value = multipleSelectModel.value[0].url
-    } else {
-      let urls = []
-      for (let i = 0; i < multipleSelectModel.value.length; i++) {
-        const element = multipleSelectModel.value[i]
-        urls.push(element.url)
+  if (multipleSelectModel.value.length) {
+    if (onlyPath.value) {
+      if (multiple.value == 1) {
+        model.value = multipleSelectModel.value[0].url
+      } else {
+        let urls = []
+        for (let i = 0; i < multipleSelectModel.value.length; i++) {
+          const element = multipleSelectModel.value[i]
+          urls.push(element.url)
+        }
+        model.value = urls
       }
-      model.value = urls
     }
   }
   show.value = false

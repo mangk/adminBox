@@ -198,6 +198,7 @@ const { proxy } = getCurrentInstance()
 
 const dialogVisible = ref(false)
 const tableData = ref([])
+const xxx = ref('')
 
 const iconList = reactive([])
 for (const [component] of Object.entries(ElementPlusIconsVue)) {

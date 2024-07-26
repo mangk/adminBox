@@ -50,6 +50,9 @@ func FileList(ctx *gin.Context) {
 	list := []model.SysFileUpload{}
 
 	query := db.DB().Model(list).Where("cb = ?", request.JWTLoginUserId(ctx))
+	if qt, has := req.Query["tag"]; has && len(qt.([]interface{})) > 0 {
+		query = query.Where("tag in ?", qt)
+	}
 
 	if err := query.Count(&count).Error; err != nil {
 		response.FailWithMsg(ctx, err.Error())
