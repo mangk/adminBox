@@ -219,10 +219,8 @@ const delImage = (id) => {
       if (element.id == id) {
         multipleSelectModel.value.splice(index, 1)
         model.value = multipleSelectModel.value
-        return
       }
     }
-    console.log('删除', id)
     loadData()
   })
 }
