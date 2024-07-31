@@ -24,6 +24,7 @@ func init() {
 type front struct{}
 
 var frontIndexHanler func(ctx *gin.Context)
+var frontAdminxJsHandler func(ctx *gin.Context)
 
 func RewriteIndex(f func(ctx *gin.Context)) {
 	if config.ServerCfg().FrontRouterPrefix == "" {
@@ -35,6 +36,14 @@ func RewriteIndex(f func(ctx *gin.Context)) {
 		return
 	}
 	frontIndexHanler = f
+}
+
+func RewriteAdminxJs(f func(ctx *gin.Context)) {
+	if frontAdminxJsHandler != nil {
+		log.Error("frontIndexHanler has been set")
+		return
+	}
+	frontAdminxJsHandler = f
 }
 
 func (front) InitModule() {
@@ -64,9 +73,10 @@ func (front) InitModule() {
 
 	// 重写 adminx.js
 	root.GET(prefix+"/adminx.js", func(ctx *gin.Context) {
-		cfg := config.ServerCfg()
+		if frontAdminxJsHandler == nil {
+			cfg := config.ServerCfg()
 
-		ctx.Data(200, "text/javascript; charset=utf-8", []byte(fmt.Sprintf(`
+			ctx.Data(200, "text/javascript; charset=utf-8", []byte(fmt.Sprintf(`
         window.adminX = {
             Name: '%s',
             RunAt: '%s',
@@ -76,6 +86,9 @@ func (front) InitModule() {
 			Desc: '%s',
         }
 		`, cfg.Name, cfg.RunAt, cfg.BackendRouterPrefix, cfg.FrontRouterPrefix, cfg.Logo, cfg.Desc)))
+		} else {
+			frontAdminxJsHandler(ctx)
+		}
 	})
 
 	//admin.SetTmpStr(Convert)
