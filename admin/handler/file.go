@@ -66,8 +66,9 @@ func FileList(ctx *gin.Context) {
 		}
 	}
 
+	host := config.ServerCfg().RunAt
 	for i := range list {
-		list[i].Url = "http://127.0.0.1:8910" + list[i].Url // TODO 这里结合config 处理
+		list[i].Url = host + list[i].Url // TODO 这里结合config 处理
 	}
 
 	response.OkWithPageData(ctx, count, list)
