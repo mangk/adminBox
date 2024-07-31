@@ -140,7 +140,7 @@
             :src="form.avatar"
             :fit="'contain'"
           />
-          <FileUpload v-model="form.avatar" type="string">
+          <FileUpload v-model="form.avatar" :onlyPath="true">
             <el-icon
               style="
                 width: 75px;

@@ -1,7 +1,10 @@
 <template>
-  <div class="logo-box">
-    <img class="logo" :src="logo" alt="" />
-    <div class="logo-title" v-if="!isCollapse">{{ name }}</div>
+  <div>
+    <div class="logo-box">
+      <img class="logo" :src="logo" alt="" />
+      <div class="logo-title" v-if="!isCollapse">{{ name }}</div>
+    </div>
+    <div class="desc" v-if="!isCollapse">{{ desc }}</div>
   </div>
   <el-menu
     :default-active="$route.name"
@@ -30,6 +33,7 @@ import { useRouterStore } from '@/pinia/useRouterStore.js'
 
 const logo = ref(window.adminX.Logo ? window.adminX.Logo : './images/logo.png')
 const name = ref(window.adminX.Name)
+const desc = ref(window.adminX.Desc ? window.adminX.Desc : '')
 
 const isCollapse = ref(false)
 
@@ -57,27 +61,36 @@ window.onresize = () => {
   height: calc(var(--global-header-height) - var(--global-padding) * 2);
   line-height: calc(var(--global-header-height) - var(--global-padding) * 2);
   padding: var(--global-padding);
+  padding-bottom: 0;
   z-index: 2000;
   display: flex;
   flex-flow: row nowrap;
 }
 
+.logo {
+  padding: calc(var(--global-padding) / 2);
+}
+
 .logo-title {
-  margin-left: var(--global-padding);
-  display: inline-block;
+  font-family: emoji;
+  margin-left: calc(var(--global-padding) / 2);
+  /* display: inline-block; */
   color: #fff;
   font-weight: 600;
   font-size: 20px;
+  font-style: italic;
 }
 
-.logo {
-  width: calc(var(--global-header-height) - var(--global-padding) * 2.5);
-  height: calc(var(--global-header-height) - var(--global-padding) * 2.5);
-  margin-top: calc(var(--global-padding) * 0.5);
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid #fff;
-  box-sizing: border-box;
+.desc {
+  color: #eee;
+  font-size: 10px;
+  font-weight: 200;
+  margin-top: 5px;
+  text-align: justify;
+  text-align-last: justify;
+  text-align: justify;
+  text-justify: distribute-all-lines;
+  padding: 0 var(--global-padding);
 }
 
 .el-menu {

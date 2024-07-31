@@ -130,10 +130,10 @@ import { ElMessage } from 'element-plus'
 
 const userStore = useUserStore()
 
-const model = defineModel()
-const multiple = defineModel('multiple', { default: 1, type: Number })
-const onlyPath = defineModel('onlyPath', { default: false, type: Boolean })
-const suffixList = defineModel('suffixList', { default: [], type: Array })
+const model = defineModel() // 保存选择的数据
+const multiple = defineModel('multiple', { default: 1, type: Number }) // 是否多选
+const onlyPath = defineModel('onlyPath', { default: false, type: Boolean }) // 返回文件对象还是文件地址
+const suffixList = defineModel('suffixList', { default: [], type: Array }) // 过滤数据类型
 const multipleSelectModel = ref([])
 
 const uploadConfig = ref({})
@@ -167,6 +167,7 @@ const selectFile = (item) => {
       multipleSelectModel.value = [item]
     }
     model.value = multipleSelectModel.value
+    dataFormat()
     return
   }
 
@@ -175,6 +176,7 @@ const selectFile = (item) => {
     if (element.id == item.id) {
       multipleSelectModel.value.splice(index, 1)
       model.value = multipleSelectModel.value
+      dataFormat()
       return
     }
   }
@@ -186,6 +188,7 @@ const selectFile = (item) => {
 
   multipleSelectModel.value.push(item)
   model.value = multipleSelectModel.value
+  dataFormat()
 }
 
 const checkSelect = (id) => {
@@ -244,6 +247,11 @@ const showDrawer = () => {
 }
 
 const handleClose = () => {
+  dataFormat()
+  show.value = false
+}
+
+const dataFormat = () => {
   if (multipleSelectModel.value.length) {
     if (onlyPath.value) {
       if (multiple.value == 1) {
@@ -258,7 +266,6 @@ const handleClose = () => {
       }
     }
   }
-  show.value = false
 }
 </script>
 <style lang="scss">

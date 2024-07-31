@@ -72,8 +72,10 @@ func (front) InitModule() {
             RunAt: '%s',
             BackendPrefix: '%s',
             FrontPrefix: '%s',
+			Logo: '%s',
+			Desc: '%s',
         }
-		`, cfg.Name, cfg.RunAt, cfg.BackendRouterPrefix, cfg.FrontRouterPrefix)))
+		`, cfg.Name, cfg.RunAt, cfg.BackendRouterPrefix, cfg.FrontRouterPrefix, cfg.Logo, cfg.Desc)))
 	})
 
 	//admin.SetTmpStr(Convert)

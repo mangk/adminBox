@@ -72,6 +72,5 @@ const logout = () => {
 
 .el-avatar {
   --el-avatar-size: calc(var(--global-header-height) - var(--global-padding) * 2);
-  padding: 5px;
 }
 </style>

@@ -2,6 +2,8 @@ package config
 
 type server struct {
 	Name                string `json:"name" yaml:"name"`
+	Desc                string `json:"desc" yaml:"desc"`
+	Logo                string `json:"logo" yaml:"logo"`
 	Env                 string `json:"env" yaml:"env"`                                 // 运行环境
 	Host                string `json:"host" yaml:"host"`                               // 监听地址
 	Port                int    `json:"port" yaml:"port"`                               // 端口值
