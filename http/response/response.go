@@ -1,17 +1,19 @@
 package response
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/http/request"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/mangk/adminX/http/request"
 )
 
 type Response struct {
-	Code int         `json:"code"`
-	Msg  string      `json:"msg"`
-	Data interface{} `json:"data,omitempty"`
-	T    int64       `json:"t"`
+	Code           int         `json:"code"`
+	Msg            string      `json:"msg"`
+	MsgShowTimeout int64       `json:"msg_show_timeout,omitempty"`
+	Data           interface{} `json:"data,omitempty"`
+	T              int64       `json:"t"`
 }
 
 type PageData struct {
@@ -30,92 +32,62 @@ const (
 )
 
 func Ok(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: SuccessStatus,
-		Msg:  MsgOK,
-		T:    time.Now().Unix(),
-	})
+	jsonResponse(ctx, SuccessStatus, MsgOK, nil)
 }
 
-func OkWithMsg(ctx *gin.Context, msg string) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: SuccessStatus,
-		Msg:  msg,
-		T:    time.Now().Unix(),
-	})
+func OkWithMsg(ctx *gin.Context, msg string, showTime ...int64) {
+	jsonResponse(ctx, SuccessStatus, msg, nil, showTime...)
 }
 
 func OkWithData(ctx *gin.Context, data interface{}) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: SuccessStatus,
-		Msg:  MsgOK,
-		Data: data,
-		T:    time.Now().Unix(),
-	})
+	jsonResponse(ctx, SuccessStatus, MsgOK, data)
 }
 
-func OkWithDetail(ctx *gin.Context, msg string, data interface{}) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: SuccessStatus,
-		Msg:  msg,
-		Data: data,
-		T:    time.Now().Unix(),
-	})
+func OkWithDetail(ctx *gin.Context, msg string, data interface{}, showTime ...int64) {
+	jsonResponse(ctx, SuccessStatus, msg, data, showTime...)
 }
 
 func OkWithPageData(ctx *gin.Context, count int64, data interface{}) {
 	req := request.PublicRequest(ctx)
-	ctx.JSON(http.StatusOK, Response{
-		Code: SuccessStatus,
-		Msg:  MsgOK,
-		Data: PageData{
-			List:     data,
-			PageSize: int64(req.PageSize),
-			Page:     int64(req.Page),
-			Total:    count,
-		},
-		T: time.Now().Unix(),
+	jsonResponse(ctx, SuccessStatus, MsgOK, PageData{
+		List:     data,
+		PageSize: int64(req.PageSize),
+		Page:     int64(req.Page),
+		Total:    count,
 	})
 }
 
 func Fail(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: FailStatus,
-		Msg:  MsgFail,
-		T:    time.Now().Unix(),
-	})
+	jsonResponse(ctx, FailStatus, MsgFail, nil)
 }
 
-func FailWithMsg(ctx *gin.Context, msg string) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: FailStatus,
-		Msg:  msg,
-		T:    time.Now().Unix(),
-	})
+func FailWithMsg(ctx *gin.Context, msg string, showTime ...int64) {
+	jsonResponse(ctx, FailStatus, msg, nil, showTime...)
 }
 
 func FailWithData(ctx *gin.Context, data interface{}) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: FailStatus,
-		Msg:  MsgFail,
-		Data: data,
-		T:    time.Now().Unix(),
-	})
+	jsonResponse(ctx, FailStatus, MsgFail, data)
 }
 
-func FailWithDetail(ctx *gin.Context, msg string, data interface{}) {
-	ctx.JSON(http.StatusOK, Response{
-		Code: FailStatus,
-		Msg:  msg,
-		Data: data,
-		T:    time.Now().Unix(),
-	})
+func FailWithDetail(ctx *gin.Context, msg string, data interface{}, showTime ...int64) {
+	jsonResponse(ctx, FailStatus, msg, data, showTime...)
 }
 
 func FailWithCode(ctx *gin.Context, code int, msg string) {
-	ctx.JSON(code, Response{
-		Code: code,
-		Msg:  msg,
-		T:    time.Now().Unix(),
+	jsonResponse(ctx, code, msg, nil)
+}
+
+func jsonResponse(ctx *gin.Context, code int, msg string, data interface{}, showTime ...int64) {
+	var st int64 = 0
+	if len(showTime) > 0 && showTime[0] > 0 {
+		st = showTime[0]
+	}
+
+	ctx.JSON(http.StatusOK, Response{
+		Code:           code,
+		Msg:            msg,
+		MsgShowTimeout: st,
+		Data:           data,
+		T:              time.Now().Unix(),
 	})
 }
