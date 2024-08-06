@@ -63,7 +63,8 @@ export const useUserStore = defineStore('user', () => {
 
   const logOut = () => {
     localStorage.clear()
-    router.replace({ name: 'login' })
+    window.location.href = window.location.origin
+    // router.replace({ name: 'login' })
   }
 
   return {
