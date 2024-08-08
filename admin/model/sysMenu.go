@@ -38,6 +38,16 @@ func (s SysMenu) TableName() string {
 	return "sys_menu"
 }
 
+func (s SysMenu) All(loadSystem bool) []SysMenu {
+	list := []SysMenu{}
+	db.DB().Find(&list)
+
+	if loadSystem {
+		list = append(list, s.SystemMenu()...)
+	}
+	return list
+}
+
 func (s SysMenu) Tree(loadSystem, withApi, buildTree bool, userid ...int) ([]SysMenu, error) {
 	menus := []SysMenu{}
 	db.DB().Find(&menus)

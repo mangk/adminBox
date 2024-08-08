@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -89,11 +90,37 @@ func AuthUserPermission(ctx *gin.Context) {
 }
 
 func AuthPermissionAll(ctx *gin.Context) {
-	if data, err := (model.SysMenu{}).Tree(true, true, true); err != nil {
-		response.FailWithMsg(ctx, err.Error())
-	} else {
-		response.OkWithData(ctx, data)
+	list := []Item{}
+
+	for _, menu := range (model.SysMenu{}).All(true) {
+		list = append(list, Item{
+			ID:     fmt.Sprintf("menu%s%d", split, menu.ID),
+			Pid:    fmt.Sprintf("menu%s%d", split, menu.Pid),
+			Name:   menu.Meta.Title,
+			Type:   "menu",
+			SelfID: menu.ID,
+		})
 	}
+
+	for _, api := range (model.SysApi{}).All(true) {
+		list = append(list, Item{
+			ID:     fmt.Sprintf("api%s%d", split, api.ID),
+			Pid:    fmt.Sprintf("menu%s%d", split, api.MenuId),
+			Name:   api.Name,
+			Type:   "api",
+			SelfID: api.ID,
+		})
+	}
+
+	d, _ := Item{}.buildTree(list)
+
+	root := Item{
+		Name:     "根目录",
+		Children: d,
+	}
+	withRoot := []Item{}
+	withRoot = append(withRoot, root)
+	response.OkWithData(ctx, withRoot)
 }
 
 func AuthPermissionGetByIdAndModule(ctx *gin.Context) {
@@ -180,4 +207,36 @@ func AuthPermissionSave(ctx *gin.Context) {
 	}
 
 	response.Ok(ctx)
+}
+
+var split = "|"
+
+type Item struct {
+	ID       string `json:"id"`
+	SelfID   int    `json:"selfId"`
+	Pid      string `json:"pid"`
+	Name     string `json:"name"`
+	Type     string `json:"type"`
+	Children []Item `json:"children"`
+}
+
+func (s Item) buildTree(menuList []Item) ([]Item, error) {
+	var err error
+	treeMap := make(map[string][]Item)
+	for _, v := range menuList {
+		treeMap[v.Pid] = append(treeMap[v.Pid], v)
+	}
+	resMenuList := treeMap["menu"+split+"0"]
+	for i := 0; i < len(resMenuList); i++ {
+		err = s.getBaseChildrenList(&resMenuList[i], treeMap)
+	}
+	return resMenuList, err
+}
+
+func (s Item) getBaseChildrenList(menu *Item, treeMap map[string][]Item) (err error) {
+	menu.Children = treeMap[menu.ID]
+	for i := 0; i < len(menu.Children); i++ {
+		err = s.getBaseChildrenList(&menu.Children[i], treeMap)
+	}
+	return err
 }

@@ -18,150 +18,54 @@
       <el-table-column label="菜单 · API · 动作" width="190px" fixed>
         <template #default="scope">
           <el-icon>
-            <Menu />
+            <Menu v-if="scope.row.type == 'menu'" />
+            <Link v-if="scope.row.type == 'api'" />
+            <Pointer v-if="scope.row.type == 'action'" />
           </el-icon>
-          {{ scope.row.meta.title }}
-          <div class="select-item-box" v-for="api in scope.row.meta.api_list" :key="api.id">
-            <el-icon>
-              <Link />
-            </el-icon>
-            {{ api.name }}
-          </div>
-          <div
-            class="select-item-box"
-            v-for="(value, key) in scope.row.meta.action_list"
-            :key="key"
-          >
-            <el-icon>
-              <Cherry />
-            </el-icon>
-            {{ value }}
-          </div>
+          {{ scope.row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="结果展示" fixed width="70px">
+
+      <el-table-column label="结果展示" fixed width="80px">
         <template #default="scope">
-          <div class="select-item-box with-out-border-top">
-            <el-icon style="color: #67c23a" v-if="permissionResult[`menu|${scope.row.id}`] > 0">
-              <Check />
-            </el-icon>
-            <el-icon style="color: #f56c6c" v-if="permissionResult[`menu|${scope.row.id}`] < 0">
-              <Close />
-            </el-icon>
-          </div>
-          <div class="select-item-box" v-for="api in scope.row.meta.api_list" :key="api.id">
-            <el-icon style="color: #67c23a" v-if="permissionResult[`api|${api.id}`] > 0">
-              <Check />
-            </el-icon>
-            <el-icon style="color: #f56c6c" v-if="permissionResult[`api|${api.id}`] < 0">
-              <Close />
-            </el-icon>
-          </div>
-          <div
-            class="select-item-box"
-            v-for="(value, key) in scope.row.meta.action_list"
-            :key="key"
-          >
-            <el-icon style="color: #67c23a" v-if="permissionResult[`action|${key}`] > 0">
-              <Check />
-            </el-icon>
-            <el-icon style="color: #f56c6c" v-if="permissionResult[`action|${key}`] < 0">
-              <Close />
-            </el-icon>
-          </div>
+          <el-icon style="color: #67c23a" v-if="permissionResult[scope.row.id] > 0">
+            <Check />
+          </el-icon>
+          <el-icon style="color: #f56c6c" v-if="permissionResult[scope.row.id] < 0">
+            <Close />
+          </el-icon>
         </template>
       </el-table-column>
 
       <el-table-column label="当前设置" fixed width="220px">
         <template #default="scope">
-          <div class="select-item-box with-out-border-top">
-            <el-radio-group v-model="permissionSet[`menu|${scope.row.id}`]">
-              <el-radio size="small" :value="1">允许</el-radio>
-              <el-radio size="small" :value="-1">拒绝</el-radio>
-              <el-radio size="small" :value="0">不限</el-radio>
-            </el-radio-group>
-          </div>
-          <div class="select-item-box" v-for="api in scope.row.meta.api_list" :key="api.id">
-            <el-radio-group v-model="permissionSet[`api|${api.id}`]">
-              <el-radio size="small" :value="1">允许</el-radio>
-              <el-radio size="small" :value="-1">拒绝</el-radio>
-              <el-radio size="small" :value="0">不限</el-radio>
-            </el-radio-group>
-          </div>
-          <div
-            class="select-item-box"
-            v-for="(value, key) in scope.row.meta.action_list"
-            :key="key"
-          >
-            <el-radio-group v-model="permissionSet[`action|${key}`]">
-              <el-radio size="small" :value="1">允许</el-radio>
-              <el-radio size="small" :value="-1">拒绝</el-radio>
-              <el-radio size="small" :value="0">不限</el-radio>
-            </el-radio-group>
-          </div>
+          <el-radio-group v-model="permissionSet[scope.row.id]">
+            <el-radio size="small" :value="1">允许</el-radio>
+            <el-radio size="small" :value="-1">拒绝</el-radio>
+            <el-radio size="small" :value="0">不限</el-radio>
+          </el-radio-group>
         </template>
       </el-table-column>
 
       <el-table-column
         v-for="(item, index) in permissionOther"
+        width="120px"
         :key="index"
         :label="item.record_name"
       >
         <template #default="scope">
-          <div class="select-item-box with-out-border-top">
-            <el-icon
-              style="color: #67c23a"
-              v-if="
-                item.list &&
-                item.list[`menu|${scope.row.id}`] &&
-                item.list[`menu|${scope.row.id}`] > 0
-              "
-            >
-              <Check />
-            </el-icon>
-            <el-icon
-              style="color: #f56c6c"
-              v-if="
-                item.list &&
-                item.list[`menu|${scope.row.id}`] &&
-                item.list[`menu|${scope.row.id}`] < 0
-              "
-            >
-              <Close />
-            </el-icon>
-          </div>
-          <div class="select-item-box" v-for="api in scope.row.meta.api_list" :key="api.id">
-            <el-icon
-              style="color: #67c23a"
-              v-if="item.list && item.list[`api|${api.id}`] && item.list[`api|${api.id}`] > 0"
-            >
-              <Check />
-            </el-icon>
-            <el-icon
-              style="color: #f56c6c"
-              v-if="item.list && item.list[`api|${api.id}`] && item.list[`api|${api.id}`] < 0"
-            >
-              <Close />
-            </el-icon>
-          </div>
-          <div
-            class="select-item-box"
-            v-for="(value, key) in scope.row.meta.action_list"
-            :key="key"
+          <el-icon
+            style="color: #67c23a"
+            v-if="item.list && item.list[scope.row.id] && item.list[scope.row.id] > 0"
           >
-            <el-icon
-              style="color: #67c23a"
-              v-if="item.list && item.list[`action|${key}`] && item.list[`action|${key}`] > 0"
-            >
-              <Check />
-            </el-icon>
-            <el-icon
-              style="color: #f56c6c"
-              v-if="item.list && item.list[`action|${key}`] && item.list[`action|${key}`] < 0"
-            >
-              <Close />
-            </el-icon>
-          </div>
+            <Check />
+          </el-icon>
+          <el-icon
+            style="color: #f56c6c"
+            v-if="item.list && item.list[scope.row.id] && item.list[scope.row.id] < 0"
+          >
+            <Close />
+          </el-icon>
         </template>
       </el-table-column>
     </el-table>
@@ -312,10 +216,7 @@ const closeDrawer = () => {
 
 <style scoped>
 :deep(.cell) {
-  padding: 0;
-  text-align: left;
-  min-height: 30px;
-  line-height: 30px;
+  padding: 0 10px;
 }
 
 :deep(.el-table__cell) {
