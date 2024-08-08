@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/mangk/adminX/config"
 	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/utils"
+	"github.com/mangk/adminX/util"
 	"io"
 	"mime/multipart"
 	"os"
@@ -25,7 +25,7 @@ func (l *Local) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (str
 	ext := path.Ext(file.Filename)
 	// 读取文件名并加密
 	name := strings.TrimSuffix(file.Filename, ext)
-	name = utils.MD5V([]byte(name))
+	name = util.MD5V([]byte(name))
 	// 拼接新文件名
 	filename := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
 	if len(keyPrefix) > 0 {

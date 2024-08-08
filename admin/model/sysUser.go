@@ -10,7 +10,7 @@ import (
 	"github.com/mangk/adminX/cache"
 	"github.com/mangk/adminX/db"
 	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/utils"
+	"github.com/mangk/adminX/util"
 	"gorm.io/gorm"
 )
 
@@ -141,7 +141,7 @@ func (s SysUser) Login(username, password string) (user SysUser, err error) {
 
 	password = user.Salt + password + user.Salt + user.Salt + user.Salt // 密码混淆规则
 
-	if ok := utils.BcryptCheck(password, user.Password); !ok {
+	if ok := util.BcryptCheck(password, user.Password); !ok {
 		err = errors.New("用户名或密码错误")
 		return
 	}

@@ -8,7 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/utils"
+	"github.com/mangk/adminX/util"
 )
 
 func NewJWT(signingKey []byte) *JWT {
@@ -30,8 +30,8 @@ type jwtUserInfo struct {
 }
 
 func (j *JWT) Create(user SysUser, config config.JWT) (string, error) {
-	bf, _ := utils.ParseDuration(config.BufferTime)
-	ep, _ := utils.ParseDuration(config.ExpiresTime)
+	bf, _ := util.ParseDuration(config.BufferTime)
+	ep, _ := util.ParseDuration(config.ExpiresTime)
 	j.Data.UserId = user.ID
 	j.Data.Username = user.Username
 	j.Data.NickName = user.NickName
