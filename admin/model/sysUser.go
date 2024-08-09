@@ -40,6 +40,7 @@ type UserConfig struct {
 	BaseColor   string `json:"base_color"`
 	ActiveColor string `json:"active_color"`
 	HomePage    string `json:"home_page"`
+	Theme       string `json:"theme"`
 }
 
 func (s SysUser) cacheKey(id int) string {

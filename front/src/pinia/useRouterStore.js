@@ -14,19 +14,27 @@ export const useRouterStore = defineStore('router', () => {
   const serverRouter = ref([])
   // 加载服务端路由
   const loadServerRouter = async (refresh = false) => {
+    const userStore = useUserStore()
     if (refresh || initialized.value === 0) {
       initialized.value = 1
-      const userStore = useUserStore()
       const permissionData = await userPermission()
       serverRouter.value = permissionData.data.menu[0].children
       userStore.setUserData(permissionData.data.user)
       formatRouter(serverRouter.value)
     }
+
+    let u = userStore.userInfo()
+
+    let styleMap = {
+      default: importView('views/main/styleDefault.vue'),
+      white: importView('views/main/styleWhite.vue')
+    }
+
     router.addRoute({
       path: '/' + prefix,
       name: prefix,
       meta: { icon: 'add' },
-      component: importView('views/main/styleDefault.vue'), // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
+      component: styleMap[u.user_config.theme ? u.user_config.theme : 'default'], // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
       children: serverRouter.value
     })
     return serverRouter.value

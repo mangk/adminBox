@@ -482,10 +482,9 @@ li {
 }
 
 .main-content {
-  margin: var(--global-padding);
   padding: var(--global-padding);
   position: relative;
-  background-color: var(--global-content-bg);
+  height: calc(100% - var(--global-padding) * 2);
 }
 
 .el-form-item {

@@ -13,7 +13,7 @@
       </template>
       <MenuTree :menus="menu.children"></MenuTree>
     </el-sub-menu>
-    <el-menu-item v-else-if="!menu.hidden" :index="menu.name" :key="menu.id" :route="menu">
+    <el-menu-item v-else-if="!menu.hidden" :index="menu.name" :route="menu">
       <el-icon v-if="menu.meta.icon">
         <component :is="menu.meta.icon" />
       </el-icon>
