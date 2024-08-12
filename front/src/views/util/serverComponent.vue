@@ -1,5 +1,5 @@
 <template>
-  <div id="serverComponent">
+  <div class="serverComponent">
     <ServerComponent />
   </div>
 </template>
@@ -12,4 +12,12 @@ const route = useRoute()
 const { proxy } = getCurrentInstance()
 const ServerComponent = proxy.$loadTMPL(route.meta.sc_path)
 </script>
-<style scoped></style>
+<style scoped>
+.serverComponent {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+</style>

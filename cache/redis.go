@@ -27,11 +27,12 @@ func RedisDel(key string) {
 	Redis().Del(ctx, key)
 }
 
-func RedisHasOrQuery(key string, queryFunc func() string, exp time.Duration) string {
+func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duration)) string {
 	data := RedisStrGet(key)
 	if data == "" {
-		data = queryFunc()
-		RedisStrSet(key, data, exp)
+		d, exp := queryFunc()
+		RedisStrSet(key, d, exp)
+		data = d
 	}
 
 	return data

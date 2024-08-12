@@ -52,10 +52,10 @@ func (s SysUser) TableName() string {
 }
 
 func (s SysUser) Detail(id int) (user SysUser, err error) {
-	data := cache.RedisHasOrQuery(s.cacheKey(id), func() string {
+	data := cache.RedisHasOrQuery(s.cacheKey(id), func() (data string, exp time.Duration) {
 		if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil {
 			log.Error(err.Error())
-			return ""
+			return "", time.Hour * 4
 		}
 
 		for _, v := range user.DepartmentList {
@@ -69,11 +69,11 @@ func (s SysUser) Detail(id int) (user SysUser, err error) {
 		d, err := json.Marshal(user)
 		if err != nil {
 			log.Error(err.Error())
-			return ""
+			return "", time.Hour * 4
 		}
 
-		return string(d)
-	}, time.Hour*4)
+		return string(d), time.Hour * 4
+	})
 
 	err = json.Unmarshal([]byte(data), &user)
 	return

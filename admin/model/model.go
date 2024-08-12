@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -11,6 +12,11 @@ import (
 	"github.com/mangk/adminX/log"
 	"gorm.io/gorm"
 )
+
+type M interface {
+	GetId() int
+	TableName() string
+}
 
 type Model struct {
 	ID int `json:"id" gorm:"type:int(11);primaryKey;comment:主键" uri:"id"`
@@ -28,8 +34,12 @@ type Model struct {
 	DbName string `json:"db_name,omitempty" gorm:"-:all"` // 删除者
 }
 
+func (m Model) GetId() int {
+	return m.ID
+}
+
 // 指定 driver 直接执行 sql 并将结果作为 map 返回
-func (b Model) SQLQuery(driver, sql string) (data []map[string]interface{}, err error) {
+func (Model) SQLQuery(driver, sql string) (data []map[string]interface{}, err error) {
 	log.Infof(fmt.Sprintf("SQLQuery: [%s] [%s]", driver, sql))
 	mdb, _ := db.DB(driver).DB()
 	dbObj, err := mdb.Prepare(sql)
@@ -244,4 +254,35 @@ func Find(tx *gorm.DB) (data []map[string]interface{}, err error) {
 	}
 
 	return
+}
+
+func DetailWithCache(record M, id int, exp time.Duration) error {
+	msg := "record not found"
+	data := cache.RedisHasOrQuery(detailCacheKeyBuild(record, id), func() (data string, exp time.Duration) {
+		if err := db.DB().First(record, "id = ?", id).Error; err != nil && err != gorm.ErrRecordNotFound {
+			log.Infof("[DetailWithCache]query Error: %s", err)
+			return "", 0
+		}
+		if record.GetId() == 0 {
+			return msg, exp
+		}
+
+		d, _ := json.Marshal(record)
+
+		return string(d), exp
+	})
+	
+	if data == msg {
+		return errors.New(data)
+	}
+
+	return json.Unmarshal([]byte(data), record)
+}
+
+func DetailCacheDel(record M, id int) {
+	cache.RedisDel(detailCacheKeyBuild(record, id))
+}
+
+func detailCacheKeyBuild(record M, id int) string {
+	return fmt.Sprintf("model:%s:%d", record.TableName(), id)
 }

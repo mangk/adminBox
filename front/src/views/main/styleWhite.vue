@@ -78,13 +78,19 @@ body {
   height: 100%;
 }
 
+#app {
+  min-width: 1200px;
+  overflow-x: scroll;
+}
+
 .el-header,
 .el-aside,
 .el-main {
-  margin: 0;
-  padding: 5px;
+  margin: 5px;
+  padding: 0px;
   overflow: hidden;
   overflow-y: scroll;
+  border-radius: 12px;
 }
 
 .el-header {
@@ -94,12 +100,10 @@ body {
   justify-content: space-between;
 }
 
-.el-aside {
-  width: auto;
-}
-
+.el-aside,
 .el-main {
-  height: calc(100vh - 50px - 5px);
+  width: auto;
+  height: calc(100vh - 50px - 10px);
 }
 
 .el-menu.el-menu--vertical {
@@ -132,8 +136,6 @@ body {
 
 .app-content {
   height: 100%;
-  background-color: #fff;
-  border-radius: 12px;
 }
 
 :root {

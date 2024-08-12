@@ -39,12 +39,6 @@ func RoleUserId(ctx *gin.Context) int {
 	return ctx.GetInt(ContextRoleUserIdKey)
 }
 
-// 结合数据库获取用户最新信息
-func RoleUserFetch(ctx *gin.Context) model.SysUser {
-	u, _ := model.SysUser{}.Detail(ctx.MustGet(ContextRoleUserIdKey).(int))
-	return u
-}
-
 // 身份用类型
 func RoleUserType(ctx *gin.Context) string {
 	return ctx.GetString(ContextRoleUserTypeKey)
