@@ -23,17 +23,18 @@ func (s SysCasbinRole) UpdateCasbin(authorityId int) error {
 		return err
 	}
 
-	e := LoadEnforce()
-	success, _ := e.AddPolicies(rules)
-	if !success {
-		return errors.New("存在相同api,添加失败,请联系管理员")
-	}
+	if len(rules) > 0 {
+		e := LoadEnforce()
+		success, _ := e.AddPolicies(rules)
+		if !success {
+			return errors.New("存在相同api,添加失败,请联系管理员")
+		}
 
-	err = e.LoadPolicy()
-	if err != nil {
-		return err
+		err = e.LoadPolicy()
+		if err != nil {
+			return err
+		}
 	}
-
 	return nil
 }
 

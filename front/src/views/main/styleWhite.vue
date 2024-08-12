@@ -1,7 +1,7 @@
 <template>
   <el-container>
     <el-header v-if="!$route.meta.default_menu">
-      <img class="logo" :src="logo" alt="" style="height: 46px" />
+      <img class="logo" :src="logo" alt="" style="height: 40px" />
       <div style="display: flex; flex-flow: row nowrap; align-items: center">
         <div
           style="
@@ -26,7 +26,7 @@
         <el-button link @click="logout" style="color: #9b9faa; font-size: 12px">退出</el-button>
       </div>
     </el-header>
-    <el-container>
+    <el-container class="main">
       <el-aside v-if="!$route.meta.default_menu">
         <el-menu
           :default-active="$route.name"
@@ -38,7 +38,6 @@
         >
           <MenuTree :menus="menuList" />
         </el-menu>
-
         <Aside />
       </el-aside>
       <el-main>
@@ -89,6 +88,7 @@ body {
 }
 
 .el-header {
+  --el-header-height: none;
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
@@ -99,7 +99,7 @@ body {
 }
 
 .el-main {
-  height: calc(100vh - 66px);
+  height: calc(100vh - 50px - 5px);
 }
 
 .el-menu.el-menu--vertical {
@@ -120,6 +120,7 @@ body {
   height: auto;
   line-height: 50px;
 }
+
 .el-menu-item:hover {
   background: linear-gradient(to right, #eff2f8, #fff);
 }
@@ -133,5 +134,13 @@ body {
   height: 100%;
   background-color: #fff;
   border-radius: 12px;
+}
+
+:root {
+  --el-color-primary: #2473ff;
+
+  .el-button {
+    border-radius: 3px;
+  }
 }
 </style>
