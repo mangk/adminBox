@@ -24,7 +24,7 @@ func AuthLogin(ctx *gin.Context) {
 	}{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -35,20 +35,20 @@ func AuthLogin(ctx *gin.Context) {
 
 	user, err := model.SysUser{}.Login(req.Username, req.Password)
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	jwtToken, err := model.NewJWT([]byte(config.JwtCfg().SigningKey)).Create(user, config.JwtCfg())
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	user.JwtToken = jwtToken
 
 	if err := (model.SysCasbinRole{}).UpdateCasbin(user.ID); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -79,7 +79,7 @@ func AuthUserPermission(ctx *gin.Context) {
 	user := request.JWTLoginUserFetch(ctx)
 	tree, err := (model.SysMenu{}).Tree(true, false, true, user.ID)
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -130,13 +130,13 @@ func AuthPermissionGetByIdAndModule(ctx *gin.Context) {
 	}{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	curSet, resultSet, otherSetList, err := (model.SysAuth{}).LoadDetail(req.Id, req.Module)
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -155,7 +155,7 @@ func AuthPermissionSave(ctx *gin.Context) {
 	}{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -202,7 +202,7 @@ func AuthPermissionSave(ctx *gin.Context) {
 		return nil
 	})
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 

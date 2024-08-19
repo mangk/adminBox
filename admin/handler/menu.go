@@ -15,26 +15,26 @@ func Menu(ctx *gin.Context) {
 	}{}
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if tree, err := (model.SysMenu{}).Tree(req.LoadSystem, false, true); err == nil {
 		response.OkWithData(ctx, tree)
 	} else {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 	}
 }
 
 func MenuCreate(ctx *gin.Context) {
 	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Create(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -44,12 +44,12 @@ func MenuCreate(ctx *gin.Context) {
 func MenuDetail(ctx *gin.Context) {
 	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Where("id = ?", req.ID).First(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -59,7 +59,7 @@ func MenuDetail(ctx *gin.Context) {
 func MenuEdit(ctx *gin.Context) {
 	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -81,7 +81,7 @@ func MenuEdit(ctx *gin.Context) {
 	update["action_list"] = string(al)
 
 	if err := db.DB().Model(&req).Where("id = ?", req.ID).Updates(update).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -90,7 +90,7 @@ func MenuEdit(ctx *gin.Context) {
 func MenuDelete(ctx *gin.Context) {
 	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -107,7 +107,7 @@ func MenuDelete(ctx *gin.Context) {
 	}
 
 	if err := db.DB().Delete(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 

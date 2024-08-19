@@ -11,19 +11,19 @@ func Department(ctx *gin.Context) {
 	if tree, err := (model.SysDepartment{}).All(); err == nil {
 		response.OkWithData(ctx, tree)
 	} else {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 	}
 }
 
 func DepartmentCreate(ctx *gin.Context) {
 	req := model.SysDepartment{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Create(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -33,12 +33,12 @@ func DepartmentCreate(ctx *gin.Context) {
 func DepartmentDetail(ctx *gin.Context) {
 	req := model.SysDepartment{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Where("id = ?", req.ID).First(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -48,7 +48,7 @@ func DepartmentDetail(ctx *gin.Context) {
 func DepartmentEdit(ctx *gin.Context) {
 	req := model.SysDepartment{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -59,7 +59,7 @@ func DepartmentEdit(ctx *gin.Context) {
 	update["description"] = req.Description
 
 	if err := db.DB().Model(&req).Where("id = ?", req.ID).Updates(update).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -68,7 +68,7 @@ func DepartmentEdit(ctx *gin.Context) {
 func DepartmentDelete(ctx *gin.Context) {
 	req := model.SysDepartment{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -85,7 +85,7 @@ func DepartmentDelete(ctx *gin.Context) {
 	}
 
 	if err := db.DB().Delete(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 

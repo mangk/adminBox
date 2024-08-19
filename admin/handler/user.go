@@ -18,13 +18,13 @@ func User(ctx *gin.Context) {
 	query := db.DB().Model(list) // TODO 补充搜索条件
 
 	if err := query.Count(&count).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if count > 0 {
 		if err := query.Limit(req.PageSize).Offset(req.PageSize * (req.Page - 1)).Find(&list).Error; err != nil {
-			response.FailWithMsg(ctx, err.Error())
+			response.FailWithError(ctx, err)
 			return
 		}
 	}
@@ -35,13 +35,13 @@ func User(ctx *gin.Context) {
 func UserCreate(ctx *gin.Context) {
 	req := model.SysUser{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 	req.UUID = uuid.New()
 
 	if err := db.DB().Create(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -51,17 +51,17 @@ func UserCreate(ctx *gin.Context) {
 func UserEdit(ctx *gin.Context) {
 	req := model.SysUser{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := (model.SysUser{}).Update(req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := (model.SysCasbinRole{}).UpdateCasbin(req.ID); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -75,13 +75,13 @@ func UserChangePassord(ctx *gin.Context) {
 func UserDetail(ctx *gin.Context) {
 	req := model.SysUser{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	user, err := model.SysUser{}.Detail(req.ID)
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -91,12 +91,12 @@ func UserDetail(ctx *gin.Context) {
 func UserDelete(ctx *gin.Context) {
 	req := model.SysUser{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Delete(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 

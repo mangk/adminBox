@@ -55,13 +55,13 @@ func FileList(ctx *gin.Context) {
 	}
 
 	if err := query.Count(&count).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if count > 0 {
 		if err := query.Order("id desc").Limit(req.PageSize).Offset(req.PageSize * (req.Page - 1)).Find(&list).Error; err != nil {
-			response.FailWithMsg(ctx, err.Error())
+			response.FailWithError(ctx, err)
 			return
 		}
 	}
@@ -92,7 +92,7 @@ func FileEdit(ctx *gin.Context) {
 	var file model.SysFileUpload
 	err := ctx.ShouldBindJSON(&file)
 	if err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 	err = file.EditFileName(file)

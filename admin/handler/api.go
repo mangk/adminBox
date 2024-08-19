@@ -17,13 +17,13 @@ func Api(ctx *gin.Context) {
 	query := db.DB().Model(list) // TODO 补充搜索条件
 
 	if err := query.Count(&count).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if count > 0 {
 		if err := query.Limit(req.PageSize).Offset(req.PageSize * (req.Page - 1)).Find(&list).Error; err != nil {
-			response.FailWithMsg(ctx, err.Error())
+			response.FailWithError(ctx, err)
 			return
 		}
 	}
@@ -41,12 +41,12 @@ func Api(ctx *gin.Context) {
 func ApiCreate(ctx *gin.Context) {
 	req := model.SysApi{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Create(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -56,7 +56,7 @@ func ApiCreate(ctx *gin.Context) {
 func ApiEdit(ctx *gin.Context) {
 	req := model.SysApi{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -69,7 +69,7 @@ func ApiEdit(ctx *gin.Context) {
 	update["method"] = req.Method
 
 	if err := db.DB().Model(&req).Where("id = ?", req.ID).Updates(update).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -79,12 +79,12 @@ func ApiEdit(ctx *gin.Context) {
 func ApiDetail(ctx *gin.Context) {
 	req := model.SysApi{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Where("id = ?", req.ID).First(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
@@ -95,12 +95,12 @@ func ApiDetail(ctx *gin.Context) {
 func ApiDelete(ctx *gin.Context) {
 	req := model.SysApi{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 
 	if err := db.DB().Delete(&req).Error; err != nil {
-		response.FailWithMsg(ctx, err.Error())
+		response.FailWithError(ctx, err)
 		return
 	}
 

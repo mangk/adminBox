@@ -65,6 +65,11 @@ func FailWithMsg(ctx *gin.Context, msg string, showTime ...int64) {
 	jsonResponse(ctx, FailStatus, msg, nil, showTime...)
 }
 
+func FailWithError(ctx *gin.Context, err error, showTime ...int64) {
+	// TODO 提供错误提示转换map
+	jsonResponse(ctx, FailStatus, err.Error(), nil, showTime...)
+}
+
 func FailWithData(ctx *gin.Context, data interface{}) {
 	jsonResponse(ctx, FailStatus, MsgFail, data)
 }

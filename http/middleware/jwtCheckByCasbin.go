@@ -45,7 +45,7 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 
 		access, err := model.LoadEnforce().Enforce(sub, obj, act)
 		if err != nil {
-			response.FailWithMsg(ctx, err.Error())
+			response.FailWithError(ctx, err)
 			ctx.Abort()
 			return
 		}
