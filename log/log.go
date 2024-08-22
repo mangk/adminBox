@@ -75,57 +75,57 @@ func Trace(traceKey ...string) *Log {
 
 // Log
 type Log struct {
-	callerSkip int
+	CallerSkip int
 	traceKey   string
 	Logger     *zap.Logger
 }
 
-func (l *Log) sugaredLogger() *zap.SugaredLogger {
+func (l *Log) SugaredLogger() *zap.SugaredLogger {
 	_l := _log.Logger.Sugar()
 	if l.traceKey != "" {
 		_l = _l.With("_trace", l.traceKey)
 	}
-	return _l.WithOptions(zap.AddCallerSkip(l.callerSkip))
+	return _l.WithOptions(zap.AddCallerSkip(l.CallerSkip))
 }
 
 func (l *Log) Info(msg string, keysAndValues ...interface{}) {
-	l.sugaredLogger().Infow(msg, keysAndValues...)
+	l.SugaredLogger().Infow(msg, keysAndValues...)
 }
 
 func (l *Log) Infof(format string, args ...interface{}) {
-	l.sugaredLogger().Infof(format, args...)
+	l.SugaredLogger().Infof(format, args...)
 }
 
 func (l *Log) Warn(msg string, keysAndValues ...interface{}) {
-	l.sugaredLogger().Warnw(msg, keysAndValues...)
+	l.SugaredLogger().Warnw(msg, keysAndValues...)
 }
 
 func (l *Log) Warnf(format string, args ...interface{}) {
-	l.sugaredLogger().Warnf(format, args...)
+	l.SugaredLogger().Warnf(format, args...)
 }
 
 func (l *Log) Debug(msg string, keysAndValues ...interface{}) {
-	l.sugaredLogger().Debugw(msg, keysAndValues...)
+	l.SugaredLogger().Debugw(msg, keysAndValues...)
 }
 
 func (l *Log) Debugf(format string, args ...interface{}) {
-	l.sugaredLogger().Debugf(format, args...)
+	l.SugaredLogger().Debugf(format, args...)
 }
 
 func (l *Log) Error(msg string, keysAndValues ...interface{}) {
-	l.sugaredLogger().Errorw(msg, keysAndValues...)
+	l.SugaredLogger().Errorw(msg, keysAndValues...)
 }
 
 func (l *Log) Errorf(format string, args ...interface{}) {
-	l.sugaredLogger().Errorf(format, args...)
+	l.SugaredLogger().Errorf(format, args...)
 }
 
 func (l *Log) Panic(msg string, keysAndValues ...interface{}) {
-	l.sugaredLogger().Panicw(msg, keysAndValues...)
+	l.SugaredLogger().Panicw(msg, keysAndValues...)
 }
 
 func (l *Log) Panicf(format string, args ...interface{}) {
-	l.sugaredLogger().Panicf(format, args...)
+	l.SugaredLogger().Panicf(format, args...)
 }
 
 // GormLogger
@@ -144,9 +144,9 @@ func (g *GormLogger) Printf(format string, args ...interface{}) {
 	if len(args) == 4 {
 		kv := []interface{}{}
 		kv = append(kv, "call", args[0], "cost", fmt.Sprintf("%.3fms", args[1]), "rows", args[2], "sql", args[3])
-		g.logger.sugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gorm", kv...)
+		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gorm", kv...)
 	} else {
-		g.logger.sugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof(format, args...)
+		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof(format, args...)
 	}
 }
 
@@ -164,9 +164,9 @@ func (g *GinLogger) Write(p []byte) (n int, err error) {
 	// TODO 这里处理的不够全面，不够深入 gin
 	args := []interface{}{}
 	if e := json.Unmarshal(p, &args); e == nil {
-		g.logger.sugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gin", args...)
+		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gin", args...)
 	} else {
-		g.logger.sugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof("%s", p)
+		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof("%s", p)
 	}
 	return
 }

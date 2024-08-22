@@ -1,10 +1,11 @@
 package log
 
 import (
-	"github.com/mangk/adminX/moduleRegister"
 	"os"
 	"path"
 	"time"
+
+	"github.com/mangk/adminX/moduleRegister"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/mangk/adminX/config"
@@ -69,7 +70,7 @@ func (log) InitModule() {
 
 	_log = &Log{
 		Logger:     logger,
-		callerSkip: 1,
+		CallerSkip: 1,
 	}
 }
 
