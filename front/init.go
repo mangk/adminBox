@@ -49,6 +49,7 @@ func (front) InitModule() {
 	}
 
 	root.GET("/", func(ctx *gin.Context) {
+		// TODO 使用重写后需要前端页面感知，不在展示登录页面，而是404 之类的
 		if frontIndexHanler != nil {
 			frontIndexHanler(ctx)
 		} else {
