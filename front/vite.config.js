@@ -5,7 +5,7 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: './', // index.html文件所在位置
+    base: '/', // index.html文件所在位置
     root: './', // js导入的资源路径，src
     plugins: [
         vue(),

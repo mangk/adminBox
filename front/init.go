@@ -34,7 +34,7 @@ func RewriteIndex(f func(ctx *gin.Context)) {
 
 func RewriteAdminxJs(f func(ctx *gin.Context)) {
 	if frontAdminxJsHandler != nil {
-		log.Error("frontIndexHanler has been set")
+		log.Error("RewriteAdminxJs has been set")
 		return
 	}
 	frontAdminxJsHandler = f
@@ -43,24 +43,33 @@ func RewriteAdminxJs(f func(ctx *gin.Context)) {
 func (front) InitModule() {
 	root := myHttp.HttpEngine()
 
-	prefix := strings.TrimRight(config.ServerCfg().FrontRouterPrefix, "/")
-	assets, _ := fs.Sub(frontFiles, "dist/assets")
-	root.StaticFS(prefix+"/assets", http.FS(assets))
+	indexPathPrefix := "_"
+	if config.ServerCfg().FrontRouterPrefix != "" {
+		indexPathPrefix = strings.TrimRight(config.ServerCfg().FrontRouterPrefix, "/")
+	}
 
-	images, _ := fs.Sub(frontFiles, "dist/images")
-	root.StaticFS(prefix+"/images", http.FS(images))
-
-	root.GET(prefix+"/", func(ctx *gin.Context) {
-		if frontIndexHanler == nil {
+	root.GET("/", func(ctx *gin.Context) {
+		if frontIndexHanler != nil {
+			frontIndexHanler(ctx)
+		} else {
 			d, _ := fs.ReadFile(frontFiles, "dist/index.html")
 			ctx.Data(200, "text/html; charset=utf-8", d)
-		} else {
-			frontIndexHanler(ctx)
 		}
 	})
 
+	root.GET(indexPathPrefix+"/", func(ctx *gin.Context) {
+		d, _ := fs.ReadFile(frontFiles, "dist/index.html")
+		ctx.Data(200, "text/html; charset=utf-8", d)
+	})
+
+	assets, _ := fs.Sub(frontFiles, "dist/assets")
+	root.StaticFS("/assets", http.FS(assets))
+
+	images, _ := fs.Sub(frontFiles, "dist/images")
+	root.StaticFS("/images", http.FS(images))
+
 	// 重写 adminx.js
-	root.GET(prefix+"/adminx.js", func(ctx *gin.Context) {
+	root.GET("/adminx.js", func(ctx *gin.Context) {
 		if frontAdminxJsHandler == nil {
 			cfg := config.ServerCfg()
 
