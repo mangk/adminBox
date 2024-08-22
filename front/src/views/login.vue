@@ -1,6 +1,6 @@
 <template>
   <div class="login-box">
-    <el-image src="./images/login_bg.png" />
+    <el-image src="/images/login_bg.png" />
     <div class="form-box">
       <el-form
         ref="formRef"
