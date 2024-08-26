@@ -47,6 +47,7 @@ func routerCreate() {
 	backend.POST("login", handler.AuthLogin)
 	backend.GET("logout", handler.AuthLogout)
 	backend.GET("verificationCode", handler.AuthVerificationCode)
+	backend.GET("isRewriteIndex", handler.IsRewriteIndex)
 
 	backend.Use(middleware.JWTCheckByCasbin())
 

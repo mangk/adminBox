@@ -33,7 +33,7 @@ func RewriteIndex(f func(ctx *gin.Context)) {
 }
 
 func IsRewriteIndex() bool {
-	return frontIndexHanler == nil
+	return frontIndexHanler != nil
 }
 
 func RewriteAdminxJs(f func(ctx *gin.Context)) {
@@ -44,13 +44,18 @@ func RewriteAdminxJs(f func(ctx *gin.Context)) {
 	frontAdminxJsHandler = f
 }
 
-func (front) InitModule() {
-	root := myHttp.HttpEngine()
-
+func LoadIndexPathPrefix() string {
 	indexPathPrefix := "_"
 	if config.ServerCfg().FrontRouterPrefix != "" {
 		indexPathPrefix = strings.TrimRight(config.ServerCfg().FrontRouterPrefix, "/")
 	}
+	return indexPathPrefix
+}
+
+func (front) InitModule() {
+	root := myHttp.HttpEngine()
+
+	indexPathPrefix := LoadIndexPathPrefix()
 
 	root.GET("/", func(ctx *gin.Context) {
 		// TODO 使用重写后需要前端页面感知，不在展示登录页面，而是404 之类的

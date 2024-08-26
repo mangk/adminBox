@@ -47,3 +47,10 @@ export const login = (data) => {
     data
   })
 }
+
+export const IsRewriteIndex = () => {
+  return http({
+    url: prefix + '/sys/isRewriteIndex',
+    method: 'GET'
+  })
+}

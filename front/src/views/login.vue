@@ -37,9 +37,9 @@
   </div>
 </template>
 <script setup>
-import { verificationCode } from '@/api/auth'
+import { IsRewriteIndex, verificationCode } from '@/api/auth'
 import { useUserStore } from '@/pinia/useUserStore'
-import { getCurrentInstance, reactive, ref, onMounted } from 'vue'
+import { getCurrentInstance, reactive, ref, onMounted, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()
@@ -86,6 +86,14 @@ const onSubmit = async (formEl) => {
     }
   })
 }
+
+onBeforeMount(() => {
+  IsRewriteIndex().then((res) => {
+    if (res.data) {
+      window.location.href = window.location.origin
+    }
+  })
+})
 
 onMounted(() => {
   if (userStroe.isLogIn()) {

@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import Nprogress from 'nprogress'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 import { loadBackendPrefix } from '@/utils/routerFormat.js'
+import { useUserStore } from '@/pinia/useUserStore'
 
 const prefix = loadBackendPrefix()
 
@@ -45,10 +46,16 @@ router.beforeEach(async (to, from) => {
   }
 
   const routerStore = useRouterStore()
+  const userStore = useUserStore()
   if (!routerStore.initialized) {
     await routerStore.loadServerRouter(true)
     return { path: to.path }
   }
+
+  if (!userStore.isLogIn()) {
+    userStore.logOut()
+  }
+
   return true
 })
 
