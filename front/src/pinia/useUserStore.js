@@ -61,6 +61,14 @@ export const useUserStore = defineStore('user', () => {
       : `/${backendPrefix}/welcome`
   }
 
+  const isLogIn = () => {
+    return (
+      localStorage.getItem(_tokenStorageKey) &&
+      localStorage.getItem(_userTypeStroageKey) &&
+      localStorage.getItem(_userIdStroageKey)
+    )
+  }
+
   const logOut = () => {
     localStorage.clear()
     window.location.href = window.location.origin
@@ -75,6 +83,7 @@ export const useUserStore = defineStore('user', () => {
     userType,
     userId,
     logIn,
-    logOut
+    logOut,
+    isLogIn
   }
 })

@@ -32,6 +32,10 @@ func RewriteIndex(f func(ctx *gin.Context)) {
 	frontIndexHanler = f
 }
 
+func IsRewriteIndex() bool {
+	return frontIndexHanler == nil
+}
+
 func RewriteAdminxJs(f func(ctx *gin.Context)) {
 	if frontAdminxJsHandler != nil {
 		log.Error("RewriteAdminxJs has been set")

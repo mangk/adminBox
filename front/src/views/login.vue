@@ -39,7 +39,7 @@
 <script setup>
 import { verificationCode } from '@/api/auth'
 import { useUserStore } from '@/pinia/useUserStore'
-import { getCurrentInstance, reactive, ref } from 'vue'
+import { getCurrentInstance, reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const { proxy } = getCurrentInstance()
@@ -80,13 +80,18 @@ const onSubmit = async (formEl) => {
         if (!toRouteName) {
           changeVerification()
         } else {
-          console.log('tototo', toRouteName)
           router.push(toRouteName)
         }
       })
     }
   })
 }
+
+onMounted(() => {
+  if (userStroe.isLogIn()) {
+    router.push({ path: '/' })
+  }
+})
 </script>
 <style lang="scss" scoped>
 .el-form-item {
