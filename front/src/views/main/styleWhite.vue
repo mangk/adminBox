@@ -137,9 +137,25 @@ body {
 .app-content {
   height: 100%;
 }
+.main-content,
+.content-box {
+  box-sizing: border-box;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
+  position: relative;
+}
 
 :root {
   --el-color-primary: #2473ff;
+  --global-table: calc(
+    100vh - var(--global-header-height) - var(--global-padding) * 4 - var(
+        --global-search-form-height
+      ) - var(--global-pagination-height)
+  );
 
   .el-button {
     border-radius: 3px;
