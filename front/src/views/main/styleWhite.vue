@@ -138,7 +138,7 @@ body {
 }
 
 #app {
-  min-width: 980px;
+  min-width: 750px;
   overflow-x: scroll;
 }
 
