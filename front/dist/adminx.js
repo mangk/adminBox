@@ -5,7 +5,7 @@ window.adminX = {
     /*** .writeByAdminX_config ***/
 }
 
-if (window.adminX.IsRewriteIndex && !(localStorage.getItem(_tokenStorageKey) && localStorage.getItem(_userTypeStroageKey) && localStorage.getItem(_userIdStroageKey))) {
+if (window.adminX.IsRewriteIndex && !(localStorage.getItem('x-token') && localStorage.getItem('x-user-type') && localStorage.getItem('x-user-id'))) {
     window.location.href = window.location.origin
 }
 
