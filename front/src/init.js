@@ -51,9 +51,6 @@ const register = async (app) => {
   const FileUpload = await importView('views/util/fileUpload.vue')()
   app.component('FileUpload', FileUpload.default || FileUpload)
 
-  // 注册全局变量
-  app.config.globalProperties.$adminX = window.adminX
-
   // 注册js加载方法
   app.config.globalProperties.$loadJS = async (src) => {
     await loadJS(src)

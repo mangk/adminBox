@@ -4,11 +4,8 @@ import router from '@/router/index'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/pinia/useUserStore'
 
-const adminx = window.adminX ? window.adminX : {}
-let serverHost = adminx.RunAt ? adminx.RunAt : ''
-
 const http = axios.create({
-  baseURL: serverHost,
+  baseURL: serverHost(),
   timeout: 30000
 })
 let acitveAxios = 0
@@ -164,3 +161,7 @@ http.interceptors.response.use(
   }
 )
 export default http
+
+export function serverHost() {
+  return window.adminX?.Host
+}

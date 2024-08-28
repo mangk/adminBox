@@ -92,7 +92,7 @@
       </div>
       <el-upload
         drag
-        :action="`${serverHost}/sys/fileUpload/upload?driver=${driver}`"
+        :action="`${serverHost()}/sys/fileUpload/upload?driver=${driver}`"
         :headers="{ Authorization: 'Bearer ' + userStore.token() }"
         :show-file-list="false"
         multiple
@@ -127,6 +127,7 @@ import { defineModel, ref } from 'vue'
 import { fileDelete, fileUploadCfg, fileUploadPage } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage } from 'element-plus'
+import { serverHost } from '@/utils/requester'
 
 const userStore = useUserStore()
 
@@ -140,10 +141,6 @@ const uploadConfig = ref({})
 const driver = ref('default')
 
 const show = ref(false)
-
-const adminx = window.adminX ? window.adminX : {}
-const runAt = adminx.RunAt ? adminx.RunAt : ''
-const serverHost = runAt + (adminx.BackendPrefix ? '/' + adminx.BackendPrefix : '')
 
 const tableData = ref([])
 const page = ref(1)

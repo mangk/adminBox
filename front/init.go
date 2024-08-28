@@ -2,7 +2,7 @@ package front
 
 import (
 	"embed"
-	"fmt"
+	"html/template"
 	"io/fs"
 	"net/http"
 	"strings"
@@ -24,7 +24,9 @@ func init() {
 type front struct{}
 
 var frontIndexHanler func(ctx *gin.Context)
-var frontAdminxJsHandler func(ctx *gin.Context)
+
+var writeByAdminXConfig string
+var writeByAdminXFunc string
 
 func RewriteIndex(f func(ctx *gin.Context)) {
 	l := &log.Log{CallerSkip: 0}
@@ -36,12 +38,9 @@ func IsRewriteIndex() bool {
 	return frontIndexHanler != nil
 }
 
-func RewriteAdminxJs(f func(ctx *gin.Context)) {
-	if frontAdminxJsHandler != nil {
-		log.Error("RewriteAdminxJs has been set")
-		return
-	}
-	frontAdminxJsHandler = f
+func SetAdminxJsUserCodeSnippet(cfg, function string) {
+	writeByAdminXConfig = cfg
+	writeByAdminXFunc = function
 }
 
 func LoadIndexPathPrefix() string {
@@ -79,23 +78,13 @@ func (front) InitModule() {
 	root.StaticFS("/images", http.FS(images))
 
 	// 重写 adminx.js
+	root.SetHTMLTemplate(template.Must(template.New("").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminx.js")))
 	root.GET("/adminx.js", func(ctx *gin.Context) {
-		if frontAdminxJsHandler == nil {
-			cfg := config.ServerCfg()
-
-			ctx.Data(200, "text/javascript; charset=utf-8", []byte(fmt.Sprintf(`
-        window.adminX = {
-            Name: '%s',
-            RunAt: '%s',
-            BackendPrefix: '%s',
-            FrontPrefix: '%s',
-			Logo: '%s',
-			Desc: '%s',
-        }
-		`, cfg.Name, cfg.RunAt, cfg.BackendRouterPrefix, cfg.FrontRouterPrefix, cfg.Logo, cfg.Desc)))
-		} else {
-			frontAdminxJsHandler(ctx)
-		}
+		ctx.Header("Content-Type", "application/javascript")
+		ctx.HTML(http.StatusOK, "adminx.js", gin.H{
+			"writeByAdminX_config": template.HTML(writeByAdminXConfig),
+			"writeByAdminX_func":   template.HTML(writeByAdminXFunc),
+		})
 	})
 
 	//admin.SetTmpStr(Convert)

@@ -1,0 +1,1 @@
+import{c as r,d as e,e as a,f as c,w as s,k as _,J as i}from"./XindexD6lHd35a.js";import{_ as l}from"./X_plugin-vue_export-helperDlAUqK2U.js";const p={},m={class:"app-content"};function f(o,d){const t=r("router-view");return e(),a("div",m,[c(t,null,{default:s(({Component:n})=>[(e(),_(i(n),{key:o.$route.path}))]),_:1})])}const v=l(p,[["render",f]]);export{v as default};

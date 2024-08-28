@@ -1,25 +1,22 @@
 import http from '@/utils/requester'
 
-const adminx = window.adminX ? window.adminX : {}
-const prefix = adminx.BackendPrefix ? '/' + adminx.BackendPrefix : ''
-
 export const userPermission = () => {
   return http({
-    url: prefix + '/sys/auth/userPermission',
+    url: '/sys/auth/userPermission',
     method: 'GET'
   })
 }
 
 export const permissionAll = () => {
   return http({
-    url: prefix + '/sys/auth/permissionAll',
+    url: '/sys/auth/permissionAll',
     method: 'GET'
   })
 }
 
 export const permissionGetByIdAndModule = (id, module) => {
   return http({
-    url: prefix + '/sys/auth/permissionGetByIdAndModule',
+    url: '/sys/auth/permissionGetByIdAndModule',
     method: 'POST',
     data: { id: id, module: module }
   })
@@ -27,7 +24,7 @@ export const permissionGetByIdAndModule = (id, module) => {
 
 export const permissionSave = (data) => {
   return http({
-    url: prefix + '/sys/auth/permissionSave',
+    url: '/sys/auth/permissionSave',
     method: 'PUT',
     data
   })
@@ -35,14 +32,14 @@ export const permissionSave = (data) => {
 
 export const verificationCode = () => {
   return http({
-    url: prefix + '/sys/verificationCode',
+    url: '/sys/verificationCode',
     method: 'GET'
   })
 }
 
 export const login = (data) => {
   return http({
-    url: prefix + '/sys/login',
+    url: '/sys/login',
     method: 'POST',
     data
   })
@@ -50,7 +47,7 @@ export const login = (data) => {
 
 export const IsRewriteIndex = () => {
   return http({
-    url: prefix + '/sys/isRewriteIndex',
+    url: '/sys/isRewriteIndex',
     method: 'GET'
   })
 }

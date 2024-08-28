@@ -87,14 +87,6 @@ const onSubmit = async (formEl) => {
   })
 }
 
-onBeforeMount(() => {
-  IsRewriteIndex().then((res) => {
-    if (res.data) {
-      window.location.href = window.location.origin
-    }
-  })
-})
-
 onMounted(() => {
   if (userStroe.isLogIn()) {
     router.push({ path: '/' })
