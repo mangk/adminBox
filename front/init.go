@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io/fs"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -88,4 +89,14 @@ func (front) InitModule() {
 	})
 
 	//admin.SetTmpStr(Convert)
+}
+
+func DynamicTemplate(ctx *gin.Context, filePath string) {
+	content, err := os.ReadFile(filePath)
+	if err != nil {
+		ctx.String(http.StatusInternalServerError, "File reading error: %s", err.Error())
+		return
+	}
+	// 发送原始 HTML 内容
+	ctx.Data(http.StatusOK, "text/html; charset=utf-8", content)
 }
