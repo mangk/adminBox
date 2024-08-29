@@ -166,23 +166,17 @@ body {
 }
 
 .el-menu {
+  min-width: 220px;
+  max-width: 240px;
   min-height: 100%;
   border-radius: 12px;
   padding: 10px 10px;
   border-right: 0;
-
-  .el-sub-menu {
-    min-width: 200px;
-  }
 }
 
 .el-menu--collapse {
   width: unset;
-
-  .el-sub-menu {
-    width: unset;
-    min-width: unset;
-  }
+  min-width: unset;
 
   .el-menu-item {
     box-sizing: content-box;
