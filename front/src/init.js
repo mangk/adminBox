@@ -7,20 +7,26 @@ import http from './utils/requester'
 import { importView } from './utils/routerFormat'
 
 // 公共方法
-const loadJS = (src) => {
-  return new Promise((resolve, reject) => {
-    let script = document.createElement('script')
-    script.type = 'text/javascript'
-    script.src = src
-    document.body.appendChild(script)
-    script.onload = () => {
-      resolve()
+const loadJS = (src, callback = () => {}) => {
+  // 检查是否已经加载过该脚本
+  if (document.querySelector(`script[src="${src}"]`)) {
+    callback()
+    return
+  }
+
+  const script = document.createElement('script')
+  script.type = 'text/javascript'
+  script.src = url
+
+  script.onload = () => {
+    if (typeof callback === 'function') {
+      callback()
     }
-    script.onerror = () => {
-      reject()
-    }
-  })
+  }
+
+  document.head.appendChild(script)
 }
+
 const loadTMPL = (url, name = 'myConvert') => {
   const options = {
     moduleCache: { vue: Vue },
