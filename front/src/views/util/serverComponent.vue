@@ -10,7 +10,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const { proxy } = getCurrentInstance()
-const ServerComponent = proxy.$loadTMPL(route.meta.sc_path)
+const ServerComponent = proxy.$loadTMPL(route.meta.sc_path, route.path)
 </script>
 <style scoped>
 .serverComponent {
