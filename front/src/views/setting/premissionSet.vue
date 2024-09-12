@@ -7,7 +7,6 @@
     size="90%"
   >
     <el-table
-      :header-cell-class-name="'global-el-table-header'"
       :data="permissionMap"
       height="calc(100vh - 62px - 40px )"
       style="width: 100%"

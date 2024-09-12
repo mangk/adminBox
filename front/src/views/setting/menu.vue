@@ -13,7 +13,6 @@
       :data="tableData"
       row-key="id"
       height="var(--global-table)"
-      :header-cell-class-name="'global-el-table-header'"
       border
       highlight-current-row
       show-overflow-tooltip

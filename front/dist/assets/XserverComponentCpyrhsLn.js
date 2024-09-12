@@ -1,1 +1,0 @@
-import{y as s,d as r,e as n,f as a,s as c,j as p}from"./XindexDunG4lwt.js";import{_}from"./X_plugin-vue_export-helperDlAUqK2U.js";const m={class:"serverComponent"},d={__name:"serverComponent",setup(u){const e=s(),{proxy:t}=p(),o=t.$loadTMPL(e.meta.sc_path,e.path);return(f,l)=>(r(),n("div",m,[a(c(o))]))}},C=_(d,[["__scopeId","data-v-c8834e4d"]]);export{C as default};
