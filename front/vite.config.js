@@ -1,6 +1,6 @@
-import {fileURLToPath, URL} from 'node:url'
+import { fileURLToPath, URL } from 'node:url'
 
-import {defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
@@ -17,13 +17,13 @@ export default defineConfig({
         }
     },
     build: {
-        // minify: 'terser', // 是否进行压缩,boolean | 'terser' | 'esbuild',默认使用terser
-        // terserOptions: {
-        //     compress: {
-        //         drop_console: true,
-        //         drop_debugger: true,
-        //     },
-        // },
+        minify: 'terser', // 是否进行压缩,boolean | 'terser' | 'esbuild',默认使用terser
+        terserOptions: {
+            compress: {
+                drop_console: true,
+                drop_debugger: true,
+            },
+        },
         manifest: false, // 是否产出manifest.json
         sourcemap: false, // 是否产出sourcemap.json
         outDir: 'dist', // 产出目录
@@ -34,8 +34,12 @@ export default defineConfig({
                 entryFileNames: 'assets/X[name][hash].js', // TODO 这里的文件命名
                 // 用于命名代码拆分时创建的共享块的输出命名
                 chunkFileNames: 'assets/X[name][hash].js', // TODO 这里的文件命名
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        return id.toString().split('node_modules/')[1].split('/')[0].toString();
+                    }
+                },
             }
-        },
-        // rollupOptions,
+        }
     },
 })
