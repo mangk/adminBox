@@ -2,6 +2,7 @@ package log
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -33,7 +34,7 @@ func Debugf(format string, args ...interface{}) {
 }
 
 func Error(msg string, keysAndValues ...interface{}) {
-	_log.Error(msg, keysAndValues...)
+	_log.Error(errors.New(msg), msg, keysAndValues...)
 }
 
 func Errorf(format string, args ...interface{}) {
@@ -60,6 +61,14 @@ func Print(args ...interface{}) {
 
 func Logger() *Log {
 	return _log
+}
+
+func LoggerAdapter(name string) *Log {
+	return &Log{
+		CallerSkip: 0,
+		traceKey:   name,
+		Logger:     _log.Logger,
+	}
 }
 
 func Zaplog() *zap.Logger {
@@ -112,7 +121,8 @@ func (l *Log) Debugf(format string, args ...interface{}) {
 	l.SugaredLogger().Debugf(format, args...)
 }
 
-func (l *Log) Error(msg string, keysAndValues ...interface{}) {
+func (l *Log) Error(err error, msg string, keysAndValues ...interface{}) {
+	keysAndValues = append(keysAndValues, "err", err)
 	l.SugaredLogger().Errorw(msg, keysAndValues...)
 }
 
