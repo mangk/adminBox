@@ -24,6 +24,10 @@ func init() {
 	}
 }
 
+const OperationRecord_LogFlag_Request = 1
+const OperationRecord_LogFlag_Response = 2
+const OperationRecord_LogFlag_All = 3
+
 // 记录日志的中间件
 // flag 1:记录请求日志;2:记录响应日志;3:记录请求和响应;
 func OperationRecord(flag int) gin.HandlerFunc {
@@ -69,7 +73,7 @@ func OperationRecord(flag int) gin.HandlerFunc {
 			Header: c.Request.Header,
 			Agent:  c.Request.UserAgent(),
 		}
-		if flag == 1 || flag == 3 {
+		if flag == OperationRecord_LogFlag_Request || flag == OperationRecord_LogFlag_All {
 			record.Body = string(body)
 		}
 
@@ -97,7 +101,7 @@ func OperationRecord(flag int) gin.HandlerFunc {
 		record.ErrorMessage = c.Errors.ByType(gin.ErrorTypePrivate).String()
 		record.Status = c.Writer.Status()
 		record.Latency = latency
-		if flag == 2 || flag == 3 {
+		if flag == OperationRecord_LogFlag_Response || flag == OperationRecord_LogFlag_All {
 			record.Resp = writer.body.String()
 		}
 
@@ -120,7 +124,7 @@ func OperationRecord(flag int) gin.HandlerFunc {
 		}
 
 		msg, _ := json.Marshal(record)
-		log.Info("[MiddlewareOperationRecord] " + string(msg))
+		log.Info(string(msg))
 	}
 }
 
