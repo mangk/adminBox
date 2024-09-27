@@ -7,6 +7,10 @@ type config struct {
 	Cache  *map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
+func GetAny(path string) any {
+	return _viper.Get(path)
+}
+
 func Get(path string) string {
 	return _viper.GetString(path)
 }
