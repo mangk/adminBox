@@ -5,6 +5,7 @@ import (
 	"github.com/mangk/adminBox/http"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/mangk/adminBox/front"
 )
 
 func main() {
