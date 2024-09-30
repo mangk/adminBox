@@ -2,7 +2,7 @@ package request
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/admin/model"
+	"github.com/mangk/adminBox/admin/model"
 )
 
 const ContextPublicRequestKey = "__public_request__"

@@ -4,13 +4,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mangk/adminX/admin/handler"
-	"github.com/mangk/adminX/admin/model"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/db"
-	myHttp "github.com/mangk/adminX/http"
-	"github.com/mangk/adminX/http/middleware"
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/admin/handler"
+	"github.com/mangk/adminBox/admin/model"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/db"
+	myHttp "github.com/mangk/adminBox/http"
+	"github.com/mangk/adminBox/http/middleware"
+	"github.com/mangk/adminBox/moduleRegister"
 )
 
 func init() {

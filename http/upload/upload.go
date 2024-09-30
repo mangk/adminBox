@@ -4,8 +4,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
 	"io"
 	"mime/multipart"
 )

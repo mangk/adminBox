@@ -44,8 +44,8 @@ export function formatRouter(serverRouterList) {
 
 export function loadBackendPrefix() {
   var prefix = 'admin'
-  if (window._adminX && window._adminX.backgroundPrefix) {
-    prefix = window._adminX.backgroundPrefix
+  if (window._adminBox && window._adminBox.backgroundPrefix) {
+    prefix = window._adminBox.backgroundPrefix
   }
 
   return prefix

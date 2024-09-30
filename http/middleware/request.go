@@ -3,8 +3,8 @@ package middleware
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/http/request"
-	"github.com/mangk/adminX/http/response"
+	"github.com/mangk/adminBox/http/request"
+	"github.com/mangk/adminBox/http/response"
 	"io"
 	"strings"
 )

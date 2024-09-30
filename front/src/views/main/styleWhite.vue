@@ -99,7 +99,7 @@ const btnCollapseShow = ref(false)
 const handleOpen = (key, keyPath) => {}
 const handleClose = (key, keyPath) => {}
 
-const logo = ref(window.adminX.Logo ? window.adminX.Logo : './images/logo.png')
+const logo = ref(window.adminBox.Logo ? window.adminBox.Logo : './images/logo.png')
 
 const menuList = await useRouterStore().loadServerRouter()
 

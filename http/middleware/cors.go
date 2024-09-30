@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
 )
 
 func Cors() gin.HandlerFunc {

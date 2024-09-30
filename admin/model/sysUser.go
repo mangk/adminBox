@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/mangk/adminX/cache"
-	"github.com/mangk/adminX/db"
-	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/util"
+	"github.com/mangk/adminBox/cache"
+	"github.com/mangk/adminBox/db"
+	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/util"
 	"gorm.io/gorm"
 )
 

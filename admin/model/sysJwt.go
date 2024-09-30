@@ -7,8 +7,8 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/util"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/util"
 )
 
 func NewJWT(signingKey []byte) *JWT {

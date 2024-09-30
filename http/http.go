@@ -5,23 +5,23 @@ import (
 	"fmt"
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/moduleRegister"
 )
 
-var _adminX *Http
+var _adminBox *Http
 
 type Http struct {
 	httpClient *gin.Engine
 }
 
 func New() *Http {
-	_adminX = &Http{}
+	_adminBox = &Http{}
 
 	moduleRegister.ModelInit()
 
-	return _adminX
+	return _adminBox
 }
 
 func newHttpServer() {
@@ -42,14 +42,14 @@ func newHttpServer() {
 		return string(b)
 	}))
 	http.Use(gin.Recovery())
-	_adminX.httpClient = http
+	_adminBox.httpClient = http
 }
 
 func HttpEngine() *gin.Engine {
-	if _adminX.httpClient == nil {
+	if _adminBox.httpClient == nil {
 		newHttpServer()
 	}
-	return _adminX.httpClient
+	return _adminBox.httpClient
 }
 
 func (c *Http) ListenAndServer() {

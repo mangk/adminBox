@@ -5,10 +5,10 @@ import (
 	"path"
 	"time"
 
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/moduleRegister"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/mangk/adminX/config"
+	"github.com/mangk/adminBox/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

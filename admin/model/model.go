@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mangk/adminX/cache"
-	"github.com/mangk/adminX/db"
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/cache"
+	"github.com/mangk/adminBox/db"
+	"github.com/mangk/adminBox/log"
 	"gorm.io/gorm"
 )
 

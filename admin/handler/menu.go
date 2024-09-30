@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/admin/model"
-	"github.com/mangk/adminX/db"
-	"github.com/mangk/adminX/http/response"
+	"github.com/mangk/adminBox/admin/model"
+	"github.com/mangk/adminBox/db"
+	"github.com/mangk/adminBox/http/response"
 )
 
 func Menu(ctx *gin.Context) {

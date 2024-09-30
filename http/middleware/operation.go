@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/log"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

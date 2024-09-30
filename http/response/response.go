@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/http/request"
+	"github.com/mangk/adminBox/http/request"
 )
 
 type Response struct {

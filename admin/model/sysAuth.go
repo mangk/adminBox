@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mangk/adminX/db"
+	"github.com/mangk/adminBox/db"
 )
 
 type SysAuth struct {

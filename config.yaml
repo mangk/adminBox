@@ -1,5 +1,5 @@
 server:
-  name: adminX
+  name: adminBox
   env: debug # debug | test | release
   host: 127.0.0.1
   port: 8910
@@ -62,7 +62,7 @@ db: # 最少提供 default 模块
     path: 127.0.0.1
     port: 3306
     config: charset=utf8mb4&parseTime=True&loc=Local
-    dbname: adminx
+    dbname: adminBox
     username: root
     password: 123456
     prefix:

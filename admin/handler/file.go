@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/admin/model"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/db"
-	"github.com/mangk/adminX/http/request"
-	"github.com/mangk/adminX/http/response"
-	"github.com/mangk/adminX/http/upload"
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/admin/model"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/db"
+	"github.com/mangk/adminBox/http/request"
+	"github.com/mangk/adminBox/http/response"
+	"github.com/mangk/adminBox/http/upload"
+	"github.com/mangk/adminBox/log"
 )
 
 func FileGetUploadLimit(ctx *gin.Context) {

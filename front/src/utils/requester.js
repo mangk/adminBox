@@ -163,5 +163,5 @@ http.interceptors.response.use(
 export default http
 
 export function serverHost() {
-  return window.adminX?.RunAt
+  return window.adminBox?.RunAt
 }

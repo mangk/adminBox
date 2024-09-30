@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminX/config"
-	myHttp "github.com/mangk/adminX/http"
-	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/config"
+	myHttp "github.com/mangk/adminBox/http"
+	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/moduleRegister"
 )
 
 //go:embed dist
@@ -26,8 +26,8 @@ type front struct{}
 
 var frontIndexHanler func(ctx *gin.Context)
 
-var writeByAdminXConfig string
-var writeByAdminXFunc string
+var writeByadminBoxConfig string
+var writeByadminBoxFunc string
 
 func RewriteIndex(f func(ctx *gin.Context)) {
 	l := &log.Log{CallerSkip: 0}
@@ -39,9 +39,9 @@ func IsRewriteIndex() bool {
 	return frontIndexHanler != nil
 }
 
-func SetAdminxJsUserCodeSnippet(cfg, function string) {
-	writeByAdminXConfig = cfg
-	writeByAdminXFunc = function
+func SetadminBoxJsUserCodeSnippet(cfg, function string) {
+	writeByadminBoxConfig = cfg
+	writeByadminBoxFunc = function
 }
 
 func LoadIndexPathPrefix() string {
@@ -78,13 +78,13 @@ func (front) InitModule() {
 	images, _ := fs.Sub(frontFiles, "dist/images")
 	root.StaticFS("/images", http.FS(images))
 
-	// 重写 adminx.js
-	root.SetHTMLTemplate(template.Must(template.New("").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminx.js")))
-	root.GET("/adminx.js", func(ctx *gin.Context) {
+	// 重写 adminBox.js
+	root.SetHTMLTemplate(template.Must(template.New("").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
+	root.GET("/adminBox.js", func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/javascript")
-		ctx.HTML(http.StatusOK, "adminx.js", gin.H{
-			"writeByAdminX_config": template.HTML(writeByAdminXConfig),
-			"writeByAdminX_func":   template.HTML(writeByAdminXFunc),
+		ctx.HTML(http.StatusOK, "adminBox.js", gin.H{
+			"writeByadminBox_config": template.HTML(writeByadminBoxConfig),
+			"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
 		})
 	})
 

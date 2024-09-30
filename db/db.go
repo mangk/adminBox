@@ -3,10 +3,10 @@ package db
 import (
 	"time"
 
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/moduleRegister"
 
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"

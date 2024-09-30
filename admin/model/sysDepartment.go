@@ -1,6 +1,6 @@
 package model
 
-import "github.com/mangk/adminX/db"
+import "github.com/mangk/adminBox/db"
 
 type SysDepartment struct {
 	Model

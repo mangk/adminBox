@@ -2,11 +2,11 @@ module demo
 
 go 1.21.2
 
-replace github.com/mangk/adminX => /Users/mangk/Data/Code/adminX
+replace github.com/mangk/adminBox => /Users/mangk/Data/Code/adminBox
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/mangk/adminX v0.0.0-00010101000000-000000000000
+	github.com/mangk/adminBox v0.0.0-00010101000000-000000000000
 )
 
 require (

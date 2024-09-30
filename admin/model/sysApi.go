@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/db"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/db"
 )
 
 type SysApi struct {

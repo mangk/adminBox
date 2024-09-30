@@ -3,9 +3,9 @@ package cache
 import (
 	"context"
 	"github.com/go-redis/redis/v8"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/moduleRegister"
 	"github.com/songzhibin97/gkit/cache/local_cache"
 )
 

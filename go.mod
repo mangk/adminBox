@@ -1,4 +1,4 @@
-module github.com/mangk/adminX
+module github.com/mangk/adminBox
 
 go 1.21.1
 

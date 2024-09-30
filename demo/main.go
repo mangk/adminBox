@@ -2,7 +2,7 @@ package main
 
 import (
 	"demo/handler/components"
-	"github.com/mangk/adminX/http"
+	"github.com/mangk/adminBox/http"
 
 	"github.com/gin-gonic/gin"
 )

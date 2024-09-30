@@ -8,8 +8,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
-	"github.com/mangk/adminX/db"
-	"github.com/mangk/adminX/log"
+	"github.com/mangk/adminBox/db"
+	"github.com/mangk/adminBox/log"
 )
 
 type SysCasbinRole struct{}

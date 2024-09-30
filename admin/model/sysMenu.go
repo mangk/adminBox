@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/mangk/adminX/cache"
-	"github.com/mangk/adminX/db"
+	"github.com/mangk/adminBox/cache"
+	"github.com/mangk/adminBox/db"
 	"gorm.io/gorm"
 )
 

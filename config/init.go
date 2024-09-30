@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/mangk/adminX/moduleRegister"
+	"github.com/mangk/adminBox/moduleRegister"
 	"os"
 
 	"github.com/spf13/viper"

@@ -31,9 +31,9 @@ import MenuTree from '@/views/main/components/menuTree.vue'
 import { onBeforeMount, ref } from 'vue'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 
-const logo = ref(window.adminX.Logo ? window.adminX.Logo : './images/logo.png')
-const name = ref(window.adminX.Name)
-const desc = ref(window.adminX.Desc ? window.adminX.Desc : '')
+const logo = ref(window.adminBox.Logo ? window.adminBox.Logo : './images/logo.png')
+const name = ref(window.adminBox.Name)
+const desc = ref(window.adminBox.Desc ? window.adminBox.Desc : '')
 
 const isCollapse = ref(false)
 

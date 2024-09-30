@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/mangk/adminX/config"
+	"github.com/mangk/adminBox/config"
 )
 
 func RedisStrGet(key string) string {

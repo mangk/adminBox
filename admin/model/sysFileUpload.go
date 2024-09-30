@@ -3,7 +3,7 @@ package model
 import (
 	"errors"
 
-	"github.com/mangk/adminX/db"
+	"github.com/mangk/adminBox/db"
 	"gorm.io/gorm"
 )
 

@@ -3,9 +3,9 @@ package upload
 import (
 	"errors"
 	"fmt"
-	"github.com/mangk/adminX/config"
-	"github.com/mangk/adminX/log"
-	"github.com/mangk/adminX/util"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/util"
 	"io"
 	"mime/multipart"
 	"os"
