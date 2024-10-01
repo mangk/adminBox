@@ -13,6 +13,8 @@ import (
 	myHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/log"
 	"github.com/mangk/adminBox/moduleRegister"
+
+	_ "github.com/mangk/adminBox/admin"
 )
 
 //go:embed dist
@@ -45,7 +47,7 @@ func SetadminBoxJsUserCodeSnippet(cfg, function string) {
 }
 
 func LoadIndexPathPrefix() string {
-	indexPathPrefix := "_"
+	indexPathPrefix := ""
 	if config.ServerCfg().FrontRouterPrefix != "" {
 		indexPathPrefix = strings.TrimRight(config.ServerCfg().FrontRouterPrefix, "/")
 	}
@@ -57,20 +59,24 @@ func (front) InitModule() {
 
 	indexPathPrefix := LoadIndexPathPrefix()
 
-	root.GET("/", func(ctx *gin.Context) {
-		// TODO 使用重写后需要前端页面感知，不在展示登录页面，而是404 之类的
-		if frontIndexHanler != nil {
-			frontIndexHanler(ctx)
-		} else {
+	if indexPathPrefix != "" {
+		root.GET(indexPathPrefix+"/", func(ctx *gin.Context) {
 			d, _ := fs.ReadFile(frontFiles, "dist/index.html")
 			ctx.Data(200, "text/html; charset=utf-8", d)
-		}
-	})
+		})
+	}
 
-	root.GET(indexPathPrefix+"/", func(ctx *gin.Context) {
-		d, _ := fs.ReadFile(frontFiles, "dist/index.html")
-		ctx.Data(200, "text/html; charset=utf-8", d)
-	})
+	if indexPathPrefix == "" {
+		root.GET("/", func(ctx *gin.Context) {
+			if frontIndexHanler != nil {
+				frontIndexHanler(ctx)
+			} else {
+				d, _ := fs.ReadFile(frontFiles, "dist/index.html")
+				ctx.Data(200, "text/html; charset=utf-8", d)
+			}
+		})
+
+	}
 
 	assets, _ := fs.Sub(frontFiles, "dist/assets")
 	root.StaticFS("/assets", http.FS(assets))

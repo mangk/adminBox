@@ -12,7 +12,7 @@
             "program": "${workspaceRoot}/demo",
             "args": [
                 "-c",
-                "../config.yaml"
+                "./config.yaml"
             ]
         },
     ]

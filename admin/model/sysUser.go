@@ -17,7 +17,7 @@ import (
 type SysUser struct {
 	Model
 	UUID           uuid.UUID        `json:"uuid" gorm:"index;size:60;comment:用户UUID"`
-	Username       string           `json:"username" gorm:"index;size:30;uniqueIndex;comment:用户登录名"`
+	Username       string           `json:"username" gorm:"index;size:30;uniqueIndex:idx_username;comment:用户登录名"`
 	Phone          string           `json:"phone"  gorm:"size:30;comment:用户手机号"`
 	Email          string           `json:"email"  gorm:"size:60;comment:用户邮箱"`
 	Salt           string           `json:"-" gorm:"size:16;comment:密码混淆"`

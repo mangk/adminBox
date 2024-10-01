@@ -24,7 +24,7 @@ func (admin) InitModule() {
 	routerCreate()
 }
 
-func dbAutoMigrate() {
+func DbMigrate() {
 	db.DB().AutoMigrate(
 		model.SysUser{},
 		model.SysMenu{},
@@ -36,6 +36,8 @@ func dbAutoMigrate() {
 		model.SysUserDepartment{},
 		model.SysFileUpload{},
 	)
+
+	// TODO 创建默认数据
 }
 
 func routerCreate() {
@@ -47,7 +49,6 @@ func routerCreate() {
 	backend.POST("login", handler.AuthLogin)
 	backend.GET("logout", handler.AuthLogout)
 	backend.GET("verificationCode", handler.AuthVerificationCode)
-	backend.GET("isRewriteIndex", handler.IsRewriteIndex)
 
 	backend.Use(middleware.JWTCheckByCasbin())
 
@@ -68,7 +69,7 @@ func routerCreate() {
 		fileUpload.GET("cfg", handler.FileGetUploadLimit)
 		for _, cfg := range config.FileCfg() {
 			if cfg.Driver == "local" {
-				router.StaticFS(cfg.PrefixPath, http.Dir(cfg.StorePath))
+				fileUpload.StaticFS(cfg.PrefixPath, http.Dir(cfg.StorePath))
 			}
 		}
 

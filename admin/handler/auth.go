@@ -9,7 +9,6 @@ import (
 	"github.com/mangk/adminBox/cache"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
-	"github.com/mangk/adminBox/front"
 	"github.com/mangk/adminBox/http/request"
 	"github.com/mangk/adminBox/http/response"
 	"github.com/mojocn/base64Captcha"
@@ -58,10 +57,6 @@ func AuthLogin(ctx *gin.Context) {
 
 func AuthLogout(ctx *gin.Context) {
 
-}
-
-func IsRewriteIndex(ctx *gin.Context) {
-	response.OkWithData(ctx, front.IsRewriteIndex())
 }
 
 func AuthVerificationCode(ctx *gin.Context) {
