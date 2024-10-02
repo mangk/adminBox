@@ -1,5 +1,5 @@
 <template>
-  1112233355
+  1234
   {{ user }}
   <el-button @click="logout">退出</el-button>
 </template>

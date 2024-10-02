@@ -163,5 +163,13 @@ http.interceptors.response.use(
 export default http
 
 export function serverHost() {
-  return `${window.adminBox.Host}/${window.adminBox.BackendRouterPrefix}`
+  let str = []
+  if (window.adminBox.Host) {
+    str.push(window.adminBox.Host)
+  }
+  if (window.adminBox.BackendRouterPrefix) {
+    str.push(window.adminBox.BackendRouterPrefix)
+  }
+
+  return str.join("/")
 }

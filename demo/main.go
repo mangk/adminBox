@@ -3,6 +3,7 @@ package main
 import (
 	"demo/handler/components"
 
+	"github.com/mangk/adminBox/front"
 	"github.com/mangk/adminBox/http"
 
 	_ "github.com/mangk/adminBox/front"
@@ -16,6 +17,10 @@ func main() {
 	router.GET("test", func(ctx *gin.Context) {
 		ctx.String(200, "%s", components.Test)
 	})
+
+	front.SetAdminBoxJsUserCodeSnippet(`
+	Name: 'GOSKI',
+	`, "")
 
 	// front.RewriteIndex(func(ctx *gin.Context) {
 	// 	ctx.JSON(200, 11111)

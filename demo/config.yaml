@@ -28,7 +28,7 @@ server:
       id:
       key:
       prefixPath: local
-      cdnUrl: local.cdn
+      cdnUrl: # local.cdn
       storePath: uploads/file
     # another:
     #   name: 腾讯云
@@ -99,5 +99,5 @@ log:
   format: console
   encodeLevel: 0
   output: # 可以设置多个日志输出位置
-    # - logs # 日志输出到可执行文件目录下的 log 文件夹
+    - logs # 日志输出到可执行文件目录下的 log 文件夹
     - console # 日志会输出到stdout

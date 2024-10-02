@@ -30,11 +30,13 @@ export const useRouterStore = defineStore('router', () => {
       white: importView('views/main/styleWhite.vue')
     }
 
+    let main = styleMap[u.user_config.theme ? u.user_config.theme : 'default']
+
     router.addRoute({
       path: '/' + prefix,
       name: prefix,
       meta: { icon: 'add' },
-      component: styleMap[u.user_config.theme ? u.user_config.theme : 'default'], // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
+      component: main ? main : styleMap.default, // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
       children: serverRouter.value
     })
     return serverRouter.value

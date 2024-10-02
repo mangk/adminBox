@@ -2,6 +2,7 @@ package front
 
 import (
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
@@ -37,11 +38,7 @@ func RewriteIndex(f func(ctx *gin.Context)) {
 	frontIndexHanler = f
 }
 
-func IsRewriteIndex() bool {
-	return frontIndexHanler != nil
-}
-
-func SetadminBoxJsUserCodeSnippet(cfg, function string) {
+func SetAdminBoxJsUserCodeSnippet(cfg, function string) {
 	writeByadminBoxConfig = cfg
 	writeByadminBoxFunc = function
 }
@@ -88,8 +85,14 @@ func (front) InitModule() {
 	root.SetHTMLTemplate(template.Must(template.New("").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
 	root.GET("/adminBox.js", func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/javascript")
+		allConfig := fmt.Sprintf(`IsRewriteIndex: %t,
+BackendRouterPrefix: '%s',
+%s`,
+			frontIndexHanler != nil,
+			config.ServerCfg().BackendRouterPrefix,
+			writeByadminBoxConfig)
 		ctx.HTML(http.StatusOK, "adminBox.js", gin.H{
-			"writeByadminBox_config": template.HTML(writeByadminBoxConfig),
+			"writeByadminBox_config": template.HTML(allConfig),
 			"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
 		})
 	})

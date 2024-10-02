@@ -75,7 +75,7 @@ func routerCreate() {
 		fileUpload.GET("cfg", handler.FileGetUploadLimit)
 		for _, cfg := range config.FileCfg() {
 			if cfg.Driver == "local" {
-				fileUpload.StaticFS(cfg.PrefixPath, http.Dir(cfg.StorePath))
+				router.StaticFS(cfg.PrefixPath, http.Dir(cfg.StorePath))
 			}
 		}
 
