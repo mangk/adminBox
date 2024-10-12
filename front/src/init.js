@@ -6,25 +6,26 @@ import { defineAsyncComponent, markRaw } from 'vue'
 import http from './utils/requester'
 import { importView } from './utils/routerFormat'
 
-// 公共方法
-const loadJS = (src, callback = () => {}) => {
+const loadJS = (url, callback) => {
   // 检查是否已经加载过该脚本
-  if (document.querySelector(`script[src="${src}"]`)) {
-    callback()
-    return
+  if (document.querySelector(`script[src="${url}"]`)) {
+    callback();
+    return;
   }
 
-  const script = document.createElement('script')
-  script.type = 'text/javascript'
-  script.src = url
+  const script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = url;
 
+  // 当脚本加载完成后执行回调
   script.onload = () => {
     if (typeof callback === 'function') {
-      callback()
+      callback();
     }
-  }
+  };
 
-  document.head.appendChild(script)
+  // 将脚本插入到页面中
+  document.head.appendChild(script);
 }
 
 const loadTMPL = (url, name = 'myConvert') => {

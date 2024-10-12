@@ -8,6 +8,7 @@
       Hello world!
     </div>
 
+    <BBB></BBB>
   </div>
 </template>
 
@@ -25,7 +26,7 @@ const open = () => {
   console.log(proxy);
   proxy.$message("聪明2");
   console.log(proxy.$axios)
-  proxy.$axios.get("http://127.0.0.1:8910").then(res => {
+  proxy.$http.get("http://127.0.0.1:8910").then(res => {
     console.log(111, res);
   })
 }
