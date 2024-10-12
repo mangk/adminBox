@@ -17,4 +17,9 @@
 
 <style lang="scss">
 @import '@/assets/globalSet.scss';
+
+.app-content {
+  background-color: #fff;
+  margin: 10px;
+}
 </style>

@@ -82,6 +82,10 @@ func FailWithCode(ctx *gin.Context, code int, msg string) {
 	jsonResponse(ctx, code, msg, nil)
 }
 
+func FailWithCodeAndNeedReload(ctx *gin.Context, code int, msg string) {
+	jsonResponse(ctx, code, msg, gin.H{"reload": true})
+}
+
 func jsonResponse(ctx *gin.Context, code int, msg string, data interface{}, showTime ...int64) {
 	var st int64 = 0
 	if len(showTime) > 0 && showTime[0] > 0 {

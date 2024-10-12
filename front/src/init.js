@@ -36,18 +36,11 @@ const loadTMPL = (url, name = 'myConvert') => {
       }).then((response) => (response.ok ? response.text() : Promise.reject(response)))
     },
     addStyle(styleString) {
-      const styleId = `style-${name}`
-      let existingStyle = document.getElementById(styleId)
-
-      if (!existingStyle) {
-        const style = document.createElement('style')
-        style.setAttribute('id', styleId)
-        style.textContent = styleString
-
-        // 插入到 head 中
-        const ref = document.head.getElementsByTagName('style')[0] || null
-        document.head.insertBefore(style, ref)
-      }
+      const style = document.createElement('style');
+      style.setAttribute('id', name);
+      style.textContent = styleString;
+      const ref = document.head.getElementsByTagName('style')[0] || null;
+      document.head.insertBefore(style, ref);
     }
   }
 

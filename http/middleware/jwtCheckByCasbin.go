@@ -16,20 +16,20 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Authorization")
 		if token == "" || len(token) <= 6 {
-			response.FailWithCode(ctx, http.StatusUnauthorized, "鉴权失败")
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "身份认证失败")
 			ctx.Abort()
 			return
 		}
 
 		jwtUserInfo, err := model.NewJWT([]byte(config.JwtCfg().SigningKey)).Parse(token[7:])
 		if err != nil || jwtUserInfo == nil {
-			response.FailWithCode(ctx, http.StatusUnauthorized, "鉴权失败")
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "身份认证失败")
 			ctx.Abort()
 			return
 		}
 
 		if time.Now().Unix() > jwtUserInfo.ExpiresAt {
-			response.FailWithCode(ctx, http.StatusUnauthorized, "授权已过期")
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "授权已过期")
 			ctx.Abort()
 			return
 		}
@@ -50,7 +50,7 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 			return
 		}
 		if !access {
-			response.FailWithCode(ctx, http.StatusUnauthorized, "鉴权失败")
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "身份认证失败")
 			ctx.Abort()
 			return
 		}

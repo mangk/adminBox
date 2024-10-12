@@ -14,8 +14,11 @@ import (
 func main() {
 	s := http.New()
 	router := http.HttpEngine()
-	router.GET("test", func(ctx *gin.Context) {
-		ctx.String(200, "%s", components.Test)
+	router.GET("component/t1", func(ctx *gin.Context) {
+		ctx.String(200, "%s", components.T1)
+	})
+	router.GET("component/t2", func(ctx *gin.Context) {
+		ctx.String(200, "%s", components.T2)
 	})
 
 	front.SetAdminBoxJsUserCodeSnippet(`

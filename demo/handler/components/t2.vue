@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: var(--global-padding)">
+  <div style="padding: var(--global-padding)" class="t">
     测试
     <el-button @click="count++">Count is: {{ count }}</el-button>
     <el-button @click="open">Count is: {{ count }}</el-button>
@@ -32,4 +32,8 @@ const open = () => {
 
 </script>
 
-<style scoped></style>
+<style scoped>
+.t {
+background-color: #29d;
+}
+</style>
