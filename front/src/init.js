@@ -59,9 +59,7 @@ const register = async (app) => {
   app.component('FileUpload', FileUpload.default || FileUpload)
 
   // 注册js加载方法
-  app.config.globalProperties.$loadJS = async (src) => {
-    await loadJS(src)
-  }
+  app.config.globalProperties.$loadJS = loadJS
 
   // 注册服务端模版加载方法
   app.config.globalProperties.$loadTMPL = loadTMPL
