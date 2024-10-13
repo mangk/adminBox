@@ -1,5 +1,4 @@
 <template>
-  
   <Tab v-if="!$route.meta.default_menu" />
 </template>
 
@@ -24,7 +23,6 @@ const logout = () => {
 </script>
 
 <style lang="scss" scoped>
-
 .in-header {
   box-sizing: border-box;
   margin-bottom: var(--global-interval);

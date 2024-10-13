@@ -1,8 +1,8 @@
 <template>
-  <div style="padding: var(--global-padding)" class="t">
+  <div style="padding: var(--global-padding);" class="t">
     测试
-    <el-button @click="count++">Count is: {{ count }}</el-button>
-    <el-button @click="open">Count is: {{ count }}</el-button>
+    <el-button @click="count1++">Count is: {{ count1 }}</el-button>
+    <el-button @click="open">Count is: {{ count1 }}</el-button>
     <div style="width: 100px;height: 100px;background-color: #529b2e"></div>
     <div style="" class="text-3xl underline font-black border-amber-700 bg-red-500">
       Hello world!
@@ -13,7 +13,7 @@
 
 <script setup>
 import {ref,getCurrentInstance} from "vue";
-const count = ref(0)
+const count1 = ref(0)
 
 const {proxy} = getCurrentInstance()
 

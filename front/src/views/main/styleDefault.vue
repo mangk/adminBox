@@ -1,35 +1,58 @@
 <template>
-  <el-container style="width: 100%;height: 100%;">
-    <el-header class="box-header"
-      :style="{ 'background-color': darkSidebar ? darkSidebarColor : '', 'color': darkSidebar ? '#fff' : '' }">
+  <el-container style="width: 100%; height: 100%">
+    <el-header
+      class="box-header"
+      :style="{
+        'background-color': darkSidebar ? darkSidebarColor : '',
+        color: darkSidebar ? '#fff' : ''
+      }"
+    >
       <img class="header-logo" :src="logo" />
-      <div class="header-name">{{ name }}</div>
-
-      <el-menu v-if="headerMenu" class="header-menu" :default-active="$route.name" @open="handleOpen"
-        @close="handleClose" :collapse="isCollapse" unique-opened router mode="horizontal"
-        :background-color="darkSidebar ? darkSidebarColor : ''" :text-color="darkSidebar ? '#fff' : ''">
-        <MenuTree :menus="menuList" />
-      </el-menu>
+      <div class="header-name" v-if="!mobileDevice">{{ name }}</div>
+      <el-scrollbar style="height: unset">
+        <el-menu
+          v-if="headerMenu || mobileDevice"
+          class="header-menu"
+          :default-active="$route.name"
+          @open="handleOpen"
+          @close="handleClose"
+          :collapse="isCollapse"
+          unique-opened
+          router
+          mode="horizontal"
+          :ellipsis="false"
+          :background-color="darkSidebar ? darkSidebarColor : ''"
+          :text-color="darkSidebar ? '#fff' : ''"
+          style="width: auto"
+        >
+          <MenuTree :menus="menuList" />
+        </el-menu>
+      </el-scrollbar>
 
       <el-popover>
         <template #reference>
           <div class="left header-user">
-            {{ user.username }}
-            <el-avatar :src="user.avatar" icon="UserFilled" :size="30" style="margin-left: 5px;" />
+            <span v-if="!mobileDevice">{{ user.username }}</span>
+            <el-avatar :src="user.avatar" icon="UserFilled" :size="30" style="margin-left: 5px" />
           </div>
         </template>
         <template #default>
           <div class="demo-rich-conent" style="display: flex; gap: 6px; flex-direction: column">
+            <span v-if="mobileDevice">{{ user.username }}</span>
             <el-collapse accordion>
               <el-collapse-item title="主题设置" name="1">
                 <div>
-                  <el-tag v-for="color in colors" :key="color" :color="color.value"
-                    @click="themeElColorPrimary = color.value" />
+                  <el-tag
+                    v-for="color in colors"
+                    :key="color"
+                    :color="color.value"
+                    @click="themeElColorPrimary = color.value"
+                  />
                 </div>
-                <div style="display: flex;justify-content: space-between;">
-                  顶部菜单<el-switch v-model="headerMenu" />
+                <div style="display: flex; justify-content: space-between">
+                  顶部菜单<el-switch v-model="headerMenu" :disabled="mobileDevice" />
                 </div>
-                <div style="display: flex;justify-content: space-between;">
+                <div style="display: flex; justify-content: space-between">
                   深色边栏<el-switch v-model="darkSidebar" />
                 </div>
               </el-collapse-item>
@@ -39,79 +62,80 @@
           </div>
         </template>
       </el-popover>
-
     </el-header>
     <el-container class="box-asside-and-main">
-      <el-aside class="box-aside" v-if="!headerMenu"
-        :style="{ 'background-color': darkSidebar ? darkSidebarColor : '', 'color': darkSidebar ? '#fff' : '' }">
+      <el-aside
+        class="box-aside"
+        v-if="!headerMenu && !mobileDevice"
+        :style="{
+          'background-color': darkSidebar ? darkSidebarColor : '',
+          color: darkSidebar ? '#fff' : ''
+        }"
+      >
         <el-scrollbar>
           <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-            <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"
-              unique-opened router :background-color="darkSidebar ? darkSidebarColor : ''"
-              :text-color="darkSidebar ? '#fff' : ''">
+            <el-menu
+              :default-active="$route.name"
+              @open="handleOpen"
+              @close="handleClose"
+              :collapse="isCollapse"
+              unique-opened
+              router
+              :background-color="darkSidebar ? darkSidebarColor : ''"
+              :text-color="darkSidebar ? '#fff' : ''"
+            >
               <MenuTree :menus="menuList" />
             </el-menu>
           </transition>
         </el-scrollbar>
       </el-aside>
       <el-main class="box-main">
-        <el-scrollbar>
-          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-            <router-view v-slot="{ Component }">
-              <template v-if="$route.meta.keep_alive">
-                <keep-alive>
-                  <component :is="Component" :key="$route.path" />
-                </keep-alive>
-              </template>
-              <template v-else>
-                <component :is="Component" :key="$route.path" />
-              </template>
-            </router-view>
-          </transition>
-        </el-scrollbar>
+        <Main />
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue'
+import Main from '@/views/main/components/main.vue'
+import MenuTree from '@/views/main/menuTree.vue'
+import { ref, onBeforeMount } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
-import MenuTree from '@/views/main/menuTree.vue'
 import { useCssVar } from '@vueuse/core'
 
 // theme
+const mobileDevice = ref(true)
 const headerMenu = ref(false)
-const darkSidebar = ref(false)
-const themeElColorPrimary = useCssVar("--el-color-primary")
+const darkSidebar = ref(true)
+const themeElColorPrimary = useCssVar('--el-color-primary')
 
-const darkSidebarColor = "#2d2d32"
+const darkSidebarColor = '#2d2d32'
 const colors = [
   {
     value: '#E63415',
-    label: 'red',
+    label: 'red'
   },
   {
     value: '#e0620e',
-    label: 'orange',
+    label: 'orange'
   },
   {
     value: '#1EC79D',
-    label: 'green',
+    label: 'green'
   },
   {
     value: '#4167F0',
-    label: 'blue',
+    label: 'blue'
   },
   {
     value: '#6222C9',
-    label: 'purple',
+    label: 'purple'
   },
   {
     value: '#000',
-    label: 'black',
-  },
+    label: 'black'
+  }
 ]
 
 // header
@@ -129,12 +153,16 @@ const isCollapse = ref(false)
 
 const menuList = await useRouterStore().loadServerRouter()
 
-const handleOpen = (key, keyPath) => { }
-const handleClose = (key, keyPath) => { }
+const handleOpen = (key, keyPath) => {}
+const handleClose = (key, keyPath) => {}
 const setCollapse = () => {
-  isCollapse.value = document.body.clientWidth < 1000
+  if (document.body.clientWidth >= 1100) {
+    isCollapse.value = false
+  } else {
+    isCollapse.value = true
+  }
+  mobileDevice.value = document.body.clientWidth <= 550
 }
-
 
 onBeforeMount(setCollapse)
 window.onresize = () => {
@@ -161,9 +189,9 @@ window.onresize = () => {
   width: auto;
 }
 
-
 .box-header {
   --box-header-height: 50px;
+  position: sticky;
   z-index: 3;
   height: var(--box-header-height);
   font-size: 12px;
@@ -181,7 +209,7 @@ window.onresize = () => {
 }
 
 .header-name {
-  margin-left: calc(var(--global-padding)/2);
+  margin-left: calc(var(--global-padding) / 2);
   font-weight: 550;
   font-size: 20px;
   // font-family: emoji;
@@ -198,7 +226,7 @@ window.onresize = () => {
     border-bottom: 0px;
   }
 
-  .el-menu--horizontal>.el-menu-item {
+  .el-menu--horizontal > .el-menu-item {
     border-bottom: 0px;
   }
 
@@ -219,11 +247,19 @@ window.onresize = () => {
 
 .box-asside-and-main {
   height: calc(100vh - var(--box-header-height));
-  overflow: hidden
+  overflow: hidden;
 }
 
 .box-aside {
+  position: relative;
+  z-index: 2;
   width: auto;
   box-shadow: 1px 2px 4px 0 var(--cb-color-shadow, rgba(0, 0, 0, 0.16));
+}
+
+.box-main {
+  position: relative;
+  z-index: 1;
+  overflow-x: hidden;
 }
 </style>

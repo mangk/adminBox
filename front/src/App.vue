@@ -1,15 +1,15 @@
 <script setup>
 import zhCn from 'element-plus/es/locale/lang/zh-cn.mjs'
 import en from 'element-plus/es/locale/lang/en.mjs'
-let locale = ""
+let locale = ''
 switch (window.adminBox.Locale) {
-  case "en":
+  case 'en':
     locale = en
-    break;
+    break
 
   default:
     locale = zhCn
-    break;
+    break
 }
 </script>
 <template>

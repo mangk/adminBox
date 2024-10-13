@@ -68,7 +68,7 @@ window.onresize = () => {
 }
 
 .logo {
-  padding:0;
+  padding: 0;
 }
 
 .logo-title {

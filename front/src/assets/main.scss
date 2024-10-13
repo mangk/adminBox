@@ -483,10 +483,14 @@ li {
 
   --global-search-form-height: 42px;
   --global-pagination-height: 42px;
-  --global-table: calc(100vh - var(--global-header-height) - var(--global-padding)*3 - var(--global-search-form-height) - var(--global-pagination-height));
+  --global-table: calc(
+    100vh - var(--global-header-height) - var(--global-padding) * 4 - var(
+        --global-search-form-height
+      ) - var(--global-pagination-height)
+  );
 
   --el-border-radius-base: 0px;
-  --el-color-primary: #4167F0
+  --el-color-primary: #4167f0;
 }
 
 #app {

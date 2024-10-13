@@ -17,6 +17,8 @@
       highlight-current-row
       show-overflow-tooltip
       default-expand-all
+      width="80vw"
+      append-to-body
     >
       <el-table-column prop="id" label="ID" sortable fixed />
       <el-table-column prop="name" label="部门名称" />
@@ -57,7 +59,8 @@
     <el-dialog
       v-model="dialogVisible"
       :title="form.id ? '编辑部门' : '新建部门'"
-      width="800"
+      width="80vw"
+      append-to-body
       @close="cancel(formRef)"
     >
       <el-form
@@ -279,7 +282,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
 .icon-select {
   :deep(.el-select__placeholder) {
     padding-left: 20px;

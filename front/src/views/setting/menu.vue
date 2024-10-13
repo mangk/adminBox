@@ -82,7 +82,8 @@
     <el-dialog
       v-model="dialogVisible"
       :title="form.id ? '编辑菜单' : '新建菜单'"
-      width="800"
+      width="80vw"
+      append-to-body
       @close="cancel(formRef)"
     >
       <el-form
@@ -367,7 +368,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-
 .icon-select {
   :deep(.el-select__placeholder) {
     padding-left: 20px;

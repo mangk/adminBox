@@ -67,7 +67,8 @@
     <el-dialog
       v-model="dialogVisible"
       :title="form.id ? '编辑角色' : '新建角色'"
-      width="800"
+      width="80vw"
+      append-to-body
       @close="cancel(formRef)"
     >
       <el-form

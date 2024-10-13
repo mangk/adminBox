@@ -291,7 +291,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss">
-
 .app-tab {
   position: -webkit-sticky;
   /* Safari */

@@ -78,7 +78,8 @@
     <el-dialog
       v-model="dialogVisible"
       :title="form.id ? '编辑用户' : '新建用户'"
-      width="800"
+      width="80vw"
+      append-to-body
       @close="cancel(formRef)"
     >
       <el-form

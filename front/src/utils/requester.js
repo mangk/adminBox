@@ -171,5 +171,5 @@ export function serverHost() {
     str.push(window.adminBox.BackendRouterPrefix)
   }
 
-  return str.join("/")
+  return str.join('/')
 }

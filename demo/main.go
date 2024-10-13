@@ -22,7 +22,8 @@ func main() {
 	})
 
 	front.SetAdminBoxJsUserCodeSnippet(`
-	Name: 'GOSKI',
+    Name: 'GOSKI',
+    Host: '',
 	`, "")
 
 	// front.RewriteIndex(func(ctx *gin.Context) {
