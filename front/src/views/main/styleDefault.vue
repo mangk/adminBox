@@ -1,28 +1,148 @@
 <template>
-  <el-container class="app-box">
-    <el-container class="app-aside-and-main">
-      <el-aside class="app-aside" v-if="!$route.meta.default_menu">
-        <Aside />
+  <el-container style="width: 100%;height: 100%;">
+    <el-header class="box-header"
+      :style="{ 'background-color': darkSidebar ? darkSidebarColor : '', 'color': darkSidebar ? '#fff' : '' }">
+      <img class="header-logo" :src="logo" />
+      <div class="header-name">{{ name }}</div>
+
+      <el-menu v-if="headerMenu" class="header-menu" :default-active="$route.name" @open="handleOpen"
+        @close="handleClose" :collapse="isCollapse" unique-opened router mode="horizontal"
+        :background-color="darkSidebar ? darkSidebarColor : ''" :text-color="darkSidebar ? '#fff' : ''">
+        <MenuTree :menus="menuList" />
+      </el-menu>
+
+      <el-popover>
+        <template #reference>
+          <div class="left header-user">
+            {{ user.username }}
+            <el-avatar :src="user.avatar" icon="UserFilled" :size="30" style="margin-left: 5px;" />
+          </div>
+        </template>
+        <template #default>
+          <div class="demo-rich-conent" style="display: flex; gap: 6px; flex-direction: column">
+            <el-collapse accordion>
+              <el-collapse-item title="主题设置" name="1">
+                <div>
+                  <el-tag v-for="color in colors" :key="color" :color="color.value"
+                    @click="themeElColorPrimary = color.value" />
+                </div>
+                <div style="display: flex;justify-content: space-between;">
+                  顶部菜单<el-switch v-model="headerMenu" />
+                </div>
+                <div style="display: flex;justify-content: space-between;">
+                  深色边栏<el-switch v-model="darkSidebar" />
+                </div>
+              </el-collapse-item>
+            </el-collapse>
+
+            <el-button link @click="logout">退出</el-button>
+          </div>
+        </template>
+      </el-popover>
+
+    </el-header>
+    <el-container class="box-asside-and-main">
+      <el-aside class="box-aside" v-if="!headerMenu"
+        :style="{ 'background-color': darkSidebar ? darkSidebarColor : '', 'color': darkSidebar ? '#fff' : '' }">
+        <el-scrollbar>
+          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
+            <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"
+              unique-opened router :background-color="darkSidebar ? darkSidebarColor : ''"
+              :text-color="darkSidebar ? '#fff' : ''">
+              <MenuTree :menus="menuList" />
+            </el-menu>
+          </transition>
+        </el-scrollbar>
       </el-aside>
-      <el-main :class="['app-main', $route.meta.default_menu ? 'default-page' : '']">
-        <el-header class="app-header" v-if="!$route.meta.default_menu">
-          <Header />
-        </el-header>
-        <Main />
+      <el-main class="box-main">
+        <el-scrollbar>
+          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
+            <router-view v-slot="{ Component }">
+              <template v-if="$route.meta.keep_alive">
+                <keep-alive>
+                  <component :is="Component" :key="$route.path" />
+                </keep-alive>
+              </template>
+              <template v-else>
+                <component :is="Component" :key="$route.path" />
+              </template>
+            </router-view>
+          </transition>
+        </el-scrollbar>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import Aside from '@/views/main/components/aside.vue'
-import Header from '@/views/main/components/header.vue'
-import Main from '@/views/main/components/main.vue'
+import { ref, onBeforeMount, computed } from 'vue'
+import { useUserStore } from '@/pinia/useUserStore'
+import { useRouterStore } from '@/pinia/useRouterStore.js'
+import MenuTree from '@/views/main/menuTree.vue'
+import { useCssVar } from '@vueuse/core'
+
+// theme
+const headerMenu = ref(false)
+const darkSidebar = ref(false)
+const themeElColorPrimary = useCssVar("--el-color-primary")
+
+const darkSidebarColor = "#2d2d32"
+const colors = [
+  {
+    value: '#E63415',
+    label: 'red',
+  },
+  {
+    value: '#e0620e',
+    label: 'orange',
+  },
+  {
+    value: '#1EC79D',
+    label: 'green',
+  },
+  {
+    value: '#4167F0',
+    label: 'blue',
+  },
+  {
+    value: '#6222C9',
+    label: 'purple',
+  },
+  {
+    value: '#000',
+    label: 'black',
+  },
+]
+
+// header
+const logo = ref(window.adminBox.Logo ? window.adminBox.Logo : './images/logo.svg')
+const name = ref(window.adminBox.Name)
+const userStroe = useUserStore()
+const user = ref({})
+user.value = await userStroe.userInfo()
+const logout = () => {
+  userStroe.logOut()
+}
+
+// aside
+const isCollapse = ref(false)
+
+const menuList = await useRouterStore().loadServerRouter()
+
+const handleOpen = (key, keyPath) => { }
+const handleClose = (key, keyPath) => { }
+const setCollapse = () => {
+  isCollapse.value = document.body.clientWidth < 1000
+}
+
+
+onBeforeMount(setCollapse)
+window.onresize = () => {
+  return setCollapse()
+}
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/globalSet.scss';
-
 .el-container,
 .el-header,
 .el-aside,
@@ -30,58 +150,80 @@ import Main from '@/views/main/components/main.vue'
   margin: 0;
   padding: 0;
   border: 0;
-}
-
-.app-box {
-  display: flex;
-  flex-direction: column;
-  width: 100vw;
-  height: 100vh;
-}
-
-.app-header {
-  width: 100%;
-  height: unset;
-  z-index: 10;
-}
-
-.app-aside-and-main {
-  flex-grow: 1;
-  overflow: hidden;
-}
-
-.app-aside {
   position: relative;
-  scrollbar-width: none;
-  width: unset;
-  margin: 0 var(--global-interval) var(--global-interval) var(--global-interval);
-  border-radius: var(--global-border-radius) 0 0 var(--global-border-radius);
-  background-color: #191a23;
 }
 
-.app-main {
-  scrollbar-width: none;
-  margin: 0 var(--global-interval) var(--global-interval) 0;
-  border-radius: 0 var(--global-border-radius) var(--global-border-radius) 0;
+.el-menu {
+  border-right: 0;
 }
 
-.default-page {
-  margin: 0 !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
+.el-menu--collapse {
+  width: auto;
 }
 
-@media screen and (max-width: 1000px) {
-  .app-aside {
-    position: fixed;
-    z-index: 10;
-    top: 0;
-    height: 100%;
-    left: -100px;
+
+.box-header {
+  --box-header-height: 50px;
+  z-index: 3;
+  height: var(--box-header-height);
+  font-size: 12px;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px 0 var(--cb-color-shadow, rgba(0, 0, 0, 0.16));
+  padding: var(--global-padding);
+}
+
+.header-logo {
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.header-name {
+  margin-left: calc(var(--global-padding)/2);
+  font-weight: 550;
+  font-size: 20px;
+  // font-family: emoji;
+  /* display: inline-block; */
+  // font-style: italic;
+}
+
+.header-menu {
+  height: var(--box-header-height);
+  font-size: 12px;
+  border-bottom: 0px;
+
+  .el-menu--horizontal.el-menu {
+    border-bottom: 0px;
   }
-  .app-main {
-    margin-left: var(--global-interval);
-    border-radius: var(--global-border-radius);
+
+  .el-menu--horizontal>.el-menu-item {
+    border-bottom: 0px;
   }
+
+  .el-menu--horizontal .el-menu {
+    border-bottom: 0px;
+  }
+}
+
+.header-user {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
+.left {
+  margin-left: auto;
+}
+
+.box-asside-and-main {
+  height: calc(100vh - var(--box-header-height));
+  overflow: hidden
+}
+
+.box-aside {
+  width: auto;
+  box-shadow: 1px 2px 4px 0 var(--cb-color-shadow, rgba(0, 0, 0, 0.16));
 }
 </style>

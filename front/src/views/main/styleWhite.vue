@@ -76,7 +76,7 @@ import { onBeforeMount, ref } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 import Main from '@/views/main/components/main.vue'
-import MenuTree from '@/views/main/components/menuTree.vue'
+import MenuTree from '@/views/main/menuTree.vue'
 
 const userStroe = useUserStore()
 const user = ref({})

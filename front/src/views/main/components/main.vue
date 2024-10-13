@@ -16,7 +16,6 @@
 <script setup></script>
 
 <style lang="scss">
-@import '@/assets/globalSet.scss';
 
 .app-content {
   background-color: #fff;

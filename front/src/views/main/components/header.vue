@@ -1,28 +1,5 @@
 <template>
-  <div class="in-header">
-    <el-breadcrumb separator-icon="ArrowRight">
-      <el-breadcrumb-item v-for="item in matched.slice(1, matched.length)" :key="item.path"
-        >{{ fmtTitle(item.meta.title, route) }}
-      </el-breadcrumb-item>
-    </el-breadcrumb>
-    <div style="display: flex; justify-content: space-between">
-      <div class="username">{{ user.username }}</div>
-      <el-popover :width="80">
-        <template #reference>
-          <el-avatar :src="user.avatar" @error="errorHandler">
-            <el-icon style="font-size: 20px">
-              <UserFilled />
-            </el-icon>
-          </el-avatar>
-        </template>
-        <template #default>
-          <div class="demo-rich-conent" style="display: flex; gap: 16px; flex-direction: column">
-            <el-button link @click="logout">退出</el-button>
-          </div>
-        </template>
-      </el-popover>
-    </div>
-  </div>
+  
   <Tab v-if="!$route.meta.default_menu" />
 </template>
 
@@ -47,7 +24,6 @@ const logout = () => {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/globalSet.scss';
 
 .in-header {
   box-sizing: border-box;

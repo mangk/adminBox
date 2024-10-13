@@ -279,7 +279,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/globalSet.scss';
 
 .icon-select {
   :deep(.el-select__placeholder) {

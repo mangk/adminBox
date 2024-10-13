@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import MenuTree from '@/views/main/components/menuTree.vue'
+import MenuTree from '@/views/main/menuTree.vue'
 import { onBeforeMount, ref } from 'vue'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 
@@ -68,7 +68,7 @@ window.onresize = () => {
 }
 
 .logo {
-  padding: calc(var(--global-padding) / 2);
+  padding:0;
 }
 
 .logo-title {
@@ -95,7 +95,6 @@ window.onresize = () => {
 
 .el-menu {
   border-right: 0;
-  max-width: 240px;
   overflow-x: hidden;
 }
 

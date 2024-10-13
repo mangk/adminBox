@@ -3,6 +3,7 @@ window.adminBox = {
     Host: 'http://127.0.0.1:8910',
     IsRewriteIndex: false,
     BackendRouterPrefix: '',
+    Locale: "zhCn",
     /*** .writeByadminBox_config ***/
 }
 

@@ -291,7 +291,6 @@ onUnmounted(() => {
 </script>
 
 <style lang="scss">
-@import '@/assets/globalSet.scss';
 
 .app-tab {
   position: -webkit-sticky;
