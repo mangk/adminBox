@@ -29,13 +29,13 @@
               <el-collapse-item title="主题设置" name="1">
                 <div>
                   <el-tag v-for="color in colors" :key="color" :color="color.value"
-                    @click="themeElColorPrimary = color.value" />
+                    @click="setThemeElColorPrimary(color.value)" />
                 </div>
                 <div style="display: flex; justify-content: space-between">
-                  顶部菜单<el-switch v-model="headerMenu" :disabled="mobileDevice" />
+                  顶部菜单<el-switch v-model="headerMenu" @change="setHeaderMenu" :disabled="mobileDevice" />
                 </div>
                 <div style="display: flex; justify-content: space-between">
-                  深色边栏<el-switch v-model="darkSidebar" />
+                  深色边栏<el-switch v-model="darkSidebar" @change="setDarkSidebar" />
                 </div>
               </el-collapse-item>
             </el-collapse>
@@ -73,16 +73,36 @@
 
 <script setup>
 import MenuTree from '@/views/main/menuTree.vue'
-import { ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount, reactive } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 import { useCssVar } from '@vueuse/core'
 
 // theme
-const mobileDevice = ref(true)
-const headerMenu = ref(false)
-const darkSidebar = ref(true)
+const cfg = reactive(localStorage.getItem("x-theme-config") ? JSON.parse(localStorage.getItem("x-theme-config")) : { darkSidebar: true })
+
+const mobileDevice = ref(false)
+const headerMenu = ref(cfg.headerMenu)
+const setHeaderMenu = (v) => {
+  cfg.headerMenu = v
+  localStorage.setItem("x-theme-config", JSON.stringify(cfg))
+}
+
+const darkSidebar = ref(cfg.darkSidebar)
+const setDarkSidebar = (v) => {
+  cfg.darkSidebar = v
+  localStorage.setItem("x-theme-config", JSON.stringify(cfg))
+}
+
 const themeElColorPrimary = useCssVar('--el-color-primary')
+if (cfg.colorPrimary) {
+  themeElColorPrimary.value = cfg.colorPrimary
+}
+const setThemeElColorPrimary = (v) => {
+  themeElColorPrimary.value = v
+  cfg.colorPrimary = v
+  localStorage.setItem("x-theme-config", JSON.stringify(cfg))
+}
 
 const darkSidebarColor = '#2d2d32'
 const colors = [

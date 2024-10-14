@@ -24,6 +24,7 @@ func main() {
 	front.SetAdminBoxJsUserCodeSnippet(`
     Name: 'GOSKI',
     Host: '',
+	Logo:'https://ch.goski.cn/1.ico',
 	`, "")
 
 	// front.RewriteIndex(func(ctx *gin.Context) {
