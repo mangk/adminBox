@@ -6,10 +6,12 @@ import { defineAsyncComponent, markRaw } from 'vue'
 import http from './utils/requester'
 import { importView } from './utils/routerFormat'
 
-const loadJS = (url, callback) => {
+const loadJS = (url, callback = null) => {
   // 检查是否已经加载过该脚本
   if (document.querySelector(`script[src="${url}"]`)) {
-    callback()
+    if (typeof callback === 'function') {
+      callback()
+    }
     return
   }
 

@@ -2,7 +2,7 @@
   <div style="padding: var(--global-padding);" class="t">
     测试
     <el-button @click="count1++">Count is: {{ count1 }}</el-button>
-    <el-button @click="open">Count is: {{ count1 }}</el-button>
+    <el-button @click="open1">Count is: {{ count1 }}</el-button>
     <div style="width: 100px;height: 100px;background-color: #529b2e"></div>
     <div style="" class="text-3xl underline font-black border-amber-700 bg-red-500">
       Hello world!
@@ -21,7 +21,7 @@ proxy.$loadJS("https://cdn.tailwindcss.com")
 
 const BBB = proxy.$loadTMPL('http://127.0.0.1:8910/b', "fdasdf")
 
-const open = () => {
+const open1 = () => {
   console.log(proxy);
   proxy.$message("聪明2");
   console.log(proxy.$axios)

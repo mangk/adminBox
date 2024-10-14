@@ -1,30 +1,16 @@
 <template>
   <el-container style="width: 100%; height: 100%">
-    <el-header
-      class="box-header"
-      :style="{
-        'background-color': darkSidebar ? darkSidebarColor : '',
-        color: darkSidebar ? '#fff' : ''
-      }"
-    >
+    <el-header class="box-header" :style="{
+      'background-color': darkSidebar ? darkSidebarColor : '',
+      color: darkSidebar ? '#fff' : ''
+    }">
       <img class="header-logo" :src="logo" />
       <div class="header-name" v-if="!mobileDevice">{{ name }}</div>
-      <el-scrollbar style="height: unset">
-        <el-menu
-          v-if="headerMenu || mobileDevice"
-          class="header-menu"
-          :default-active="$route.name"
-          @open="handleOpen"
-          @close="handleClose"
-          :collapse="isCollapse"
-          unique-opened
-          router
-          mode="horizontal"
-          :ellipsis="false"
-          :background-color="darkSidebar ? darkSidebarColor : ''"
-          :text-color="darkSidebar ? '#fff' : ''"
-          style="width: auto"
-        >
+      <el-scrollbar style="height: unset;margin: 0 8px;">
+        <el-menu v-if="headerMenu || mobileDevice" class="header-menu" :default-active="$route.name" @open="handleOpen"
+          @close="handleClose" :collapse="isCollapse" unique-opened router mode="horizontal" :ellipsis="false"
+          :background-color="darkSidebar ? darkSidebarColor : ''" :text-color="darkSidebar ? '#fff' : ''"
+          style="width: auto">
           <MenuTree :menus="menuList" />
         </el-menu>
       </el-scrollbar>
@@ -42,12 +28,8 @@
             <el-collapse accordion>
               <el-collapse-item title="主题设置" name="1">
                 <div>
-                  <el-tag
-                    v-for="color in colors"
-                    :key="color"
-                    :color="color.value"
-                    @click="themeElColorPrimary = color.value"
-                  />
+                  <el-tag v-for="color in colors" :key="color" :color="color.value"
+                    @click="themeElColorPrimary = color.value" />
                 </div>
                 <div style="display: flex; justify-content: space-between">
                   顶部菜单<el-switch v-model="headerMenu" :disabled="mobileDevice" />
@@ -64,40 +46,32 @@
       </el-popover>
     </el-header>
     <el-container class="box-asside-and-main">
-      <el-aside
-        class="box-aside"
-        v-if="!headerMenu && !mobileDevice"
-        :style="{
-          'background-color': darkSidebar ? darkSidebarColor : '',
-          color: darkSidebar ? '#fff' : ''
-        }"
-      >
+      <el-aside class="box-aside" v-if="!headerMenu && !mobileDevice" :style="{
+        'background-color': darkSidebar ? darkSidebarColor : '',
+        color: darkSidebar ? '#fff' : ''
+      }">
         <el-scrollbar>
           <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-            <el-menu
-              :default-active="$route.name"
-              @open="handleOpen"
-              @close="handleClose"
-              :collapse="isCollapse"
-              unique-opened
-              router
-              :background-color="darkSidebar ? darkSidebarColor : ''"
-              :text-color="darkSidebar ? '#fff' : ''"
-            >
+            <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"
+              unique-opened router :background-color="darkSidebar ? darkSidebarColor : ''"
+              :text-color="darkSidebar ? '#fff' : ''">
               <MenuTree :menus="menuList" />
             </el-menu>
           </transition>
         </el-scrollbar>
       </el-aside>
       <el-main class="box-main">
-        <Main />
+        <router-view v-slot="{ Component }">
+          <KeepAlive>
+            <component :is="Component" :key="$route.path" />
+          </KeepAlive>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script setup>
-import Main from '@/views/main/components/main.vue'
 import MenuTree from '@/views/main/menuTree.vue'
 import { ref, onBeforeMount } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
@@ -153,8 +127,8 @@ const isCollapse = ref(false)
 
 const menuList = await useRouterStore().loadServerRouter()
 
-const handleOpen = (key, keyPath) => {}
-const handleClose = (key, keyPath) => {}
+const handleOpen = (key, keyPath) => { }
+const handleClose = (key, keyPath) => { }
 const setCollapse = () => {
   if (document.body.clientWidth >= 1100) {
     isCollapse.value = false
@@ -204,11 +178,13 @@ window.onresize = () => {
 }
 
 .header-logo {
+  flex-grow: 0;
   box-sizing: border-box;
   height: 100%;
 }
 
 .header-name {
+  flex-grow: 0;
   margin-left: calc(var(--global-padding) / 2);
   font-weight: 550;
   font-size: 20px;
@@ -218,6 +194,7 @@ window.onresize = () => {
 }
 
 .header-menu {
+  flex-grow: 1;
   height: var(--box-header-height);
   font-size: 12px;
   border-bottom: 0px;
@@ -226,7 +203,7 @@ window.onresize = () => {
     border-bottom: 0px;
   }
 
-  .el-menu--horizontal > .el-menu-item {
+  .el-menu--horizontal>.el-menu-item {
     border-bottom: 0px;
   }
 
