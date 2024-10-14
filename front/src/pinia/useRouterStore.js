@@ -8,6 +8,16 @@ import { loadTMPL } from '@/utils/loadUtil'
 
 const prefix = loadBackendPrefix()
 
+const themeMap = {
+  default: importView('views/main/styleDefault.vue'),
+}
+const loadTheme = (theme) => {
+  if (!themeMap[theme]) {
+    themeMap[theme] = loadTMPL(theme)
+  }
+  return themeMap[theme]
+}
+
 export const useRouterStore = defineStore('router', () => {
   // 服务端路由是否经过了初始化
   const initialized = ref(0)
@@ -26,18 +36,11 @@ export const useRouterStore = defineStore('router', () => {
 
     let u = userStore.userInfo()
 
-    let styleMap = {
-      default: importView('views/main/styleDefault.vue'),
-      white: loadTMPL('http://127.0.0.1:8910/component/white', 'styleWhite')
-    }
-
-    let main = styleMap[u.user_config.theme ? u.user_config.theme : 'default']
-
     router.addRoute({
       path: '/' + prefix,
       name: prefix,
       meta: { icon: 'add' },
-      component: main ? main : styleMap.default, // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
+      component: loadTheme(u.user_config.theme ? u.user_config.theme : 'default'), // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
       children: serverRouter.value
     })
     return serverRouter.value

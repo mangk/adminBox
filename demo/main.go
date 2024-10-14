@@ -20,6 +20,9 @@ func main() {
 	router.GET("component/t2", func(ctx *gin.Context) {
 		ctx.String(200, "%s", components.T2)
 	})
+	router.GET("component/white", func(ctx *gin.Context) {
+		front.DynamicTemplate(ctx, "/Users/mangk/Data/Code/adminBox/demo/handler/components/styleWhite.vue")
+	})
 
 	front.SetAdminBoxJsUserCodeSnippet(`
     Name: 'GOSKI',

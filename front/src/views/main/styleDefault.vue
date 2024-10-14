@@ -72,8 +72,7 @@
 </template>
 
 <script setup>
-import MenuTree from '@/views/main/menuTree.vue'
-import { ref, onBeforeMount, reactive } from 'vue'
+import { ref, onBeforeMount, reactive, getCurrentInstance } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 import { useCssVar } from '@vueuse/core'

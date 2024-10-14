@@ -13,7 +13,9 @@ const register = async (app) => {
 
   // 注册全局组件
   const FileUpload = await importView('views/util/fileUpload.vue')()
+  const MenuTree = await importView('views/main/menuTree.vue')()
   app.component('FileUpload', FileUpload.default || FileUpload)
+  app.component('MenuTree', MenuTree.default || MenuTree)
 
   // 注册js加载方法
   app.config.globalProperties.$loadJS = loadJS
@@ -30,8 +32,6 @@ const register = async (app) => {
   app.config.globalProperties.$useUserStore = useUserStore
 
   app.config.globalProperties.$useRouterStore = useRouterStore
-
-
 }
 
 export default {

@@ -7,3 +7,6 @@ var T1 string
 
 //go:embed t2.vue
 var T2 string
+
+//go:embed styleWhite.vue
+var White string
