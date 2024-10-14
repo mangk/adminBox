@@ -70,24 +70,7 @@ http.interceptors.response.use(
     // if (response.headers['new-token']) {
     //     userStore.setToken(response.headers['new-token'])
     // }
-    if (response.data.code === 0 || response.headers.success === 'true') {
-      if (response.headers.msg) {
-        response.data.msg = decodeURI(response.headers.msg)
-      }
-      return response.data
-    } else {
-      ElMessage({
-        showClose: true,
-        message: response.data.msg || decodeURI(response.headers.msg),
-        type: 'error'
-      })
-      if (response.data.data && response.data.data.reload) {
-        // userStore.token = ''
-        localStorage.clear()
-        router.push({ name: 'login', replace: true })
-      }
-      return response.data
-    }
+    return response.data
   },
   (error) => {
     if (!error.config.donNotShowLoading) {

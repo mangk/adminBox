@@ -4,6 +4,7 @@ import { userPermission } from '@/api/auth'
 import { formatRouter, importView, loadBackendPrefix } from '@/utils/routerFormat'
 import router from '@/router/index.js'
 import { useUserStore } from './useUserStore'
+import http from '@/utils/requester'
 
 const prefix = loadBackendPrefix()
 

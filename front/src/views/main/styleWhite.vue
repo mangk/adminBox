@@ -3,15 +3,13 @@
     <el-header v-if="!$route.meta.default_menu">
       <img class="logo" :src="logo" alt="" style="height: 40px" />
       <div style="display: flex; flex-flow: row nowrap; align-items: center">
-        <div
-          style="
+        <div style="
             margin-right: 40px;
             font-size: 14px;
             display: flex;
             flex-flow: row nowrap;
             align-items: center;
-          "
-        >
+          ">
           <el-icon style="margin-right: 5px; font-size: 16px">
             <Message />
           </el-icon>
@@ -27,45 +25,32 @@
       </div>
     </el-header>
     <el-container class="main">
-      <el-aside
-        v-if="!$route.meta.default_menu"
-        @mouseenter="btnCollapseShow = true"
-        @mouseleave="
+      <el-aside v-if="!$route.meta.default_menu" @mouseenter="btnCollapseShow = true" @mouseleave="
           () => {
             btnCollapseShow = false
             isHideActive = false
           }
-        "
-        :class="[isHide ? 'hideAside' : '', isHideActive ? 'hideAsideActive' : '']"
-      >
-        <el-menu
-          :default-active="$route.name"
-          @open="handleOpen"
-          @close="handleClose"
-          :collapse="isCollapse"
-          unique-opened
-          router
-        >
+        " :class="[isHide ? 'hideAside' : '', isHideActive ? 'hideAsideActive' : '']">
+        <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"
+          unique-opened router>
           <MenuTree :menus="menuList" />
-          <img
-            class="btnCollapseShow"
-            @click="isCollapse = !isCollapse"
-            :src="isCollapse ? toRight : toLeft"
-            alt=""
-            v-if="btnCollapseShow && !isHide"
-          />
+          <img class="btnCollapseShow" @click="isCollapse = !isCollapse" :src="isCollapse ? toRight : toLeft" alt=""
+            v-if="btnCollapseShow && !isHide" />
         </el-menu>
-        <img
-          class="btnCollapseShow"
-          style="position: fixed; left: 0px; z-index: 4; transform: rotateY(180deg)"
-          @click="isHideActive = !isHideActive"
-          :src="toLeft"
-          alt=""
-          v-if="isHide && !isHideActive"
-        />
+        <img class="btnCollapseShow" style="position: fixed; left: 0px; z-index: 4; transform: rotateY(180deg)"
+          @click="isHideActive = !isHideActive" :src="toLeft" alt="" v-if="isHide && !isHideActive" />
       </el-aside>
       <el-main>
-        <Main />
+        <router-view v-slot="{ Component }">
+          <template v-if="$route.meta.keep_alive">
+            <keep-alive>
+              <component :is="Component" :key="$route.path" />
+            </keep-alive>
+          </template>
+          <template v-else>
+            <component :is="Component" :key="$route.path" />
+          </template>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>
@@ -75,7 +60,6 @@
 import { onBeforeMount, ref } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
-import Main from '@/views/main/components/main.vue'
 import MenuTree from '@/views/main/menuTree.vue'
 
 const userStroe = useUserStore()
@@ -126,7 +110,7 @@ window.onresize = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 html,
 body {
   margin: 0;
