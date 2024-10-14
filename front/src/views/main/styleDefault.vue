@@ -50,7 +50,7 @@
         'background-color': darkSidebar ? darkSidebarColor : '',
         color: darkSidebar ? '#fff' : ''
       }">
-        <el-scrollbar>
+        <el-scrollbar @mouseover="isCollapse = false" @mouseleave="isCollapse = true">
           <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
             <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"
               unique-opened router :background-color="darkSidebar ? darkSidebarColor : ''"
