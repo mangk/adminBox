@@ -7,7 +7,6 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
@@ -43,37 +42,18 @@ func SetAdminBoxJsUserCodeSnippet(cfg, function string) {
 	writeByadminBoxFunc = function
 }
 
-func LoadIndexPathPrefix() string {
-	indexPathPrefix := ""
-	if config.ServerCfg().FrontRouterPrefix != "" {
-		indexPathPrefix = strings.TrimRight(config.ServerCfg().FrontRouterPrefix, "/")
-	}
-	return indexPathPrefix
-}
-
 func (front) InitModule() {
 	root := myHttp.HttpEngine()
 
-	indexPathPrefix := LoadIndexPathPrefix()
-
-	if indexPathPrefix != "" {
-		root.GET(indexPathPrefix+"/", func(ctx *gin.Context) {
+	root.GET("/", func(ctx *gin.Context) {
+		_, has := ctx.GetQuery("front")
+		if frontIndexHanler != nil && !has {
+			frontIndexHanler(ctx)
+		} else {
 			d, _ := fs.ReadFile(frontFiles, "dist/index.html")
 			ctx.Data(200, "text/html; charset=utf-8", d)
-		})
-	}
-
-	if indexPathPrefix == "" {
-		root.GET("/", func(ctx *gin.Context) {
-			if frontIndexHanler != nil {
-				frontIndexHanler(ctx)
-			} else {
-				d, _ := fs.ReadFile(frontFiles, "dist/index.html")
-				ctx.Data(200, "text/html; charset=utf-8", d)
-			}
-		})
-
-	}
+		}
+	})
 
 	assets, _ := fs.Sub(frontFiles, "dist/assets")
 	root.StaticFS("/assets", http.FS(assets))
@@ -85,12 +65,7 @@ func (front) InitModule() {
 	root.SetHTMLTemplate(template.Must(template.New("").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
 	root.GET("/adminBox.js", func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/javascript")
-		allConfig := fmt.Sprintf(`IsRewriteIndex: %t,
-BackendRouterPrefix: '%s',
-%s`,
-			frontIndexHanler != nil,
-			config.ServerCfg().BackendRouterPrefix,
-			writeByadminBoxConfig)
+		allConfig := fmt.Sprintf(`IsRewriteIndex: %t,BackendRouterPrefix: '%s',%s`, frontIndexHanler != nil, config.ServerCfg().BackendRouterPrefix, writeByadminBoxConfig)
 		ctx.HTML(http.StatusOK, "adminBox.js", gin.H{
 			"writeByadminBox_config": template.HTML(allConfig),
 			"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
