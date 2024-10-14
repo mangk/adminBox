@@ -4,7 +4,7 @@ import { userPermission } from '@/api/auth'
 import { formatRouter, importView, loadBackendPrefix } from '@/utils/routerFormat'
 import router from '@/router/index.js'
 import { useUserStore } from './useUserStore'
-import http from '@/utils/requester'
+import { loadTMPL } from '@/utils/loadUtil'
 
 const prefix = loadBackendPrefix()
 
@@ -28,7 +28,7 @@ export const useRouterStore = defineStore('router', () => {
 
     let styleMap = {
       default: importView('views/main/styleDefault.vue'),
-      white: importView('views/main/styleWhite.vue')
+      white: loadTMPL('http://127.0.0.1:8910/component/white', 'styleWhite')
     }
 
     let main = styleMap[u.user_config.theme ? u.user_config.theme : 'default']

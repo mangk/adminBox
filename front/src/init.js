@@ -3,6 +3,8 @@ import { ElMessage } from 'element-plus'
 import http from './utils/requester'
 import { importView } from './utils/routerFormat'
 import { loadJS, loadTMPL } from './utils/loadUtil'
+import { useUserStore } from '@/pinia/useUserStore'
+import { useRouterStore } from '@/pinia/useRouterStore.js'
 
 const register = async (app) => {
   for (const iconName in ElIconModules) {
@@ -24,6 +26,12 @@ const register = async (app) => {
 
   // 注册http请求方法
   app.config.globalProperties.$http = http
+
+  app.config.globalProperties.$useUserStore = useUserStore
+
+  app.config.globalProperties.$useRouterStore = useRouterStore
+
+
 }
 
 export default {
