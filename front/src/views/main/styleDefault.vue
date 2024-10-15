@@ -1,16 +1,30 @@
 <template>
   <el-container style="width: 100%; height: 100%">
-    <el-header class="box-header" :style="{
-      'background-color': darkSidebar ? darkSidebarColor : '',
-      color: darkSidebar ? '#fff' : ''
-    }">
+    <el-header
+      class="box-header"
+      :style="{
+        'background-color': darkSidebar ? darkSidebarColor : '',
+        color: darkSidebar ? '#fff' : ''
+      }"
+    >
       <img class="header-logo" :src="logo" />
       <div class="header-name" v-if="!mobileDevice">{{ name }}</div>
-      <el-scrollbar style="height: unset;margin: 0 8px;">
-        <el-menu v-if="headerMenu || mobileDevice" class="header-menu" :default-active="$route.name" @open="handleOpen"
-          @close="handleClose" :collapse="isCollapse" unique-opened router mode="horizontal" :ellipsis="false"
-          :background-color="darkSidebar ? darkSidebarColor : ''" :text-color="darkSidebar ? '#fff' : ''"
-          style="width: auto">
+      <el-scrollbar style="height: unset; margin: 0 8px">
+        <el-menu
+          v-if="headerMenu || mobileDevice"
+          class="header-menu"
+          :default-active="$route.name"
+          @open="handleOpen"
+          @close="handleClose"
+          :collapse="isCollapse"
+          unique-opened
+          router
+          mode="horizontal"
+          :ellipsis="false"
+          :background-color="darkSidebar ? darkSidebarColor : ''"
+          :text-color="darkSidebar ? '#fff' : ''"
+          style="width: auto"
+        >
           <MenuTree :menus="menuList" />
         </el-menu>
       </el-scrollbar>
@@ -28,11 +42,19 @@
             <el-collapse accordion>
               <el-collapse-item title="主题设置" name="1">
                 <div>
-                  <el-tag v-for="color in colors" :key="color" :color="color.value"
-                    @click="setThemeElColorPrimary(color.value)" />
+                  <el-tag
+                    v-for="color in colors"
+                    :key="color"
+                    :color="color.value"
+                    @click="setThemeElColorPrimary(color.value)"
+                  />
                 </div>
                 <div style="display: flex; justify-content: space-between">
-                  顶部菜单<el-switch v-model="headerMenu" @change="setHeaderMenu" :disabled="mobileDevice" />
+                  顶部菜单<el-switch
+                    v-model="headerMenu"
+                    @change="setHeaderMenu"
+                    :disabled="mobileDevice"
+                  />
                 </div>
                 <div style="display: flex; justify-content: space-between">
                   深色边栏<el-switch v-model="darkSidebar" @change="setDarkSidebar" />
@@ -46,15 +68,26 @@
       </el-popover>
     </el-header>
     <el-container class="box-asside-and-main">
-      <el-aside class="box-aside" v-if="!headerMenu && !mobileDevice" :style="{
-        'background-color': darkSidebar ? darkSidebarColor : '',
-        color: darkSidebar ? '#fff' : ''
-      }">
+      <el-aside
+        class="box-aside"
+        v-if="!headerMenu && !mobileDevice"
+        :style="{
+          'background-color': darkSidebar ? darkSidebarColor : '',
+          color: darkSidebar ? '#fff' : ''
+        }"
+      >
         <el-scrollbar>
           <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-            <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"
-              unique-opened router :background-color="darkSidebar ? darkSidebarColor : ''"
-              :text-color="darkSidebar ? '#fff' : ''">
+            <el-menu
+              :default-active="$route.name"
+              @open="handleOpen"
+              @close="handleClose"
+              :collapse="isCollapse"
+              unique-opened
+              router
+              :background-color="darkSidebar ? darkSidebarColor : ''"
+              :text-color="darkSidebar ? '#fff' : ''"
+            >
               <MenuTree :menus="menuList" />
             </el-menu>
           </transition>
@@ -78,19 +111,23 @@ import { useRouterStore } from '@/pinia/useRouterStore.js'
 import { useCssVar } from '@vueuse/core'
 
 // theme
-const cfg = reactive(localStorage.getItem("x-theme-config") ? JSON.parse(localStorage.getItem("x-theme-config")) : { darkSidebar: true })
+const cfg = reactive(
+  localStorage.getItem('x-theme-config')
+    ? JSON.parse(localStorage.getItem('x-theme-config'))
+    : { darkSidebar: true }
+)
 
 const mobileDevice = ref(false)
 const headerMenu = ref(cfg.headerMenu)
 const setHeaderMenu = (v) => {
   cfg.headerMenu = v
-  localStorage.setItem("x-theme-config", JSON.stringify(cfg))
+  localStorage.setItem('x-theme-config', JSON.stringify(cfg))
 }
 
 const darkSidebar = ref(cfg.darkSidebar)
 const setDarkSidebar = (v) => {
   cfg.darkSidebar = v
-  localStorage.setItem("x-theme-config", JSON.stringify(cfg))
+  localStorage.setItem('x-theme-config', JSON.stringify(cfg))
 }
 
 const themeElColorPrimary = useCssVar('--el-color-primary')
@@ -100,7 +137,7 @@ if (cfg.colorPrimary) {
 const setThemeElColorPrimary = (v) => {
   themeElColorPrimary.value = v
   cfg.colorPrimary = v
-  localStorage.setItem("x-theme-config", JSON.stringify(cfg))
+  localStorage.setItem('x-theme-config', JSON.stringify(cfg))
 }
 
 const darkSidebarColor = '#2d2d32'
@@ -146,8 +183,8 @@ const isCollapse = ref(false)
 
 const menuList = await useRouterStore().loadServerRouter()
 
-const handleOpen = (key, keyPath) => { }
-const handleClose = (key, keyPath) => { }
+const handleOpen = (key, keyPath) => {}
+const handleClose = (key, keyPath) => {}
 const setCollapse = () => {
   if (document.body.clientWidth >= 1100) {
     isCollapse.value = false
@@ -222,7 +259,7 @@ window.onresize = () => {
     border-bottom: 0px;
   }
 
-  .el-menu--horizontal>.el-menu-item {
+  .el-menu--horizontal > .el-menu-item {
     border-bottom: 0px;
   }
 

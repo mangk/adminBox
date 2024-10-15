@@ -1,5 +1,5 @@
 <template>
-  <div style="padding: 10px">
+  <div class="welcome">
     <el-card>
       <div style="display: flex; flex-flow: row nowrap; justify-content: space-between">
         <div style="margin: 10px; font-size: 24px">您好，{{ user.nick_name }}！</div>
@@ -26,4 +26,8 @@ const logout = () => {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.welcome {
+  padding: 10px;
+}
+</style>

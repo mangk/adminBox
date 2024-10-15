@@ -9,7 +9,7 @@ import { loadTMPL } from '@/utils/loadUtil'
 const prefix = loadBackendPrefix()
 
 const themeMap = {
-  default: importView('views/main/styleDefault.vue'),
+  default: importView('views/main/styleDefault.vue')
 }
 const loadTheme = (theme) => {
   if (!themeMap[theme]) {
