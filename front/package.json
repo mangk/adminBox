@@ -20,8 +20,7 @@
     "terser": "^5.31.1",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
-    "vue3-sfc-loader": "^0.9.5",
-    "xlsx": "^0.18.5"
+    "vue3-sfc-loader": "^0.9.5"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
