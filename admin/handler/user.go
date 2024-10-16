@@ -23,7 +23,7 @@ func User(ctx *gin.Context) {
 	}
 
 	if count > 0 {
-		if err := query.Limit(req.PageSize).Offset(req.PageSize * (req.Page - 1)).Find(&list).Error; err != nil {
+		if err := query.Limit(int(req.PageSize)).Offset(int(req.PageSize * (req.Page - 1))).Find(&list).Error; err != nil {
 			response.FailWithError(ctx, err)
 			return
 		}

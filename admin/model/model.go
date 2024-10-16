@@ -194,7 +194,10 @@ func (t *LocalTime) UnmarshalJSON(data []byte) (err error) {
 	return nil
 }
 
-func (t LocalTime) Format() string {
+func (t LocalTime) Format(layout ...string) string {
+	if len(layout) > 0 {
+		return time.Time(t).Format(layout[0])
+	}
 	loc, _ := time.LoadLocation(TimeZone)
 	tTime := time.Time(t).In(loc)
 	return tTime.Format(TimeFormat)
@@ -271,7 +274,7 @@ func DetailWithCache(record M, id int, exp time.Duration) error {
 
 		return string(d), exp
 	})
-	
+
 	if data == msg {
 		return errors.New(data)
 	}

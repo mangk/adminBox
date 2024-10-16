@@ -13,14 +13,18 @@ const ContextRoleUserIdKey = "__role_user_id__"
 type PublicPageRequest struct {
 	Query    map[string]interface{} `json:"query,omitempty"`
 	Sort     string                 `json:"sort,omitempty"`
-	Page     int                    `json:"page,omitempty"`
-	PageSize int                    `json:"page_size,omitempty"`
+	Page     int64                  `json:"page,omitempty"`
+	PageSize int64                  `json:"page_size,omitempty"`
 	Id       string                 `json:"id,omitempty"`
 	Ids      []string               `json:"ids,omitempty"`
 }
 
 func PublicRequest(ctx *gin.Context) PublicPageRequest {
 	return ctx.MustGet(ContextPublicRequestKey).(PublicPageRequest)
+}
+
+func PublicRequestCrud(ctx *gin.Context) CRUDRequest {
+	return ctx.MustGet(ContextPublicRequestKey).(CRUDRequest)
 }
 
 // 获取 JWT 中存储的用户信息
