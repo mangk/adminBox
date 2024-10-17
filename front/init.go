@@ -84,3 +84,22 @@ func DynamicTemplate(ctx *gin.Context, filePath string) {
 	// 发送原始 HTML 内容
 	ctx.Data(http.StatusOK, "text/html; charset=utf-8", content)
 }
+
+func TemplateBuild(filePath, embedStr string) func(ctx *gin.Context) {
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return func(ctx *gin.Context) {
+			ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(embedStr))
+		}
+	} else {
+		return func(ctx *gin.Context) {
+			content, err := os.ReadFile(filePath)
+			if err != nil {
+				ctx.String(http.StatusInternalServerError, "File reading error: %s", err.Error())
+				return
+			}
+			// 发送原始 HTML 内容
+			ctx.Data(http.StatusOK, "text/html; charset=utf-8", content)
+		}
+	}
+}
