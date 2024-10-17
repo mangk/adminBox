@@ -4,6 +4,8 @@ import { loadBackendPrefix } from '@/utils/routerFormat'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouterStore } from './useRouterStore'
+import { ElMessage } from 'element-plus'
+import { handler401 } from '@/utils/401'
 
 export const useUserStore = defineStore('user', () => {
   const initialized = ref(0)
@@ -12,21 +14,20 @@ export const useUserStore = defineStore('user', () => {
   const _userTypeStroageKey = 'x-user-type'
   const _userIdStroageKey = 'x-user-id'
 
-  const token = () => {
-    var token = localStorage.getItem(_tokenStorageKey)
-    if (!token) {
-      router.replace({ name: 'login' })
-      return
+  const userAuth = () => {
+    let v1 = localStorage.getItem(_tokenStorageKey)
+    let v2 = localStorage.getItem(_userTypeStroageKey)
+    let v3 = localStorage.getItem(_userIdStroageKey)
+    if (v1 && v2 && v3) {
+      return {
+        token: v1,
+        userType: v2,
+        userId: v3,
+      }
+    } else {
+      handler401(true)
+      return false
     }
-    return token
-  }
-
-  const userType = () => {
-    return localStorage.getItem(_userTypeStroageKey)
-  }
-
-  const userId = () => {
-    return localStorage.getItem(_userIdStroageKey)
   }
 
   const userInfo = (refresh = false) => {
@@ -44,6 +45,7 @@ export const useUserStore = defineStore('user', () => {
     const backendPrefix = loadBackendPrefix()
     var res = await login(form)
     if (res.code != 0) {
+      ElMessage.error(res.msg)
       return ''
     }
 
@@ -55,6 +57,10 @@ export const useUserStore = defineStore('user', () => {
 
     const routerStore = useRouterStore()
     await routerStore.loadServerRouter(true)
+
+    if (router.currentRoute.value.query.redirect) {
+      return decodeURIComponent(router.currentRoute.value.query.redirect)
+    }
 
     return res.data.user_config.home_page
       ? res.data.user_config.home_page
@@ -79,11 +85,9 @@ export const useUserStore = defineStore('user', () => {
     initialized,
     userInfo,
     setUserData,
-    token,
-    userType,
-    userId,
     logIn,
     logOut,
-    isLogIn
+    isLogIn,
+    userAuth
   }
 })

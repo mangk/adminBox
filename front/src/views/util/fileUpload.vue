@@ -93,7 +93,7 @@
       <el-upload
         drag
         :action="`${serverHost()}/sys/fileUpload/upload?driver=${driver}`"
-        :headers="{ Authorization: 'Bearer ' + userStore.token() }"
+        :headers="{ Authorization: 'Bearer ' + userStore.userAuth().token }"
         :show-file-list="false"
         multiple
         :on-success="uploadSuccess"
