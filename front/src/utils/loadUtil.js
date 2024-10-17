@@ -47,7 +47,10 @@ export function loadTMPL(url, name = 'myConvert') {
       const style = document.createElement('style')
       style.setAttribute('id', name)
       style.textContent = styleString
-      const ref = document.head.getElementsByTagName('style')[0] || null
+      const ref =
+        document.head.getElementsByTagName('style')[
+          document.head.getElementsByTagName('style').length - 1
+        ] || null
       document.head.insertBefore(style, ref)
     }
   }
