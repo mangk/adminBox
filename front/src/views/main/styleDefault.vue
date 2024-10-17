@@ -220,7 +220,6 @@ window.onresize = () => {
 }
 
 .box-header {
-  --box-header-height: 50px;
   position: sticky;
   z-index: 3;
   height: var(--box-header-height);
