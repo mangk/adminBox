@@ -1,7 +1,7 @@
 <template>
   <div class="welcome">
     <el-card>
-      <div style="display: flex; flex-flow: row nowrap; justify-content: space-between">
+      <div style="display: flex; flex-flow: row wrap; justify-content: space-between">
         <div style="margin: 10px; font-size: 24px">您好，{{ user.nick_name }}！</div>
         <img
           style="height: 300px"

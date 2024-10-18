@@ -44,13 +44,13 @@
               boxShadow: headerMenu || mobileDevice ? '-2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
             }"
           >
-            <span v-if="!mobileDevice">{{ user.username }}</span>
+            <span v-if="!mobileDevice">{{ user.nick_name }}</span>
             <el-avatar :src="user.avatar" icon="UserFilled" :size="30" style="margin-left: 5px" />
           </div>
         </template>
         <template #default>
           <div class="demo-rich-conent" style="display: flex; gap: 6px; flex-direction: column">
-            <span v-if="mobileDevice">{{ user.username }}</span>
+            <span v-if="mobileDevice">{{ user.nick_name }}</span>
             <el-collapse accordion>
               <el-collapse-item title="显示" name="1">
                 <div>
@@ -106,8 +106,8 @@
         </el-scrollbar>
       </el-aside>
       <el-main class="box-main">
-        <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-          <router-view v-slot="{ Component }">
+        <router-view v-slot="{ Component }">
+          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
             <template v-if="$route.meta.keep_alive">
               <keep-alive>
                 <component :is="Component" :key="$route.path" />
@@ -116,8 +116,8 @@
             <template v-else>
               <component :is="Component" :key="$route.path" />
             </template>
-          </router-view>
-        </transition>
+          </transition>
+        </router-view>
       </el-main>
     </el-container>
   </el-container>

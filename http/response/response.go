@@ -27,7 +27,7 @@ const (
 	SuccessStatus = 0
 	FailStatus    = -1
 
-	MsgOK   = ""
+	MsgOK   = "ok"
 	MsgFail = "fail"
 )
 

@@ -1,13 +1,63 @@
 <template>
-  <div class="main-content">
-    <el-form-item label="">
-      <el-button type="primary" @click="edit()">
-        <el-icon>
-          <Plus />
-        </el-icon>
-        新增用户
-      </el-button>
-    </el-form-item>
+  <div class="main-content" style="background-color: #fff">
+    <el-form :inline="true">
+      <el-form-item>
+        <el-input
+          v-model="search.keyword"
+          placeholder="昵称/用户名/手机号/Email"
+          clearable
+          style="width: 190px"
+        />
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="search.enable" placeholder="是否启用" clearable style="width: 120px">
+          <el-option key="1" label="是" value="1" />
+          <el-option key="2" label="否" value="0" />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-select v-model="search.role" placeholder="授权角色" clearable style="width: 120px">
+          <el-option
+            v-for="item in roleOption"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id + ''"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-select
+          v-model="search.department"
+          placeholder="所属部门"
+          clearable
+          style="width: 120px"
+        >
+          <el-option
+            v-for="item in departmentOption"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id + ''"
+          />
+        </el-select>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary" @click="loadData">
+          <el-icon>
+            <Search />
+          </el-icon>
+          查找
+        </el-button>
+      </el-form-item>
+      <el-form-item style="float: right; margin-right: 0px">
+        <el-button type="primary" @click="edit()">
+          <el-icon>
+            <Plus />
+          </el-icon>
+          新增用户
+        </el-button>
+      </el-form-item>
+    </el-form>
 
     <el-table
       :data="tableData"
@@ -17,14 +67,34 @@
       highlight-current-row
       show-overflow-tooltip
     >
-      <el-table-column prop="id" label="ID" sortable fixed />
-      <el-table-column prop="uuid" label="UUID" width="300" />
+      <el-table-column prop="id" label="ID" width="80" sortable fixed />
+      <!-- <el-table-column prop="uuid" label="UUID" width="300" /> -->
+      <el-table-column prop="avatar" label="头像" width="60">
+        <template #default="scope">
+          <el-avatar :src="scope.row.avatar" icon="UserFilled" :size="30" />
+        </template>
+      </el-table-column>
       <el-table-column prop="nick_name" label="昵称" width="120" />
       <el-table-column prop="username" label="用户名" />
       <el-table-column prop="phone" label="手机号" width="160" />
       <el-table-column prop="email" label="Email" width="220" />
-      <el-table-column prop="avatar" label="头像" width="120" />
-      <el-table-column prop="enable" label="是否启用" width="120" />
+      <el-table-column prop="enable" label="是否启用">
+        <template #default="scope">
+          <el-tag type="success" v-if="scope.row.enable">启用</el-tag>
+          <el-tag type="error" v-if="!scope.row.enable">禁用</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="role_list" label="角色" min-width="60">
+        <template #default="scope">
+          <template v-for="item in scope.row.role_list">{{ item.name }}、</template>
+        </template>
+      </el-table-column>
+      <el-table-column prop="department_list" label="部门" min-width="60">
+        <template #default="scope">
+          <template v-for="item in scope.row.department_list">{{ item.name }}、</template>
+        </template>
+      </el-table-column>
+
       <el-table-column fixed="right" label="操作" width="200">
         <template #default="scope">
           <el-button link type="primary" size="small" @click="edit(scope.row.id)">
@@ -42,10 +112,10 @@
           <el-popconfirm
             v-if="!scope.row.children"
             :title="
-              '删除后不可恢复，确定删除API【' +
-              scope.row.nickName +
+              '删除后不可恢复，确定删除用户【' +
+              scope.row.nick_name +
               '(' +
-              scope.row.userName +
+              scope.row.username +
               ')】?'
             "
             @confirm="del(scope.row.id)"
@@ -217,7 +287,7 @@ const departmentOption = ref([])
 const roleOption = ref([])
 
 const loadData = () => {
-  userPage(page.value, pageSize.value).then((res) => {
+  userPage(page.value, pageSize.value, search).then((res) => {
     tableData.value = res.data.list
     page.value = res.data.page
     pageSize.value = res.data.page_size
@@ -236,13 +306,6 @@ const handleCurrentChange = (changePage) => {
 }
 
 const edit = (id = false) => {
-  departmentPage().then((res) => {
-    departmentOption.value = res.data
-  })
-  roleAll().then((res) => {
-    roleOption.value = res.data
-  })
-
   if (id) {
     form.id = id
     userDetail(id).then((res) => {
@@ -313,8 +376,23 @@ const resetForm = (formEl) => {
   formEl.resetFields()
 }
 
+const search = reactive({
+  keyword: '',
+  enable: '',
+  role: '',
+  department: ''
+})
+
 onMounted(() => {
   loadData()
+
+  roleAll().then((res) => {
+    roleOption.value = res.data
+  })
+
+  departmentPage().then((res) => {
+    departmentOption.value = res.data
+  })
 })
 </script>
 

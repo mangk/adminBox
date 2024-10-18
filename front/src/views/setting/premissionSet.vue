@@ -4,6 +4,7 @@
     direction="rtl"
     :before-close="closeDrawer"
     :with-header="false"
+    :append-to-body="true"
     size="90%"
   >
     <el-table
@@ -14,7 +15,7 @@
       border
       default-expand-all
     >
-      <el-table-column label="菜单 · API · 动作" width="190px" fixed>
+      <el-table-column label="菜单 · API · 动作" width="320px" fixed>
         <template #default="scope">
           <el-icon>
             <Menu v-if="scope.row.type == 'menu'" />
@@ -48,7 +49,7 @@
 
       <el-table-column
         v-for="(item, index) in permissionOther"
-        width="120px"
+        width="220px"
         :key="index"
         :label="item.record_name"
       >
