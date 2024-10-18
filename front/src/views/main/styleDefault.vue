@@ -10,7 +10,7 @@
       <div
         class="header-logo-box"
         :style="{
-          boxShadow: headerMenu ? '2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
+          boxShadow: headerMenu || mobileDevice ? '2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
         }"
       >
         <img class="header-logo" :src="logo" />
@@ -41,7 +41,7 @@
           <div
             class="left header-user"
             :style="{
-              boxShadow: headerMenu ? '-2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
+              boxShadow: headerMenu || mobileDevice ? '-2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
             }"
           >
             <span v-if="!mobileDevice">{{ user.username }}</span>
