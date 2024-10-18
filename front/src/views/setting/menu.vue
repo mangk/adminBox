@@ -36,7 +36,7 @@
       </el-table-column>
       <el-table-column prop="name" label="路由名称" width="120" />
       <el-table-column prop="path" label="路由地址" width="120" />
-      <el-table-column prop="hidden" label="隐藏" />
+      <el-table-column prop="hidden" label="是否隐藏" />
       <el-table-column prop="pid" label="父节点" />
       <el-table-column prop="sort" label="排序" width="120" sortable />
       <el-table-column prop="component" label="模版路经" width="260" />

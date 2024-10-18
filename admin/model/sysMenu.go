@@ -48,9 +48,13 @@ func (s SysMenu) All(loadSystem bool) []SysMenu {
 	return list
 }
 
-func (s SysMenu) Tree(loadSystem, withApi, buildTree bool, userid ...int) ([]SysMenu, error) {
+func (s SysMenu) Tree(loadSystem, withApi, buildTree, loadHidden bool, sort string, userid ...int) ([]SysMenu, error) {
 	menus := []SysMenu{}
-	db.DB().Find(&menus)
+	q := db.DB().Order(sort)
+	if !loadHidden {
+		q = q.Where("hidden = false")
+	}
+	q.Find(&menus)
 
 	if loadSystem {
 		menus = append(menus, s.SystemMenu()...)

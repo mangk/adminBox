@@ -28,7 +28,12 @@
           />
         </el-form-item>
         <el-form-item style="margin-top: 30px">
-          <el-button size="large" type="primary" style="width: 100%" @click="onSubmit(formRef)"
+          <el-button
+            size="large"
+            type="primary"
+            style="width: 100%"
+            @click="onSubmit(formRef)"
+            :loading="loading"
             >登录
           </el-button>
         </el-form-item>
@@ -37,7 +42,7 @@
   </div>
 </template>
 <script setup>
-import { IsRewriteIndex, verificationCode } from '@/api/auth'
+import { verificationCode } from '@/api/auth'
 import { useUserStore } from '@/pinia/useUserStore'
 import { getCurrentInstance, reactive, ref, onMounted, onBeforeMount } from 'vue'
 import { useRouter } from 'vue-router'
@@ -70,13 +75,16 @@ const rules = reactive({
 const userStroe = useUserStore()
 const router = useRouter()
 
+const loading = ref(false)
 const onSubmit = async (formEl) => {
   if (!formEl) return
   await formEl.validate(async (valid, fields) => {
     if (!valid) {
       proxy.$message.error('请补全信息')
     } else {
+      loading.value = true
       userStroe.logIn(form).then((toRouteName) => {
+        loading.value = false
         if (!toRouteName) {
           changeVerification()
         } else {

@@ -324,5 +324,6 @@ window.onresize = () => {
   position: relative;
   z-index: 1;
   overflow-x: hidden;
+  background-color: #f0f2f5;
 }
 </style>
