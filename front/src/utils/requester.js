@@ -69,7 +69,7 @@ http.interceptors.response.use(
   },
   (error) => {
     closeLoading()
-    
+
     switch (error) {
       case 401:
         handler401(true)

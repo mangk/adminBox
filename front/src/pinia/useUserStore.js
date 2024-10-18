@@ -22,7 +22,7 @@ export const useUserStore = defineStore('user', () => {
       return {
         token: v1,
         userType: v2,
-        userId: v3,
+        userId: v3
       }
     } else {
       handler401(true)

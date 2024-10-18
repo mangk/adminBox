@@ -7,9 +7,16 @@
         color: darkSidebar ? '#fff' : ''
       }"
     >
-      <img class="header-logo" :src="logo" />
-      <div class="header-name" v-if="!mobileDevice">{{ name }}</div>
-      <el-scrollbar style="height: unset; margin: 0 8px">
+      <div
+        class="header-logo-box"
+        :style="{
+          boxShadow: headerMenu ? '2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
+        }"
+      >
+        <img class="header-logo" :src="logo" />
+        <div class="header-name" v-if="!mobileDevice">{{ name }}</div>
+      </div>
+      <el-scrollbar style="height: var(--box-header-height); margin: 0 8px">
         <el-menu
           v-if="headerMenu || mobileDevice"
           class="header-menu"
@@ -31,7 +38,12 @@
 
       <el-popover>
         <template #reference>
-          <div class="left header-user">
+          <div
+            class="left header-user"
+            :style="{
+              boxShadow: headerMenu ? '-2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
+            }"
+          >
             <span v-if="!mobileDevice">{{ user.username }}</span>
             <el-avatar :src="user.avatar" icon="UserFilled" :size="30" style="margin-left: 5px" />
           </div>
@@ -40,7 +52,7 @@
           <div class="demo-rich-conent" style="display: flex; gap: 6px; flex-direction: column">
             <span v-if="mobileDevice">{{ user.username }}</span>
             <el-collapse accordion>
-              <el-collapse-item title="主题设置" name="1">
+              <el-collapse-item title="显示" name="1">
                 <div>
                   <el-tag
                     v-for="color in colors"
@@ -235,8 +247,18 @@ window.onresize = () => {
   flex-flow: row nowrap;
   align-items: center;
   box-sizing: border-box;
-  box-shadow: 0 2px 4px 0 var(--cb-color-shadow, rgba(0, 0, 0, 0.16));
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16);
+}
+
+.header-logo-box {
+  height: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: start;
+  align-items: center;
   padding: var(--global-padding);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.16);
+  box-sizing: border-box;
 }
 
 .header-logo {
@@ -256,8 +278,9 @@ window.onresize = () => {
 }
 
 .header-menu {
+  --el-menu-item-height: var(--global-padding);
   flex-grow: 1;
-  height: var(--box-header-height);
+  height: calc(var(--box-header-height));
   font-size: 12px;
   border-bottom: 0px;
 
@@ -278,6 +301,7 @@ window.onresize = () => {
   display: flex;
   flex-flow: row nowrap;
   align-items: center;
+  padding: var(--global-padding);
 }
 
 .left {
@@ -293,7 +317,7 @@ window.onresize = () => {
   position: relative;
   z-index: 2;
   width: auto;
-  box-shadow: 1px 2px 4px 0 var(--cb-color-shadow, rgba(0, 0, 0, 0.16));
+  box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.16);
 }
 
 .box-main {
