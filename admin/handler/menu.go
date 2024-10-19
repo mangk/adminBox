@@ -19,7 +19,7 @@ func Menu(ctx *gin.Context) {
 		return
 	}
 
-	if tree, err := (model.SysMenu{}).Tree(req.LoadSystem, false, true, true, "id"); err == nil {
+	if tree, err := (model.SysMenu{}).Tree(req.LoadSystem, false, true, true, false); err == nil {
 		response.OkWithData(ctx, tree)
 	} else {
 		response.FailWithError(ctx, err)

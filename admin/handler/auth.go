@@ -77,7 +77,7 @@ func AuthVerificationCode(ctx *gin.Context) {
 
 func AuthUserPermission(ctx *gin.Context) {
 	user := request.JWTLoginUserFetch(ctx)
-	tree, err := (model.SysMenu{}).Tree(true, false, true, false, "sort desc", user.ID)
+	tree, err := (model.SysMenu{}).Tree(true, false, true, false, true, user.ID)
 	if err != nil {
 		response.FailWithError(ctx, err)
 		return

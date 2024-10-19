@@ -106,18 +106,24 @@
         </el-scrollbar>
       </el-aside>
       <el-main class="box-main">
-        <router-view v-slot="{ Component }">
-          <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
-            <template v-if="$route.meta.keep_alive">
-              <keep-alive>
+        <el-scrollbar>
+          <router-view v-slot="{ Component }">
+            <transition
+              :duration="{ enter: 800, leave: 100 }"
+              mode="out-in"
+              name="el-fade-in-linear"
+            >
+              <template v-if="$route.meta.keep_alive">
+                <keep-alive>
+                  <component :is="Component" :key="$route.path" />
+                </keep-alive>
+              </template>
+              <template v-else>
                 <component :is="Component" :key="$route.path" />
-              </keep-alive>
-            </template>
-            <template v-else>
-              <component :is="Component" :key="$route.path" />
-            </template>
-          </transition>
-        </router-view>
+              </template>
+            </transition>
+          </router-view>
+        </el-scrollbar>
       </el-main>
     </el-container>
   </el-container>

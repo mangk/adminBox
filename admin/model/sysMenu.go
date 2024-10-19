@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"slices"
 	"time"
 
 	"github.com/mangk/adminBox/cache"
@@ -48,9 +49,9 @@ func (s SysMenu) All(loadSystem bool) []SysMenu {
 	return list
 }
 
-func (s SysMenu) Tree(loadSystem, withApi, buildTree, loadHidden bool, sort string, userid ...int) ([]SysMenu, error) {
+func (s SysMenu) Tree(loadSystem, withApi, buildTree, loadHidden, sort bool, userid ...int) ([]SysMenu, error) {
 	menus := []SysMenu{}
-	q := db.DB().Order(sort)
+	q := db.DB()
 	if !loadHidden {
 		q = q.Where("hidden = false")
 	}
@@ -58,6 +59,18 @@ func (s SysMenu) Tree(loadSystem, withApi, buildTree, loadHidden bool, sort stri
 
 	if loadSystem {
 		menus = append(menus, s.SystemMenu()...)
+	}
+
+	if sort {
+		slices.SortFunc(menus, func(a, b SysMenu) int {
+			res := 0
+			if a.Sort <= b.Sort {
+				res = 1
+			} else {
+				res = -1
+			}
+			return res
+		})
 	}
 
 	if len(userid) > 0 {
@@ -166,14 +179,14 @@ func (s SysMenu) TranMap() map[int]string {
 
 func (s SysMenu) SystemMenu() []SysMenu {
 	return []SysMenu{
-		{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: true, Component: "views/welcome.vue", Sort: 100, Meta: Meta{Title: "欢迎", KeepAlive: true, Icon: "sugar"}},
-		{Model: Model{ID: -200}, Pid: 0, Name: "fileUpload", Path: "fileUpload", Component: "views/setting/index.vue", Sort: 100, Meta: Meta{Title: "文件管理", KeepAlive: true, Icon: "upload-filled"}},
-		{Model: Model{ID: -300}, Pid: 0, Name: "setting", Path: "setting", Component: "views/setting/index.vue", Sort: 100, Meta: Meta{Title: "系统设置", KeepAlive: true, Icon: "setting"}},
-		{Model: Model{ID: -301}, Pid: -300, Name: "auth", Path: "auth", Hidden: true, Component: "", Sort: 110, Meta: Meta{Title: "授权分组"}},
-		{Model: Model{ID: -302}, Pid: -300, Name: "menu", Path: "menu", Component: "views/setting/menu.vue", Sort: 120, Meta: Meta{Title: "菜单管理", KeepAlive: true, Icon: "menu"}},
-		{Model: Model{ID: -303}, Pid: -300, Name: "api", Path: "api", Component: "views/setting/api.vue", Sort: 130, Meta: Meta{Title: "API管理", KeepAlive: true, Icon: "link"}},
-		{Model: Model{ID: -304}, Pid: -300, Name: "user", Path: "user", Component: "views/setting/user.vue", Sort: 140, Meta: Meta{Title: "用户管理", KeepAlive: true, Icon: "user"}},
-		{Model: Model{ID: -305}, Pid: -300, Name: "role", Path: "role", Component: "views/setting/role.vue", Sort: 150, Meta: Meta{Title: "角色管理", KeepAlive: true, Icon: "filter"}},
-		{Model: Model{ID: -306}, Pid: -300, Name: "department", Path: "department", Component: "views/setting/department.vue", Sort: 160, Meta: Meta{Title: "部门管理", KeepAlive: true, Icon: "office-building"}},
+		{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: false, Component: "views/welcome.vue", Sort: 999999, Meta: Meta{Title: "欢迎", KeepAlive: true, Icon: "sugar"}},
+		{Model: Model{ID: -200}, Pid: 0, Name: "fileUpload", Path: "fileUpload", Component: "views/setting/index.vue", Sort: 0, Meta: Meta{Title: "文件管理", KeepAlive: true, Icon: "upload-filled"}},
+		{Model: Model{ID: -300}, Pid: 0, Name: "setting", Path: "setting", Component: "views/setting/index.vue", Sort: 0, Meta: Meta{Title: "系统设置", KeepAlive: true, Icon: "setting"}},
+		{Model: Model{ID: -301}, Pid: -300, Name: "auth", Path: "auth", Hidden: true, Component: "", Sort: 0, Meta: Meta{Title: "授权分组"}},
+		{Model: Model{ID: -302}, Pid: -300, Name: "menu", Path: "menu", Component: "views/setting/menu.vue", Sort: 0, Meta: Meta{Title: "菜单管理", KeepAlive: true, Icon: "menu"}},
+		{Model: Model{ID: -303}, Pid: -300, Name: "api", Path: "api", Component: "views/setting/api.vue", Sort: 0, Meta: Meta{Title: "API管理", KeepAlive: true, Icon: "link"}},
+		{Model: Model{ID: -304}, Pid: -300, Name: "user", Path: "user", Component: "views/setting/user.vue", Sort: 0, Meta: Meta{Title: "用户管理", KeepAlive: true, Icon: "user"}},
+		{Model: Model{ID: -305}, Pid: -300, Name: "role", Path: "role", Component: "views/setting/role.vue", Sort: 0, Meta: Meta{Title: "角色管理", KeepAlive: true, Icon: "filter"}},
+		{Model: Model{ID: -306}, Pid: -300, Name: "department", Path: "department", Component: "views/setting/department.vue", Sort: 0, Meta: Meta{Title: "部门管理", KeepAlive: true, Icon: "office-building"}},
 	}
 }

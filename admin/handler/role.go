@@ -54,8 +54,8 @@ func RoleEdit(ctx *gin.Context) {
 	}
 
 	update := make(map[string]interface{})
-	//update["ub"] = req.
 	update["name"] = req.Name
+	update["description"] = req.Description
 
 	if err := db.DB().Model(&req).Where("id = ?", req.ID).Updates(update).Error; err != nil {
 		response.FailWithError(ctx, err)
