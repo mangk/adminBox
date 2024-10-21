@@ -32,17 +32,17 @@ export const useRouterStore = defineStore('router', () => {
       serverRouter.value = permissionData.data.menu[0].children
       userStore.setUserData(permissionData.data.user)
       formatRouter(serverRouter.value)
+
+      let theme = window.adminBox.Theme
+      router.addRoute({
+        path: '/' + prefix,
+        name: prefix,
+        meta: { icon: 'add' },
+        component: loadTheme(theme ? theme : 'default'), // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
+        children: serverRouter.value
+      })
     }
 
-    let u = userStore.userInfo()
-
-    router.addRoute({
-      path: '/' + prefix,
-      name: prefix,
-      meta: { icon: 'add' },
-      component: loadTheme(u.user_config.theme ? u.user_config.theme : 'default'), // => import('@/views/main/styleDefault.vue'), // TODO 这里的引入改为引入所有，从中选择
-      children: serverRouter.value
-    })
     return serverRouter.value
   }
 

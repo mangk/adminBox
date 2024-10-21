@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/mangk/adminBox/cache"
@@ -68,30 +67,18 @@ func (u *SysUser) UnmarshalJSON(data []byte) error {
 }
 
 func (s SysUser) Detail(id int) (user SysUser, err error) {
-	data := cache.RedisHasOrQuery(s.cacheKey(id), func() (data string, exp time.Duration) {
-		if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil {
-			log.Error(err.Error())
-			return "", time.Hour * 4
-		}
+	if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil {
+		log.Error(err.Error())
+	}
 
-		for _, v := range user.DepartmentList {
-			user.DepartmentIds = append(user.DepartmentIds, v.ID)
-		}
+	for _, v := range user.DepartmentList {
+		user.DepartmentIds = append(user.DepartmentIds, v.ID)
+	}
 
-		for _, v := range user.RoleList {
-			user.RoleIds = append(user.RoleIds, v.ID)
-		}
+	for _, v := range user.RoleList {
+		user.RoleIds = append(user.RoleIds, v.ID)
+	}
 
-		d, err := json.Marshal(user)
-		if err != nil {
-			log.Error(err.Error())
-			return "", time.Hour * 4
-		}
-
-		return string(d), time.Hour * 4
-	})
-
-	err = json.Unmarshal([]byte(data), &user)
 	return
 }
 
