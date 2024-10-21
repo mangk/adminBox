@@ -20,8 +20,8 @@ type SysUser struct {
 	Username       string           `json:"username" gorm:"index;size:30;uniqueIndex:idx_username;comment:用户登录名"`
 	Phone          string           `json:"phone"  gorm:"size:30;comment:用户手机号"`
 	Email          string           `json:"email"  gorm:"size:60;comment:用户邮箱"`
-	Salt           string           `gorm:"size:16;comment:密码混淆"`
-	Password       string           `gorm:"size:255;comment:用户登录密码"`
+	Salt           string           `json:"-" gorm:"size:16;comment:密码混淆"`
+	Password       string           `json:"-" gorm:"size:255;comment:用户登录密码"`
 	NickName       string           `json:"nick_name" gorm:"size:30;default:系统用户;comment:用户昵称"`
 	Avatar         string           `json:"avatar" gorm:"size:255;comment:用户头像"`
 	Enable         bool             `json:"enable" gorm:"default:true;comment:用户是否有效"`
@@ -49,6 +49,22 @@ func (s SysUser) cacheKey(id int) string {
 
 func (s SysUser) TableName() string {
 	return "sys_user"
+}
+
+func (u *SysUser) UnmarshalJSON(data []byte) error {
+	// 自定义反序列化方法
+	type Alias SysUser // 定义一个别名以避免递归调用
+	aux := &struct {
+		Password string `json:"password"` // 临时字段来存放提交的密码
+		*Alias
+	}{
+		Alias: (*Alias)(u),
+	}
+	if err := json.Unmarshal(data, &aux); err != nil {
+		return err
+	}
+	u.Password = aux.Password // 手动将密码赋值给私有字段
+	return nil
 }
 
 func (s SysUser) Detail(id int) (user SysUser, err error) {
