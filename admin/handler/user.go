@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/mangk/adminBox/admin/model"
 	"github.com/mangk/adminBox/db"
 	"github.com/mangk/adminBox/http/request"
@@ -64,9 +63,8 @@ func UserCreate(ctx *gin.Context) {
 		response.FailWithError(ctx, err)
 		return
 	}
-	req.UUID = uuid.New()
 
-	if err := db.DB().Create(&req).Error; err != nil {
+	if err := req.Create(); err != nil {
 		response.FailWithError(ctx, err)
 		return
 	}

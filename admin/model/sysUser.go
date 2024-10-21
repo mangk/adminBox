@@ -20,8 +20,8 @@ type SysUser struct {
 	Username       string           `json:"username" gorm:"index;size:30;uniqueIndex:idx_username;comment:用户登录名"`
 	Phone          string           `json:"phone"  gorm:"size:30;comment:用户手机号"`
 	Email          string           `json:"email"  gorm:"size:60;comment:用户邮箱"`
-	Salt           string           `json:"-" gorm:"size:16;comment:密码混淆"`
-	Password       string           `json:"-"  gorm:"size:255;comment:用户登录密码"`
+	Salt           string           `gorm:"size:16;comment:密码混淆"`
+	Password       string           `gorm:"size:255;comment:用户登录密码"`
 	NickName       string           `json:"nick_name" gorm:"size:30;default:系统用户;comment:用户昵称"`
 	Avatar         string           `json:"avatar" gorm:"size:255;comment:用户头像"`
 	Enable         bool             `json:"enable" gorm:"default:true;comment:用户是否有效"`
@@ -77,6 +77,41 @@ func (s SysUser) Detail(id int) (user SysUser, err error) {
 
 	err = json.Unmarshal([]byte(data), &user)
 	return
+}
+
+func (s *SysUser) Create() error {
+	s.UUID = uuid.New()
+	s.Salt = util.RandString(8)
+	if s.Password == "" {
+		s.Password = "123456"
+	}
+	s.Password = util.BcryptHash(s.PasswordConfound(s.Password))
+
+	return db.DB().Transaction(func(tx *gorm.DB) error {
+		tx.Create(s)
+
+		userRole := []SysUserRole{}
+		for _, v := range s.RoleIds {
+			userRole = append(userRole, SysUserRole{
+				SysUserId: s.ID,
+				SysRoleId: v,
+			})
+		}
+		if len(userRole) > 0 {
+			if err := tx.Create(&userRole).Error; err != nil {
+				return err
+			}
+		}
+
+		// 赋予用户默认欢迎页和加载菜单列表的权限
+		defaultAuth := []SysAuth{{TableId: s.ID, TableModule: "sys_user", Type: "menu", Key: "-100", SetValue: 1}, {TableId: s.ID, TableModule: "sys_user", Type: "api", Key: "-103", SetValue: 1}}
+		if err := tx.Create(&defaultAuth).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+
 }
 
 func (s SysUser) Update(data SysUser) error {
@@ -140,9 +175,7 @@ func (s SysUser) Login(username, password string) (user SysUser, err error) {
 		return
 	}
 
-	password = user.Salt + password + user.Salt + user.Salt + user.Salt // 密码混淆规则
-
-	if ok := util.BcryptCheck(password, user.Password); !ok {
+	if ok := util.BcryptCheck(user.PasswordConfound(password), user.Password); !ok {
 		err = errors.New("用户名或密码错误")
 		return
 	}
@@ -158,4 +191,8 @@ func (s SysUser) Login(username, password string) (user SysUser, err error) {
 	}
 
 	return
+}
+
+func (s SysUser) PasswordConfound(p string) string {
+	return s.Salt + p + s.Salt + s.Salt + s.Salt
 }

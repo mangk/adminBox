@@ -164,14 +164,17 @@
         <el-form-item label="用户名" prop="username" style="width: 40%">
           <el-input v-model="form.username" />
         </el-form-item>
+        <el-form-item label="昵称" prop="nick_name" style="width: 40%">
+          <el-input v-model="form.nick_name" />
+        </el-form-item>
         <el-form-item label="手机号" prop="phone" style="width: 40%">
           <el-input v-model="form.phone" />
         </el-form-item>
         <el-form-item label="Email" prop="email" style="width: 40%">
           <el-input v-model="form.email" />
         </el-form-item>
-        <el-form-item label="昵称" prop="nick_name" style="width: 40%">
-          <el-input v-model="form.nick_name" />
+        <el-form-item label="密码" prop="password" style="width: 40%">
+          <el-input v-model="form.password" />
         </el-form-item>
         <el-form-item label="所属部门" prop="department_ids" style="width: 40%">
           <el-cascader
@@ -271,6 +274,7 @@ const form = reactive({
   phone: '',
   email: '',
   nick_name: '',
+  password: '',
   avatar: '',
   department_ids: [],
   role_ids: [],
