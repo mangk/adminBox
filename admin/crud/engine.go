@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/admin/model"
 	"github.com/mangk/adminBox/db"
+	"github.com/mangk/adminBox/front"
 	"github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/http/middleware"
 	"github.com/mangk/adminBox/http/request"
@@ -98,12 +99,6 @@ type DataOrigin interface {
 	Delete(req request.CRUDRequest) (id interface{}, err error)
 }
 
-var tmpStr string
-
-func SetTmpStr(str string) {
-	tmpStr = str
-}
-
 func NewEngine(absolutePath string, opt Options) *Engine {
 	if opt.DbName == "" {
 		opt.DbName = "default"
@@ -152,15 +147,15 @@ func (e *Engine) Register() {
 		} else {
 			switch st[0] {
 			case "p":
-				f = []gin.HandlerFunc{middleware.PublicRequest(), e.page}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.page}
 			case "r":
-				f = []gin.HandlerFunc{middleware.PublicRequest(), e.getById}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.getById}
 			case "c":
-				f = []gin.HandlerFunc{middleware.PublicRequest(), e.create}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.create}
 			case "u":
-				f = []gin.HandlerFunc{middleware.PublicRequest(), e.updateById}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.updateById}
 			case "d":
-				f = []gin.HandlerFunc{middleware.PublicRequest(), e.delete}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.delete}
 			}
 		}
 		e.register(st[0], st[1], f...)
@@ -244,15 +239,10 @@ func (e *Engine) tmp(ctx *gin.Context) {
 		"editBtnHide":   e.opt.HideEditBtn,
 	}
 
-	/**
-	这里结合 new.go 文件中注释的模版部分，可以用来编辑 debug 模版页面
-	*/
-	//ctx.HTML(200, "convert.vue", data)
-	//return
 	var buf bytes.Buffer
 	t, _ := template.New("convert").Delims("{[{", "}]}").Funcs(template.FuncMap{
 		"formatElement": formatElement,
-	}).Parse(tmpStr)
+	}).Parse(front.CrudTemplate)
 	_ = t.Execute(&buf, data)
 	ctx.String(200, "%s", buf.String())
 }

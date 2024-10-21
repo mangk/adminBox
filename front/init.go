@@ -20,6 +20,9 @@ import (
 //go:embed dist
 var frontFiles embed.FS
 
+//go:embed crudTemplate.vue
+var CrudTemplate string
+
 func init() {
 	moduleRegister.ModuleAdd(front{})
 }
@@ -62,7 +65,7 @@ func (front) InitModule() {
 	root.StaticFS("/images", http.FS(images))
 
 	// 重写 adminBox.js
-	root.SetHTMLTemplate(template.Must(template.New("").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
+	root.SetHTMLTemplate(template.Must(template.New("adminBox.js").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
 	root.GET("/adminBox.js", func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/javascript")
 		allConfig := fmt.Sprintf(`IsRewriteIndex: %t,BackendRouterPrefix: '%s',%s`, frontIndexHanler != nil, config.ServerCfg().BackendRouterPrefix, writeByadminBoxConfig)
@@ -72,7 +75,6 @@ func (front) InitModule() {
 		})
 	})
 
-	//admin.SetTmpStr(Convert)
 }
 
 func DynamicTemplate(ctx *gin.Context, filePath string) {
