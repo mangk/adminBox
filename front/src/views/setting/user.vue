@@ -203,18 +203,21 @@
           </el-select>
         </el-form-item>
         <el-form-item label="头像" prop="avatar" style="width: 40%">
-          <el-image
-            style="
-              width: 75px;
-              height: 75px;
-              border: 1px dashed var(--el-border-color);
-              border-radius: 5px;
-            "
-            :src="form.avatar"
-            :fit="'contain'"
-          />
-          <FileUpload v-model="form.avatar" :onlyPath="true">
+          <FileUpload v-model="form.avatar">
+            <el-image
+              v-if="form.avatar"
+              style="
+                width: 75px;
+                height: 75px;
+                border: 1px dashed var(--el-border-color);
+                border-radius: 5px;
+              "
+              :src="form.avatar"
+              :fit="'contain'"
+            />
+
             <el-icon
+              v-if="!form.avatar"
               style="
                 width: 75px;
                 height: 75px;

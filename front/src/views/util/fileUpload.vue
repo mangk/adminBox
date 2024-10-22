@@ -14,32 +14,36 @@
     v-model="show"
     direction="rtl"
     :before-close="handleClose"
-    :show-close="false"
-    size="50%;"
+    :show-close="true"
+    append-to-body
+    size="50%"
     style="max-width: 600px"
   >
     <template #header>
-      <el-pagination
-        v-model:current-page="page"
-        v-model:page-size="pageSize"
-        :page-sizes="[20, 50, 100, 200]"
-        :size="'small'"
-        layout="total, prev, pager, next"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <div style="padding: 0px var(--global-padding)">
+        <el-button type="primary" @click="selectOK">确定</el-button>
+        <div v-if="Object.keys(uploadConfig).length > 1">
+          <el-radio-group v-model="driver" size="small">
+            <el-radio-button
+              :label="item.name"
+              :value="item.driver"
+              v-for="(item, index) in uploadConfig"
+              :key="item.driver"
+            />
+          </el-radio-group>
+        </div>
+      </div>
     </template>
 
     <div style="display: flex; flex-flow: row wrap; padding: var(--global-padding)">
       <div
-        :class="['img-item', checkSelect(item.id)]"
+        :class="['img-item', checkSelect(item)]"
         v-for="(item, index) in tableData"
         @mouseleave="mouseLeave(item.id)"
         @mouseover="mouseOver(item.id)"
         @click="selectFile(item)"
       >
-        <el-icon class="img-del" v-if="curMouseOnId == item.id" @click="delImage(item.id)">
+        <el-icon class="img-del" v-if="curMouseOnId == item.id" @click="delImage(item)">
           <CircleClose />
         </el-icon>
         <el-image style="width: 100%" :src="item.url" fit="scale-down" lazy>
@@ -80,16 +84,16 @@
     </div>
 
     <template #footer>
-      <div v-if="Object.keys(uploadConfig).length > 1">
-        <el-radio-group v-model="driver" size="small">
-          <el-radio-button
-            :label="item.name"
-            :value="item.driver"
-            v-for="(item, index) in uploadConfig"
-            :key="item.driver"
-          />
-        </el-radio-group>
-      </div>
+      <el-pagination
+        v-model:current-page="page"
+        v-model:page-size="pageSize"
+        :page-sizes="[20, 50, 100, 200]"
+        :size="'small'"
+        layout="total, prev, pager, next"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
       <el-upload
         drag
         :action="`${serverHost()}/sys/fileUpload/upload?driver=${driver}`"
@@ -101,8 +105,8 @@
         <div
           class="el-upload__text"
           style="
-            height: 40px;
-            line-height: 40px;
+            height: 60px;
+            line-height: 60px;
             text-align: center;
             overflow: hidden;
             display: flex;
@@ -112,7 +116,7 @@
         >
           <el-icon
             class="el-icon--upload"
-            style="font-size: 35px; margin: 0 var(--global-padding) 0 0"
+            style="font-size: 35px; margin: 10px var(--global-padding) 0 0"
           >
             <upload-filled />
           </el-icon>
@@ -123,76 +127,122 @@
   </el-drawer>
 </template>
 <script setup>
-import { defineModel, ref } from 'vue'
+import { ref, watch } from 'vue'
 import { fileDelete, fileUploadCfg, fileUploadPage } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
-
-const userStore = useUserStore()
-
-const model = defineModel() // 保存选择的数据
-const multiple = defineModel('multiple', { default: 1, type: Number }) // 是否多选
-const onlyPath = defineModel('onlyPath', { default: false, type: Boolean }) // 返回文件对象还是文件地址
-const suffixList = defineModel('suffixList', { default: [], type: Array }) // 过滤数据类型
-const multipleSelectModel = ref([])
 
 const uploadConfig = ref({})
 const driver = ref('default')
+const userStore = useUserStore()
+
+const props = defineProps({
+  modelValue: {
+    type: [String, Array], // 修正为数组格式，支持多种类型
+    required: true,
+    default: '' // 默认值为字符串
+  },
+  selected: {
+    type: Function, // 修正为 Function 类型
+    required: false,
+    default: () => {} // 默认值为一个空函数
+  },
+  multiple: {
+    type: Number,
+    default: 1
+  },
+  // fullInfo: {
+  //   type: Boolean,
+  //   default: false,
+  // },
+  suffixList: {
+    type: Array, // 修正 Array 的默认值使用函数返回
+    default: () => [] // 返回一个空数组
+  }
+})
+
+// 定义 emit 事件
+const emit = defineEmits(['update:modelValue'])
+
+// 创建内部状态，用来处理双向绑定的数据
+const internalValue = ref(props.modelValue)
+if (!Array.isArray(internalValue.value)) {
+  if (internalValue.value) {
+    internalValue.value = [internalValue.value]
+  } else {
+    internalValue.value = []
+  }
+} else {
+  let v = []
+  for (const key in internalValue.value) {
+    if (Object.prototype.hasOwnProperty.call(internalValue.value, key)) {
+      const element = internalValue.value[key]
+      if (element) {
+        v.push(element)
+      }
+    }
+  }
+  internalValue.value = v
+}
+
+// 监听 modelValue 的变化，确保内部状态保持同步
+// watch(
+//   () => props.modelValue,
+//   (newVal) => {
+//     console.log(999, newVal);
+
+//     internalValue.value = newVal
+//   }
+// )
+
+const selectOK = () => {
+  let value = []
+  for (const key in internalValue.value) {
+    if (Object.prototype.hasOwnProperty.call(internalValue.value, key)) {
+      const element = internalValue.value[key]
+      value.push(element)
+    }
+  }
+
+  if (props.multiple == 1) {
+    value = value[0]
+  }
+
+  // 通过 emit 通知父组件更新 modelValue
+  emit('update:modelValue', value)
+  // 如果传入了 selected 回调，执行该回调
+  if (props.selected) {
+    props.selected(value)
+  }
+  show.value = false
+}
 
 const show = ref(false)
 
-const tableData = ref([])
-const page = ref(1)
-const pageSize = ref(25)
-const total = ref(0)
-
-const loadData = () => {
-  fileUploadPage(page.value, pageSize.value, { tag: suffixList.value }).then((res) => {
-    tableData.value = res.data.list
-    page.value = res.data.page
-    pageSize.value = res.data.page_size
-    total.value = res.data.total
-  })
-}
-
 const selectFile = (item) => {
-  if (multiple.value == 1) {
-    if (multipleSelectModel.value.length && multipleSelectModel.value[0].id == item.id) {
-      multipleSelectModel.value = []
-    } else {
-      multipleSelectModel.value = [item]
-    }
-    model.value = multipleSelectModel.value
-    dataFormat()
-    return
-  }
-
-  for (let index = 0; index < multipleSelectModel.value.length; index++) {
-    const element = multipleSelectModel.value[index]
-    if (element.id == item.id) {
-      multipleSelectModel.value.splice(index, 1)
-      model.value = multipleSelectModel.value
-      dataFormat()
-      return
+  let delFlag = false
+  for (let index = 0; index < internalValue.value.length; index++) {
+    const element = internalValue.value[index]
+    if (element && element == item.url) {
+      internalValue.value.splice(index, 1)
+      delFlag = true
     }
   }
-
-  if (multipleSelectModel.value.length >= multiple.value) {
-    ElMessage({ type: 'warning', message: `最多选择 ${multiple.value} 个` })
+  if (internalValue.value.length >= props.multiple) {
+    ElMessage({ type: 'warning', message: `最多选择 ${props.multiple} 个` })
     return
   }
-
-  multipleSelectModel.value.push(item)
-  model.value = multipleSelectModel.value
-  dataFormat()
+  if (!delFlag) {
+    internalValue.value.push(item.url)
+  }
 }
 
-const checkSelect = (id) => {
-  for (const key in multipleSelectModel.value) {
-    if (Object.hasOwnProperty.call(multipleSelectModel.value, key)) {
-      const element = multipleSelectModel.value[key]
-      if (element.id == id) {
+const checkSelect = (item) => {
+  for (const key in internalValue.value) {
+    if (Object.prototype.hasOwnProperty.call(internalValue.value, key)) {
+      const element = internalValue.value[key]
+      if (element && element == item.url) {
         return 'img-item-select'
       }
     }
@@ -200,28 +250,38 @@ const checkSelect = (id) => {
 }
 
 const uploadSuccess = (response, uploadFile, uploadFiles) => {
-  // console.log(response, uploadFile, uploadFiles);
   loadData()
 }
 
-const curMouseOnId = ref(0)
-const mouseLeave = (id) => {
-  curMouseOnId.value = 0
-}
-const mouseOver = (id) => {
-  curMouseOnId.value = id
+const delImage = (item) => {
+  ElMessageBox.confirm('删除文件?', '删除', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    fileDelete(item.id).then((res) => {
+      loadData()
+      for (let index = 0; index < internalValue.value.length; index++) {
+        const element = internalValue.value[index]
+        if (element == item.url) {
+          internalValue.value.splice(index, 1)
+        }
+      }
+    })
+  })
 }
 
-const delImage = (id) => {
-  fileDelete(id).then((res) => {
-    for (let index = 0; index < multipleSelectModel.value.length; index++) {
-      const element = multipleSelectModel.value[index]
-      if (element.id == id) {
-        multipleSelectModel.value.splice(index, 1)
-        model.value = multipleSelectModel.value
-      }
-    }
-    loadData()
+const tableData = ref([])
+const page = ref(1)
+const pageSize = ref(25)
+const total = ref(0)
+
+const loadData = () => {
+  fileUploadPage(page.value, pageSize.value, { tag: props.suffixList }).then((res) => {
+    tableData.value = res.data.list
+    page.value = res.data.page
+    pageSize.value = res.data.page_size
+    total.value = res.data.total
   })
 }
 
@@ -235,6 +295,14 @@ const handleCurrentChange = (changePage) => {
   loadData()
 }
 
+const curMouseOnId = ref(0)
+const mouseLeave = (id) => {
+  curMouseOnId.value = 0
+}
+const mouseOver = (id) => {
+  curMouseOnId.value = id
+}
+
 const showDrawer = () => {
   fileUploadCfg().then((res) => {
     uploadConfig.value = res.data
@@ -244,25 +312,7 @@ const showDrawer = () => {
 }
 
 const handleClose = () => {
-  dataFormat()
   show.value = false
-}
-
-const dataFormat = () => {
-  if (multipleSelectModel.value.length) {
-    if (onlyPath.value) {
-      if (multiple.value == 1) {
-        model.value = multipleSelectModel.value[0].url
-      } else {
-        let urls = []
-        for (let i = 0; i < multipleSelectModel.value.length; i++) {
-          const element = multipleSelectModel.value[i]
-          urls.push(element.url)
-        }
-        model.value = urls
-      }
-    }
-  }
 }
 </script>
 <style lang="scss">
