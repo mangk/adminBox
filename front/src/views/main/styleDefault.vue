@@ -225,7 +225,7 @@ window.onresize = () => {
 }
 </script>
 
-<style lang="scss" scoped>
+<style>
 .el-container,
 .el-header,
 .el-aside,
@@ -278,9 +278,6 @@ window.onresize = () => {
   margin-left: calc(var(--global-padding) / 2);
   font-weight: 550;
   font-size: 20px;
-  // font-family: emoji;
-  /* display: inline-block; */
-  // font-style: italic;
 }
 
 .header-menu {
