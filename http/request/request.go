@@ -38,11 +38,13 @@ func JWTLoginUserFetch(ctx *gin.Context) model.SysUser {
 	return u
 }
 
+// Deprecated: 身份与ID可能被客户端篡改，不安全
 // 身份用户ID
 func RoleUserId(ctx *gin.Context) int {
 	return ctx.GetInt(ContextRoleUserIdKey)
 }
 
+// Deprecated: 身份与ID可能被客户端篡改，不安全
 // 身份用类型
 func RoleUserType(ctx *gin.Context) string {
 	return ctx.GetString(ContextRoleUserTypeKey)
