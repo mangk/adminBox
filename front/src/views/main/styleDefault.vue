@@ -113,14 +113,7 @@
               mode="out-in"
               name="el-fade-in-linear"
             >
-              <template v-if="$route.meta.keep_alive">
-                <keep-alive>
-                  <component :is="Component" :key="$route.path" />
-                </keep-alive>
-              </template>
-              <template v-else>
-                <component :is="Component" :key="$route.path" />
-              </template>
+              <component :is="Component" :key="$route.path" />
             </transition>
           </router-view>
         </el-scrollbar>
