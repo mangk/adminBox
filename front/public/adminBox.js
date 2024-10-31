@@ -1,6 +1,6 @@
 window.adminBox = {
     Name: 'adminBox',
-    Host: '//127.0.0.1:8910',
+    RunAt: '//127.0.0.1:8910',
     IsRewriteIndex: false,
     BackendRouterPrefix: '',
     Locale: "zhCn",

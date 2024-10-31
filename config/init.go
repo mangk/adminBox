@@ -39,6 +39,7 @@ server:
   name: no config file
   host: 127.0.0.1
   port: 8910
+  runAt: 
 log:
   prefix: no config file
 `)

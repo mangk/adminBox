@@ -98,8 +98,8 @@ export default http
 
 export function serverHost() {
   let str = []
-  if (window.adminBox.Host) {
-    str.push(window.adminBox.Host)
+  if (window.adminBox.RunAt) {
+    str.push(window.adminBox.RunAt)
   }
   if (window.adminBox.BackendRouterPrefix) {
     str.push(window.adminBox.BackendRouterPrefix)
