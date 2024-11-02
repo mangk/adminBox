@@ -2,7 +2,6 @@ package request
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/admin/model"
 )
 
 const ContextPublicRequestKey = "__public_request__"
@@ -30,12 +29,6 @@ func PublicRequestCrud(ctx *gin.Context) CRUDRequest {
 // 获取 JWT 中存储的用户信息
 func JWTLoginUserId(ctx *gin.Context) int {
 	return ctx.GetInt(ContextLoginUserKey)
-}
-
-// 结合数据库获取用户最新信息
-func JWTLoginUserFetch(ctx *gin.Context) model.SysUser {
-	u, _ := model.SysUser{}.Detail(ctx.MustGet(ContextLoginUserKey).(int))
-	return u
 }
 
 // Deprecated: 身份与ID可能被客户端篡改，不安全
