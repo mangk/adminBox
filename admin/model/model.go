@@ -2,12 +2,9 @@ package model
 
 import (
 	"database/sql/driver"
-	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
-	"github.com/mangk/adminBox/cache"
 	"github.com/mangk/adminBox/db"
 	"github.com/mangk/adminBox/log"
 	"gorm.io/gorm"
@@ -101,45 +98,6 @@ func (Model) SQLQuery(driver, sql string) (data []map[string]interface{}, err er
 	}
 
 	return
-}
-
-/*
-构建 key value 形式的 Redis 缓存
-*/
-type KVMap interface {
-	// redis 储存的一个用来翻译数据字段的方法，实现这个方法，可以支持将 k->v 形式的 map 储存到redis
-	// k: 字段值代码
-	// v: 字段值名称
-	KvMap() (key, value, table string, expirationTime time.Duration)
-}
-
-// 针对 MsSQL 数据库查询，获取 key->value 内容并添加缓存
-func MsMapWithCache(child KVMap, refresh ...bool) map[string]string {
-	b := Model{}
-	key, value, table, exp := child.KvMap()
-	var needRefresh bool
-	if len(refresh) > 0 {
-		needRefresh = refresh[0]
-	}
-
-	redisKey := "kvmap:" + table
-	res := make(map[string]string)
-
-	redisValue := cache.RedisStrGet(redisKey)
-
-	e := json.Unmarshal([]byte(redisValue), &res)
-	if e != nil || needRefresh || len(res) == 0 {
-		// 查询并写入redis
-		sql := "SELECT " + key + " as 'key'," + value + " as 'value' FROM " + table
-		data, _ := b.SQLQuery("default", sql)
-		for _, datum := range data {
-			res[datum["key"].(string)] = datum["value"].(string)
-		}
-		v, _ := json.Marshal(res)
-		cache.RedisStrSet(redisKey, string(v), exp)
-	}
-
-	return res
 }
 
 const (
@@ -257,35 +215,4 @@ func Find(tx *gorm.DB) (data []map[string]interface{}, err error) {
 	}
 
 	return
-}
-
-func DetailWithCache(record M, id int, exp time.Duration) error {
-	msg := "record not found"
-	data := cache.RedisHasOrQuery(detailCacheKeyBuild(record, id), func() (data string, exp time.Duration) {
-		if err := db.DB().First(record, "id = ?", id).Error; err != nil && err != gorm.ErrRecordNotFound {
-			log.Infof("[DetailWithCache]query Error: %s", err)
-			return "", 0
-		}
-		if record.GetId() == 0 {
-			return msg, exp
-		}
-
-		d, _ := json.Marshal(record)
-
-		return string(d), exp
-	})
-
-	if data == msg {
-		return errors.New(data)
-	}
-
-	return json.Unmarshal([]byte(data), record)
-}
-
-func DetailCacheDel(record M, id int) {
-	cache.RedisDel(detailCacheKeyBuild(record, id))
-}
-
-func detailCacheKeyBuild(record M, id int) string {
-	return fmt.Sprintf("model:%s:%d", record.TableName(), id)
 }

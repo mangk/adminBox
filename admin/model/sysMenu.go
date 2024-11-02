@@ -1,11 +1,8 @@
 package model
 
 import (
-	"encoding/json"
 	"slices"
-	"time"
 
-	"github.com/mangk/adminBox/cache"
 	"github.com/mangk/adminBox/db"
 	"gorm.io/gorm"
 )
@@ -152,28 +149,19 @@ func (s *SysMenu) BeforeSave(tx *gorm.DB) error {
 		s.Component = "views/util/serverComponent.vue"
 	}
 
-	cache.RedisDel(sysMenuTranMapKey)
-
 	return nil
 }
 
 func (s SysMenu) TranMap() map[int]string {
-	dat := cache.RedisHasOrQuery(sysMenuTranMapKey, func() (data string, exp time.Duration) {
-		d := make(map[int]string)
-
-		list := []SysMenu{}
-		db.DB().Find(&list)
-		list = append(list, s.SystemMenu()...)
-		for _, menu := range list {
-			d[menu.ID] = menu.Title
-		}
-
-		str, _ := json.Marshal(d)
-		return string(str), 4 * time.Hour
-	})
-
 	data := make(map[int]string)
-	json.Unmarshal([]byte(dat), &data)
+
+	list := []SysMenu{}
+	db.DB().Find(&list)
+	list = append(list, s.SystemMenu()...)
+	for _, menu := range list {
+		data[menu.ID] = menu.Title
+	}
+
 	return data
 }
 

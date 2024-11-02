@@ -3,10 +3,8 @@ package model
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/mangk/adminBox/cache"
 	"github.com/mangk/adminBox/db"
 	"github.com/mangk/adminBox/log"
 	"github.com/mangk/adminBox/util"
@@ -40,10 +38,6 @@ type UserConfig struct {
 	ActiveColor string `json:"active_color"`
 	HomePage    string `json:"home_page"`
 	Theme       string `json:"theme"`
-}
-
-func (s SysUser) cacheKey(id int) string {
-	return fmt.Sprintf("%s:%d", s.TableName(), id)
 }
 
 func (s SysUser) TableName() string {
@@ -168,7 +162,6 @@ func (s SysUser) Update(data SysUser) error {
 			return err
 		}
 
-		cache.RedisDel(s.cacheKey(data.ID))
 		return nil
 	})
 }
