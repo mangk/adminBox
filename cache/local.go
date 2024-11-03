@@ -6,6 +6,7 @@ import (
 	"github.com/mangk/adminBox/config"
 )
 
+// TODO 验证码使用本地缓存，在多机部署时会存在问题
 type Base64CaptchaStore struct {
 }
 
