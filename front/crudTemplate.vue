@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="main-content" >
     <!--    搜索-->
-    <div class="gva-search-box">
+    <div>
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
         {[{ range $f := .field }]}
         {[{ formatElement $f }]}
@@ -25,17 +25,17 @@
           </div>
           <template #reference>
             <el-button icon="delete" :disabled="false" style="margin-left: 10px;" @click="deleteVisible = true"
-                       v-show="!{[{.deleteBtnHide}]}">
+              v-show="!{[{.deleteBtnHide}]}">
               删除
             </el-button>
           </template>
         </el-popover>
       </div>
       <el-table :data="tableData.list" @sort-change="_sortChange" @selection-change="_selectionChange">
-        <el-table-column type="selection" width="55"/>
+        <el-table-column type="selection" width="55" />
         {[{ range .field }]}
         <el-table-column align="left" label="{[{.Name}]}" min-width="160" prop="{[{.Column}]}"
-                         :sortable="{[{ if .SortAble }]}'custom'{[{ else }]}false{[{end}]}"/>
+          :sortable="{[{ if .SortAble }]}'custom'{[{ else }]}false{[{end}]}" />
         {[{ end }]}
         <el-table-column align="left" fixed="right" label="操作" width="120">
           <template #default="scope">
@@ -44,25 +44,19 @@
             </el-tooltip>
             <el-tooltip class="box-item" effect="dark" content="编辑" placement="top">
               <el-button icon="edit" type="primary" link @click="_edit(scope.row)"
-                         v-show="!{[{.editBtnHide}]}"></el-button>
+                v-show="!{[{.editBtnHide}]}"></el-button>
             </el-tooltip>
             <el-tooltip class="box-item" effect="dark" content="删除" placement="top">
               <el-button icon="delete" type="primary" link @click="_delete(scope.row,false)"
-                         v-show="!{[{.deleteBtnHide}]}"></el-button>
+                v-show="!{[{.deleteBtnHide}]}"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
       <div class="gva-pagination">
-        <el-pagination
-            :current-page="tableData.page"
-            :page-size="tableData.pageSize"
-            :page-sizes="[20, 50, 100]"
-            :total="tableData.count"
-            layout="total, sizes, prev, pager, next, jumper"
-            @current-change="_changeCurrentPage"
-            @size-change="_changePageSize"
-        />
+        <el-pagination :current-page="tableData.page" :page-size="tableData.pageSize" :page-sizes="[20, 50, 100]"
+          :total="tableData.count" layout="total, sizes, prev, pager, next, jumper" @current-change="_changeCurrentPage"
+          @size-change="_changePageSize" />
       </div>
 
     </div>
@@ -73,7 +67,7 @@
         {[{ range .field }]}
         <el-form-item label="{[{.Name}]}" prop="{[{.Column}]}">
           <el-input v-model="dialog.form.{[{.Column}]}" :disabled="dialog.disabled || !{[{.EditAble}]}"
-                    autocomplete="off"/>
+            autocomplete="off" />
         </el-form-item>
         {[{ end }]}
       </el-form>

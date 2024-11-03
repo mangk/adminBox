@@ -147,15 +147,15 @@ func (e *Engine) Register() {
 		} else {
 			switch st[0] {
 			case "p":
-				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.page}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), middleware.JWTCheckByCasbin(), e.page}
 			case "r":
-				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.getById}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), middleware.JWTCheckByCasbin(), e.getById}
 			case "c":
-				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.create}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), middleware.JWTCheckByCasbin(), e.create}
 			case "u":
-				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.updateById}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), middleware.JWTCheckByCasbin(), e.updateById}
 			case "d":
-				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), e.delete}
+				f = []gin.HandlerFunc{middleware.PublicRequestCrud(), middleware.JWTCheckByCasbin(), e.delete}
 			}
 		}
 		e.register(st[0], st[1], f...)
@@ -438,6 +438,7 @@ func (e *Engine) updateById(ctx *gin.Context) {
 		}
 
 		update := make(map[string]interface{})
+		update["ub"] = request.JWTLoginUserId(ctx)
 		for _, condition := range req.Query {
 			for _, field := range e.field {
 				if condition.Column == field.Column && field.EditAble && condition.Value != "" {
@@ -470,6 +471,7 @@ func (e *Engine) create(ctx *gin.Context) {
 		id, err = e.opt.CustomDataOrigin.Create(req)
 	} else {
 		create := make(map[string]interface{})
+		create["cb"] = request.JWTLoginUserId(ctx)
 		for _, condition := range req.Query {
 			for _, field := range e.field {
 				if condition.Column == field.Column {
@@ -517,7 +519,7 @@ func (e *Engine) delete(ctx *gin.Context) {
 		query := db.DB(e.opt.DbName).Table(e.opt.TableName).Where(fmt.Sprintf("%s in ?", e.opt.PK), req.Ids)
 		var err error
 		if e.opt.SoftDelete != "" {
-			err = query.Updates(map[string]interface{}{e.opt.SoftDelete: time.Now().Format("2006-01-02 15:05:05")}).Error
+			err = query.Updates(map[string]interface{}{e.opt.SoftDelete: time.Now().Format("2006-01-02 15:05:05"), "db": request.JWTLoginUserId(ctx)}).Error
 		} else {
 			err = query.Delete(nil).Error
 		}
