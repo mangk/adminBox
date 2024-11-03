@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/mangk/adminBox/config"
 )
 
 func RedisStrGet(key string) string {
@@ -36,25 +35,4 @@ func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duratio
 	}
 
 	return data
-}
-
-type Base64CaptchaStore struct {
-}
-
-func (b Base64CaptchaStore) Set(id string, value string) error {
-	RedisStrSet("Base64CaptchaStore:"+id, value, time.Duration(config.CaptchaCfg().Overtime)*time.Second)
-	return nil
-}
-
-func (b Base64CaptchaStore) Get(id string, clear bool) string {
-	v := RedisStrGet(id)
-	if clear {
-		RedisDel(id)
-	}
-	return v
-}
-
-func (b Base64CaptchaStore) Verify(id string, answer string, clear bool) bool {
-	v := b.Get("Base64CaptchaStore:"+id, clear)
-	return v == answer
 }

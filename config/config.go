@@ -40,6 +40,10 @@ func DBCfg() map[string]DB {
 }
 
 func CacheCfg() map[string]cache {
+	cfg := *_config
+	if cfg.Cache == nil {
+		return nil
+	}
 	return *_config.Cache
 }
 
