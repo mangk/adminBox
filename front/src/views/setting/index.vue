@@ -1,9 +1,11 @@
-<template>index111</template>
+<template>
+  <div class="main-content">
+    <FileUpload />
+  </div>
+</template>
 
-<script>
-export default {
-  name: 'index'
-}
+<script setup>
+import FileUpload from '../util/fileUpload.vue'
 </script>
 
 <style scoped></style>
