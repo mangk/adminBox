@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -51,11 +52,11 @@ func Panicf(format string, args ...interface{}) {
 
 func Print(args ...interface{}) {
 	if len(args) > 0 {
-		format := ""
+		format := []string{}
 		for i := 0; i < len(args); i++ {
-			format += "%+v\n"
+			format = append(format, "%+v")
 		}
-		_log.Infof(format, args...)
+		_log.Infof(strings.Join(format, "\n"), args...)
 	}
 }
 
