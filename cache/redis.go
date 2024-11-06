@@ -1,9 +1,12 @@
 package cache
 
 import (
+	"bytes"
 	"context"
+	"encoding/gob"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 )
 
 func RedisStrGet(key string) string {
@@ -35,4 +38,32 @@ func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duratio
 	}
 
 	return data
+}
+
+func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFunc func(*T) (expirationTime time.Duration, error error)) error {
+	data, err := Redis().Get(context.Background(), key).Bytes()
+	if err != nil && err != redis.Nil {
+		return err
+	}
+
+	if err == redis.Nil {
+		exp, err := queryFunc(resultReceiver)
+		if err != nil {
+			return err
+		}
+		var buffer bytes.Buffer
+		encoder := gob.NewEncoder(&buffer)
+		if err := encoder.Encode(*resultReceiver); err != nil {
+			return err
+		}
+
+		Redis().Set(context.Background(), key, buffer.Bytes(), exp)
+	} else {
+		buffer := bytes.NewBuffer(data)
+		decoder := gob.NewDecoder(buffer)
+		if err := decoder.Decode(resultReceiver); err != nil {
+			return err
+		}
+	}
+	return nil
 }

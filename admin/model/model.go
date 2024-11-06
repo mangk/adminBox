@@ -152,6 +152,19 @@ func (t *LocalTime) UnmarshalJSON(data []byte) (err error) {
 	return nil
 }
 
+func (lt LocalTime) GobEncode() ([]byte, error) {
+	return time.Time(lt).MarshalBinary()
+}
+
+func (lt *LocalTime) GobDecode(data []byte) error {
+	var t time.Time
+	if err := t.UnmarshalBinary(data); err != nil {
+		return err
+	}
+	*lt = LocalTime(t)
+	return nil
+}
+
 func (t LocalTime) Format(layout ...string) string {
 	if len(layout) > 0 {
 		return time.Time(t).Format(layout[0])
