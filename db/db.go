@@ -39,7 +39,7 @@ func (db) InitModule() {
 			},
 			DisableAutomaticPing:                     true,
 			DisableForeignKeyConstraintWhenMigrating: true,
-			IgnoreRelationshipsWhenMigrating:         true,
+			// IgnoreRelationshipsWhenMigrating: true,
 		})
 
 		if err != nil {
