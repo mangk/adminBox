@@ -138,6 +138,7 @@ func AuthPermissionGetByIdAndModule(ctx *gin.Context) {
 		response.FailWithError(ctx, err)
 		return
 	}
+	req.Module = config.DBCfg()["default"].Prefix + req.Module
 
 	curSet, resultSet, otherSetList, err := (model.SysAuth{}).LoadDetail(req.Id, req.Module)
 	if err != nil {
@@ -163,6 +164,7 @@ func AuthPermissionSave(ctx *gin.Context) {
 		response.FailWithError(ctx, err)
 		return
 	}
+	req.Module = config.DBCfg()["default"].Prefix + req.Module
 
 	allow := []string{model.SysUser{}.TableName(), model.SysRole{}.TableName(), model.SysDepartment{}.TableName()}
 	var canSave bool
