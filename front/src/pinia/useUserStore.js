@@ -10,14 +10,21 @@ import { handler401 } from '@/utils/401'
 export const useUserStore = defineStore('user', () => {
   const initialized = ref(0)
   const user = ref({})
-  const _tokenStorageKey = 'x-token'
-  const _userTypeStroageKey = 'x-user-type'
-  const _userIdStroageKey = 'x-user-id'
+
+  const getTokenStorageKey = () => {
+    return (window.adminBox.Name ? window.adminBox.Name + '-' : '') + 'x-token'
+  }
+  const getUserTypeStroageKey = () => {
+    return (window.adminBox.Name ? window.adminBox.Name + '-' : '') + 'x-user-type'
+  }
+  const getUserIdStroageKey = () => {
+    return (window.adminBox.Name ? window.adminBox.Name + '-' : '') + 'x-user-id'
+  }
 
   const userAuth = () => {
-    let v1 = localStorage.getItem(_tokenStorageKey)
-    let v2 = localStorage.getItem(_userTypeStroageKey)
-    let v3 = localStorage.getItem(_userIdStroageKey)
+    let v1 = localStorage.getItem(getTokenStorageKey())
+    let v2 = localStorage.getItem(getUserTypeStroageKey())
+    let v3 = localStorage.getItem(getUserIdStroageKey())
     if (v1 && v2 && v3) {
       return {
         token: v1,
@@ -51,9 +58,9 @@ export const useUserStore = defineStore('user', () => {
 
     user.value = res.data
     initialized.value = 1
-    await localStorage.setItem(_tokenStorageKey, res.data.jwt_token)
-    await localStorage.setItem(_userTypeStroageKey, 'default')
-    await localStorage.setItem(_userIdStroageKey, res.data.id)
+    await localStorage.setItem(getTokenStorageKey(), res.data.jwt_token)
+    await localStorage.setItem(getUserTypeStroageKey(), 'default')
+    await localStorage.setItem(getUserIdStroageKey(), res.data.id)
 
     const routerStore = useRouterStore()
     await routerStore.loadServerRouter(true)
@@ -69,9 +76,9 @@ export const useUserStore = defineStore('user', () => {
 
   const isLogIn = () => {
     return (
-      localStorage.getItem(_tokenStorageKey) &&
-      localStorage.getItem(_userTypeStroageKey) &&
-      localStorage.getItem(_userIdStroageKey)
+      localStorage.getItem(getTokenStorageKey()) &&
+      localStorage.getItem(getUserTypeStroageKey()) &&
+      localStorage.getItem(getUserIdStroageKey())
     )
   }
 

@@ -68,7 +68,7 @@ func (front) InitModule() {
 	root.SetHTMLTemplate(template.Must(template.New("adminBox.js").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
 	root.GET("/adminBox.js", func(ctx *gin.Context) {
 		ctx.Header("Content-Type", "application/javascript")
-		allConfig := fmt.Sprintf(`IsRewriteIndex: %t,BackendRouterPrefix: '%s',%s`, frontIndexHanler != nil, config.ServerCfg().BackendRouterPrefix, writeByadminBoxConfig)
+		allConfig := fmt.Sprintf(`BackendRouterPrefix: '%s',%s`, config.ServerCfg().BackendRouterPrefix, writeByadminBoxConfig)
 		ctx.HTML(http.StatusOK, "adminBox.js", gin.H{
 			"writeByadminBox_config": template.HTML(allConfig),
 			"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
