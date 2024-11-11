@@ -3,6 +3,7 @@ package model
 import (
 	"slices"
 
+	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
 	"gorm.io/gorm"
 )
@@ -33,7 +34,7 @@ type Meta struct {
 }
 
 func (s SysMenu) TableName() string {
-	return "sys_menu"
+	return config.DBCfg()["default"].Prefix + "sys_menu"
 }
 
 func (s SysMenu) All(loadSystem bool) []SysMenu {

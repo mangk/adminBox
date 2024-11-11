@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
 	"github.com/mangk/adminBox/log"
 	"github.com/mangk/adminBox/util"
@@ -41,7 +42,7 @@ type UserConfig struct {
 }
 
 func (s SysUser) TableName() string {
-	return "sys_user"
+	return config.DBCfg()["default"].Prefix + "sys_user"
 }
 
 func (u *SysUser) UnmarshalJSON(data []byte) error {

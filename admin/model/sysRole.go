@@ -1,5 +1,7 @@
 package model
 
+import "github.com/mangk/adminBox/config"
+
 type SysRole struct {
 	Model
 	Name        string     `json:"name" gorm:"size:50;comment:角色名称"`
@@ -8,5 +10,5 @@ type SysRole struct {
 }
 
 func (SysRole) TableName() string {
-	return "sys_role"
+	return config.DBCfg()["default"].Prefix + "sys_role"
 }

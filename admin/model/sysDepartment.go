@@ -1,6 +1,9 @@
 package model
 
-import "github.com/mangk/adminBox/db"
+import (
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/db"
+)
 
 type SysDepartment struct {
 	Model
@@ -12,7 +15,7 @@ type SysDepartment struct {
 }
 
 func (SysDepartment) TableName() string {
-	return "sys_department"
+	return config.DBCfg()["default"].Prefix + "sys_department"
 }
 
 func (s SysDepartment) All() ([]SysDepartment, error) {

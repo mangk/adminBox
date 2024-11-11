@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
 )
 
@@ -18,7 +19,7 @@ type SysAuth struct {
 }
 
 func (SysAuth) TableName() string {
-	return "sys_auth"
+	return config.DBCfg()["default"].Prefix + "sys_auth"
 }
 
 func (SysAuth) SplitStr() string {
@@ -91,7 +92,7 @@ func (s SysAuth) LoadMenuIdListByUserId(id int) (list []int, err error) {
 		return
 	}
 
-	for key,value := range result.List {
+	for key, value := range result.List {
 		st := strings.Split(key, s.SplitStr())
 		if len(st) >= 2 && st[0] == "menu" && value == 1 {
 			menuId, err := strconv.Atoi(st[1])

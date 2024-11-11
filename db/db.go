@@ -33,9 +33,12 @@ func (db) InitModule() {
 				LogLevel:                  logger.LogLevel(dbCfg.LogMode),
 				Colorful:                  false,
 			}),
-			NamingStrategy: schema.NamingStrategy{
-				TablePrefix:   dbCfg.Prefix,
-				SingularTable: dbCfg.Singular,
+			NamingStrategy: &prefixNamingStrategy{
+				NamingStrategy: schema.NamingStrategy{
+					TablePrefix:   dbCfg.Prefix,
+					SingularTable: dbCfg.Singular,
+				},
+				TablePrefix: dbCfg.Prefix,
 			},
 			DisableAutomaticPing:                     true,
 			DisableForeignKeyConstraintWhenMigrating: true,
@@ -83,5 +86,50 @@ func dialectorBuild(g config.DB) gorm.Dialector {
 		//	return "oracle://" + g.Username + ":" + g.Password + "@" + g.Path + ":" + g.Port + "/" + g.Dbname + "?" + g.Config
 	}
 	log.Panic("undefined db driver", "driver", g.Driver)
+	return nil
+}
+
+// 自定义 NamingStrategy，结合 TablePrefix 和 TableName 方法
+type prefixNamingStrategy struct {
+	schema.NamingStrategy
+	TablePrefix string
+}
+
+// func (f *prefixNamingStrategy) SchemaName(table string) string {
+// 	return f.SchemaName(table)
+// }
+
+// func (f *prefixNamingStrategy) ColumnName(table string, column string) string {
+// 	return f.ColumnName(table, column)
+// }
+
+// func (f *prefixNamingStrategy) JoinTableName(joinTable string) string {
+// 	panic("not implemented") // TODO: Implement
+// }
+
+// func (f *prefixNamingStrategy) RelationshipFKName(_ schema.Relationship) string {
+// 	panic("not implemented") // TODO: Implement
+// }
+
+// func (f *prefixNamingStrategy) CheckerName(table string, column string) string {
+// 	return f.CheckerName(table, column)
+// }
+
+// func (f *prefixNamingStrategy) IndexName(table string, column string) string {
+// 	panic("not implemented") // TODO: Implement
+// }
+
+// func (f *prefixNamingStrategy) UniqueName(table string, column string) string {
+// 	panic("not implemented") // TODO: Implement
+// }
+
+// 实现 TableName 方法，使其在指定的表名前添加前缀
+func (ns *prefixNamingStrategy) TableName(table string) string {
+	return ns.TablePrefix + table
+}
+
+// 自定义 BeforeQuery Hook 添加表前缀
+func (ns *prefixNamingStrategy) BeforeQuery(tx *gorm.DB) (err error) {
+	tx.Statement.Table = ns.TablePrefix + tx.Statement.Table
 	return nil
 }

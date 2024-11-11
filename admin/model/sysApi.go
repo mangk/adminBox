@@ -18,7 +18,7 @@ type SysApi struct {
 }
 
 func (SysApi) TableName() string {
-	return "sys_api"
+	return config.DBCfg()["default"].Prefix + "sys_api"
 }
 
 func (s SysApi) All(loadSystem bool) []SysApi {

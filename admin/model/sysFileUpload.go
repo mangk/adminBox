@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 
+	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
 	"gorm.io/gorm"
 )
@@ -16,7 +17,7 @@ type SysFileUpload struct {
 }
 
 func (SysFileUpload) TableName() string {
-	return "sys_file_upload"
+	return config.DBCfg()["default"].Prefix + "sys_file_upload"
 }
 
 func (s SysFileUpload) Upload(file *SysFileUpload) error {
