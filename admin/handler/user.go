@@ -73,13 +73,22 @@ func UserCreate(ctx *gin.Context) {
 }
 
 func UserEdit(ctx *gin.Context) {
-	req := model.SysUser{}
+	req := struct {
+		model.SysUser
+		Password string `json:"password"`
+	}{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
 	}
 
-	if err := (model.SysUser{}).Update(req); err != nil {
+	if req.SysUser.Password != "" {
+		var salt string
+		db.DB().Model(model.SysUser{}).Select("salt").Where("id = ?", req.ID).First(&salt)
+		req.Salt = salt
+	}
+
+	if err := (model.SysUser{}).Update(req.SysUser); err != nil {
 		response.FailWithError(ctx, err)
 		return
 	}

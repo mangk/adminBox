@@ -122,6 +122,9 @@ func (s SysUser) Update(data SysUser) error {
 		update["nick_name"] = data.NickName
 		update["avatar"] = data.Avatar
 		update["enable"] = data.Enable
+		if data.Password != "" {
+			update["password"] = util.BcryptHash(data.PasswordConfound(data.Password))
+		}
 		{
 			if err := tx.Unscoped().Where("sys_user_id = ?", data.ID).Delete(&SysUserDepartment{}).Error; err != nil {
 				return err
