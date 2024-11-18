@@ -102,7 +102,10 @@ func (s *SysUser) Create() error {
 		}
 
 		// 赋予用户默认欢迎页和加载菜单列表的权限
-		defaultAuth := []SysAuth{{TableId: s.ID, TableModule: "sys_user", Type: "menu", Key: "-100", SetValue: 1}, {TableId: s.ID, TableModule: "sys_user", Type: "api", Key: "-103", SetValue: 1}}
+		defaultAuth := []SysAuth{
+			{TableId: s.ID, TableModule: SysUser{}.TableName(), Type: "menu", Key: "-100", SetValue: 1},
+			{TableId: s.ID, TableModule: SysUser{}.TableName(), Type: "api", Key: "-103", SetValue: 1},
+		}
 		if err := tx.Create(&defaultAuth).Error; err != nil {
 			return err
 		}
