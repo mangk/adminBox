@@ -66,7 +66,7 @@ func FileList(ctx *gin.Context) {
 		}
 	}
 
-	host := config.ServerCfg().RunAt
+	host := strings.TrimRight(config.ServerCfg().RunAt, "/")
 	for i := range list {
 		list[i].Url = host + list[i].Url // TODO 这里结合config 处理
 	}
