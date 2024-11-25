@@ -65,6 +65,16 @@ http.interceptors.request.use(
 // http response 拦截器
 http.interceptors.response.use(
   (response) => {
+    if (
+      response.headers['content-type'] == 'application/json; charset=utf-8' &&
+      response.data.code != 0
+    ) {
+      ElMessage({
+        showClose: true,
+        message: response.data.msg,
+        type: 'error'
+      })
+    }
     return response.data
   },
   (error) => {
@@ -75,19 +85,24 @@ http.interceptors.response.use(
         handler401(true)
         break
       default:
-        ElMessageBox.confirm(
-          `
-          <p>检测到接口错误${error}</p>
-          <p>错误码<span style="color:red"> ${error.response.status} </span>：此类错误多为接口未注册（或未重启）或者请求路径（方法）与api路径（方法）不符--如果为自动化代码请检查是否存在空格</p>
-          `,
-          '接口报错',
-          {
-            dangerouslyUseHTMLString: true,
-            distinguishCancelAndClose: true,
-            confirmButtonText: '我知道了',
-            cancelButtonText: '取消'
-          }
-        )
+        // ElMessageBox.confirm(
+        //   `
+        //   <p>检测到接口错误${error}</p>
+        //   <p>错误码<span style="color:red"> ${error.response.status} </span>：此类错误多为接口未注册（或未重启）或者请求路径（方法）与api路径（方法）不符--如果为自动化代码请检查是否存在空格</p>
+        //   `,
+        //   '接口报错',
+        //   {
+        //     dangerouslyUseHTMLString: true,
+        //     distinguishCancelAndClose: true,
+        //     confirmButtonText: '我知道了',
+        //     cancelButtonText: '取消'
+        //   }
+        // )
+        ElMessage({
+          showClose: true,
+          message: error,
+          type: 'error'
+        })
         break
     }
 
