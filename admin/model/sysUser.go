@@ -62,7 +62,7 @@ func (u *SysUser) UnmarshalJSON(data []byte) error {
 }
 
 func (s SysUser) Detail(id int) (user SysUser, err error) {
-	if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil {
+	if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil && err != gorm.ErrRecordNotFound {
 		log.Error(err.Error())
 	}
 
