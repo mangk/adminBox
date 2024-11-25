@@ -84,7 +84,9 @@ export const useUserStore = defineStore('user', () => {
 
   const logOut = () => {
     localStorage.clear()
-    window.location.href = window.location.origin
+    let runAt = window.adminBox?.RunAt
+
+    window.location.href = runAt ?? window.location.origin
     // router.replace({ name: 'login' })
   }
 
