@@ -4,11 +4,19 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
+	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/mangk/adminBox/config"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
+
+var _log *logInstance
 
 func Info(msg string, keysAndValues ...interface{}) {
 	_log.Info(msg, keysAndValues...)
@@ -60,88 +68,128 @@ func Print(args ...interface{}) {
 	}
 }
 
-func Logger() *Log {
-	return _log
-}
-
-func LoggerAdapter(name string) *Log {
-	return &Log{
-		CallerSkip: 0,
-		traceKey:   name,
-		Logger:     _log.Logger,
-	}
-}
-
 func Zaplog() *zap.Logger {
-	return _log.Logger
+	return _log.logger
 }
 
-func Trace(traceKey ...string) *Log {
+func Trace(traceKey ...string) *logInstance {
 	if len(traceKey) == 0 {
 		traceKey = append(traceKey, uuid.New().String())
 	}
-	return &Log{traceKey: traceKey[0]}
+	return &logInstance{traceKey: traceKey[0], callerSkip: 1}
 }
 
-// Log
-type Log struct {
-	CallerSkip int
+// logInstance
+type logInstance struct {
+	callerSkip int
 	traceKey   string
-	Logger     *zap.Logger
+	logger     *zap.Logger
 }
 
-func (l *Log) SugaredLogger() *zap.SugaredLogger {
-	_l := _log.Logger.Sugar()
-	if l.traceKey != "" {
-		_l = _l.With("_trace", l.traceKey)
+func (l *logInstance) i() *zap.SugaredLogger {
+	if _log == nil {
+		// 日志基础配置
+		encoderConfig := zap.NewProductionEncoderConfig()
+		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig.LevelKey = "_l"
+		encoderConfig.TimeKey = "_t"
+		encoderConfig.NameKey = "_n"
+		encoderConfig.CallerKey = "_c"
+		encoderConfig.StacktraceKey = "_s"
+		encoderConfig.FunctionKey = "_f"
+
+		encoder := zapcore.NewConsoleEncoder(encoderConfig)
+		if config.LogCfg().Format == "json" {
+			encoder = zapcore.NewJSONEncoder(encoderConfig)
+		}
+
+		// 日志输出位置
+		writerMap := make(map[string]zapcore.WriteSyncer)
+		for _, output := range config.LogCfg().Output {
+			if output == "console" {
+				writerMap[output] = zapcore.AddSync(os.Stdout)
+			} else {
+				writerMap[output] = zapcore.AddSync(getLogfileWriter(output))
+			}
+		}
+		writer := []zapcore.WriteSyncer{}
+		for _, w := range writerMap {
+			writer = append(writer, w)
+		}
+		if len(writer) == 0 {
+			writer = append(writer, zapcore.AddSync(os.Stdout))
+		}
+
+		// 其他配置
+		var opt []zap.Option
+		opt = append(opt, zap.WithCaller(true), zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.ErrorLevel))
+
+		core := zapcore.NewCore(
+			encoder,
+			zapcore.NewMultiWriteSyncer(writer...),
+			zap.NewAtomicLevelAt(zap.InfoLevel),
+		)
+
+		logger := zap.New(core, opt...)
+
+		_log = &logInstance{
+			logger:     logger,
+			callerSkip: 1,
+		}
 	}
-	return _l.WithOptions(zap.AddCallerSkip(l.CallerSkip))
+
+	_l := _log.logger.Sugar()
+	if l != nil && l.traceKey != "" {
+		_l = _l.With("_trace", l.traceKey)
+		return _l
+	}
+	return _l.WithOptions(zap.AddCallerSkip(_log.callerSkip))
 }
 
-func (l *Log) Info(msg string, keysAndValues ...interface{}) {
-	l.SugaredLogger().Infow(msg, keysAndValues...)
+func (l *logInstance) Info(msg string, keysAndValues ...interface{}) {
+	l.i().Infow(msg, keysAndValues...)
 }
 
-func (l *Log) Infof(format string, args ...interface{}) {
-	l.SugaredLogger().Infof(format, args...)
+func (l *logInstance) Infof(format string, args ...interface{}) {
+	l.i().Infof(format, args...)
 }
 
-func (l *Log) Warn(msg string, keysAndValues ...interface{}) {
-	l.SugaredLogger().Warnw(msg, keysAndValues...)
+func (l *logInstance) Warn(msg string, keysAndValues ...interface{}) {
+	l.i().Warnw(msg, keysAndValues...)
 }
 
-func (l *Log) Warnf(format string, args ...interface{}) {
-	l.SugaredLogger().Warnf(format, args...)
+func (l *logInstance) Warnf(format string, args ...interface{}) {
+	l.i().Warnf(format, args...)
 }
 
-func (l *Log) Debug(msg string, keysAndValues ...interface{}) {
-	l.SugaredLogger().Debugw(msg, keysAndValues...)
+func (l *logInstance) Debug(msg string, keysAndValues ...interface{}) {
+	l.i().Debugw(msg, keysAndValues...)
 }
 
-func (l *Log) Debugf(format string, args ...interface{}) {
-	l.SugaredLogger().Debugf(format, args...)
+func (l *logInstance) Debugf(format string, args ...interface{}) {
+	l.i().Debugf(format, args...)
 }
 
-func (l *Log) Error(err error, msg string, keysAndValues ...interface{}) {
+func (l *logInstance) Error(err error, msg string, keysAndValues ...interface{}) {
 	keysAndValues = append(keysAndValues, "err", err)
-	l.SugaredLogger().Errorw(msg, keysAndValues...)
+	l.i().Errorw(msg, keysAndValues...)
 }
 
-func (l *Log) Errorf(format string, args ...interface{}) {
-	l.SugaredLogger().Errorf(format, args...)
+func (l *logInstance) Errorf(format string, args ...interface{}) {
+	l.i().Errorf(format, args...)
 }
 
-func (l *Log) Panic(msg string, keysAndValues ...interface{}) {
-	l.SugaredLogger().Panicw(msg, keysAndValues...)
+func (l *logInstance) Panic(msg string, keysAndValues ...interface{}) {
+	l.i().Panicw(msg, keysAndValues...)
 }
 
-func (l *Log) Panicf(format string, args ...interface{}) {
-	l.SugaredLogger().Panicf(format, args...)
+func (l *logInstance) Panicf(format string, args ...interface{}) {
+	l.i().Panicf(format, args...)
 }
 
 // GormLogger
 type GormLogger struct {
-	logger *Log
+	logger *logInstance
 }
 
 func GormAdapter() *GormLogger {
@@ -155,15 +203,15 @@ func (g *GormLogger) Printf(format string, args ...interface{}) {
 	if len(args) == 4 {
 		kv := []interface{}{}
 		kv = append(kv, "call", args[0], "cost", fmt.Sprintf("%.3fms", args[1]), "rows", args[2], "sql", args[3])
-		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gorm", kv...)
+		g.logger.i().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gorm", kv...)
 	} else {
-		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof(format, args...)
+		g.logger.i().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof(format, args...)
 	}
 }
 
 // GinLogger
 type GinLogger struct {
-	logger *Log
+	logger *logInstance
 }
 
 func GinAdapter() *GinLogger {
@@ -175,9 +223,30 @@ func (g *GinLogger) Write(p []byte) (n int, err error) {
 	// TODO 这里处理的不够全面，不够深入 gin
 	args := []interface{}{}
 	if e := json.Unmarshal(p, &args); e == nil {
-		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gin", args...)
+		g.logger.i().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infow("_gin", args...)
 	} else {
-		g.logger.SugaredLogger().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof("%s", p)
+		g.logger.i().WithOptions(zap.AddCallerSkip(1), zap.WithCaller(false)).Infof("%s", p)
 	}
 	return
+}
+
+func getLogfileWriter(dirName string) *rotatelogs.RotateLogs {
+	maxAge := 30
+	if config.LogCfg().MaxAge != 0 {
+		maxAge = config.LogCfg().MaxAge
+	}
+	fileWriter, err := rotatelogs.New(
+		path.Join(dirName, config.LogCfg().Prefix+"%Y-%m-%d.log"),
+		rotatelogs.WithClock(rotatelogs.Local),
+		rotatelogs.WithMaxAge(time.Duration(maxAge)*24*time.Hour), // 日志留存时间
+		rotatelogs.WithRotationTime(time.Hour*24),
+	)
+	if err != nil {
+		panic("设置日志输出错误:" + err.Error())
+	}
+	return fileWriter
+}
+
+func Close() {
+	_log.logger.Sync()
 }

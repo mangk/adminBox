@@ -3,8 +3,6 @@ package db
 import (
 	"time"
 
-	"github.com/mangk/adminBox/moduleRegister"
-
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
 	"gorm.io/driver/mysql"
@@ -17,50 +15,44 @@ import (
 
 var _dbList map[string]*gorm.DB
 
-func init() {
-	moduleRegister.ModuleAdd(db{})
-}
-
-type db struct{}
-
-func (db) InitModule() {
-	_dbList = make(map[string]*gorm.DB)
-	for name, dbCfg := range config.DBCfg() {
-		db, err := gorm.Open(dialectorBuild(dbCfg), &gorm.Config{
-			Logger: logger.New(log.GormAdapter(), logger.Config{
-				SlowThreshold:             200 * time.Millisecond,
-				IgnoreRecordNotFoundError: true,
-				LogLevel:                  logger.LogLevel(dbCfg.LogMode),
-				Colorful:                  false,
-			}),
-			NamingStrategy: &prefixNamingStrategy{
-				NamingStrategy: schema.NamingStrategy{
-					TablePrefix:   dbCfg.Prefix,
-					SingularTable: dbCfg.Singular,
-				},
-				TablePrefix: dbCfg.Prefix,
-			},
-			DisableAutomaticPing:                     true,
-			DisableForeignKeyConstraintWhenMigrating: true,
-			// IgnoreRelationshipsWhenMigrating: true,
-		})
-
-		if err != nil {
-			log.Panic("db init error", "name", name, "err", err)
-		}
-
-		conn, _ := db.DB()
-		// 设置空闲连接池中连接的最大数量
-		conn.SetMaxIdleConns(dbCfg.MaxIdleConn)
-		// 设置打开数据库连接的最大数量
-		conn.SetMaxOpenConns(dbCfg.MaxOpenConn)
-		// 设置了连接可复用的最大时间
-		conn.SetConnMaxLifetime(time.Hour)
-		_dbList[name] = db
-	}
-}
-
 func DB(name ...string) *gorm.DB {
+	if _dbList == nil {
+		_dbList = make(map[string]*gorm.DB)
+		for name, dbCfg := range config.DBCfg() {
+			db, err := gorm.Open(dialectorBuild(dbCfg), &gorm.Config{
+				Logger: logger.New(log.GormAdapter(), logger.Config{
+					SlowThreshold:             200 * time.Millisecond,
+					IgnoreRecordNotFoundError: true,
+					LogLevel:                  logger.LogLevel(dbCfg.LogMode),
+					Colorful:                  false,
+				}),
+				NamingStrategy: &prefixNamingStrategy{
+					NamingStrategy: schema.NamingStrategy{
+						TablePrefix:   dbCfg.Prefix,
+						SingularTable: dbCfg.Singular,
+					},
+					TablePrefix: dbCfg.Prefix,
+				},
+				DisableAutomaticPing:                     true,
+				DisableForeignKeyConstraintWhenMigrating: true,
+				// IgnoreRelationshipsWhenMigrating: true,
+			})
+
+			if err != nil {
+				log.Panic("db init error", "name", name, "err", err)
+			}
+
+			conn, _ := db.DB()
+			// 设置空闲连接池中连接的最大数量
+			conn.SetMaxIdleConns(dbCfg.MaxIdleConn)
+			// 设置打开数据库连接的最大数量
+			conn.SetMaxOpenConns(dbCfg.MaxOpenConn)
+			// 设置了连接可复用的最大时间
+			conn.SetConnMaxLifetime(time.Hour)
+			_dbList[name] = db
+		}
+	}
+
 	dbName := "default"
 	if len(name) == 1 {
 		dbName = name[0]

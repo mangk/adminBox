@@ -11,16 +11,9 @@ import (
 	myHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/http/middleware"
 	"github.com/mangk/adminBox/log"
-	"github.com/mangk/adminBox/moduleRegister"
 )
 
 func init() {
-	moduleRegister.ModuleAdd(admin{})
-}
-
-type admin struct{}
-
-func (admin) InitModule() {
 	routerCreate()
 }
 

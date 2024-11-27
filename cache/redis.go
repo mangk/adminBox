@@ -7,7 +7,42 @@ import (
 	"time"
 
 	"github.com/go-redis/redis/v8"
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
 )
+
+var _redisList map[string]*redis.Client
+
+func Redis(driver ...string) *redis.Client {
+	if _redisList == nil {
+		// 初始化redis
+		_redisList = make(map[string]*redis.Client)
+		for name, redisCfg := range config.CacheCfg() {
+			client := redis.NewClient(&redis.Options{
+				Addr:     redisCfg.Addr,
+				Password: redisCfg.Password, // no password set
+				DB:       redisCfg.DB,       // use default DB
+			})
+			_, err := client.Ping(context.Background()).Result()
+			if err != nil {
+				log.Panic("redis init error", "name", name, "err", err)
+			}
+			_redisList[name] = client
+		}
+	}
+
+	d := "default"
+	if len(driver) == 1 {
+		d = driver[0]
+	}
+
+	if cache, ok := _redisList[d]; ok {
+		return cache
+	}
+
+	log.Panic("redis driver undefind", "driver", driver)
+	return nil
+}
 
 func RedisStrGet(key string) string {
 	ctx, cancel := context.WithTimeout(context.Background(), 1500*time.Millisecond)

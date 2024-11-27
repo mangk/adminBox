@@ -15,5 +15,16 @@
                 "./config.yaml"
             ]
         },
+        {
+            "name": "Demo2",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceRoot}/demo2",
+            "args": [
+                "-c",
+                "../config.yaml"
+            ]
+        },
     ]
 }

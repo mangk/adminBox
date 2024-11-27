@@ -93,11 +93,11 @@ cache:
   #   addr:
   #   password:
 log:
-  prefix:
+  prefix: logFilePrefix
   maxAge: 30
   level: debug
   format: console
   encodeLevel: 0
   output: # 可以设置多个日志输出位置
-    # - logs # 日志输出到可执行文件目录下的 log 文件夹
+    - logs # 日志输出到可执行文件目录下的 log 文件夹
     - console # 日志会输出到stdout

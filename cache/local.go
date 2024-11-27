@@ -4,7 +4,20 @@ import (
 	"time"
 
 	"github.com/mangk/adminBox/config"
+	"github.com/songzhibin97/gkit/cache/local_cache"
 )
+
+var _blackCacheInit bool
+var _blackCache local_cache.Cache
+
+func Local() local_cache.Cache {
+	if !_blackCacheInit {
+		_blackCache = local_cache.NewCache()
+		_blackCacheInit = true
+	}
+
+	return _blackCache
+}
 
 // TODO 验证码使用本地缓存，在多机部署时会存在问题
 type Base64CaptchaStore struct {

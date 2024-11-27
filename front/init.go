@@ -12,7 +12,6 @@ import (
 	"github.com/mangk/adminBox/config"
 	myHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/log"
-	"github.com/mangk/adminBox/moduleRegister"
 
 	_ "github.com/mangk/adminBox/admin"
 )
@@ -24,28 +23,6 @@ var frontFiles embed.FS
 var CrudTemplate string
 
 func init() {
-	moduleRegister.ModuleAdd(front{})
-}
-
-type front struct{}
-
-var frontIndexHanler func(ctx *gin.Context)
-
-var writeByadminBoxConfig string
-var writeByadminBoxFunc string
-
-func RewriteIndex(f func(ctx *gin.Context)) {
-	l := &log.Log{CallerSkip: 0}
-	l.SugaredLogger().Infof("RewriteIndex")
-	frontIndexHanler = f
-}
-
-func SetAdminBoxJsUserCodeSnippet(cfg, function string) {
-	writeByadminBoxConfig = cfg
-	writeByadminBoxFunc = function
-}
-
-func (front) InitModule() {
 	root := myHttp.HttpEngine()
 
 	root.GET("/", func(ctx *gin.Context) {
@@ -74,7 +51,21 @@ func (front) InitModule() {
 			"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
 		})
 	})
+}
 
+var frontIndexHanler func(ctx *gin.Context)
+
+var writeByadminBoxConfig string
+var writeByadminBoxFunc string
+
+func RewriteIndex(f func(ctx *gin.Context)) {
+	log.Info("RewriteIndex")
+	frontIndexHanler = f
+}
+
+func SetAdminBoxJsUserCodeSnippet(cfg, function string) {
+	writeByadminBoxConfig = cfg
+	writeByadminBoxFunc = function
 }
 
 func DynamicTemplate(ctx *gin.Context, filePath string) {

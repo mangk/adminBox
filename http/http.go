@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
-	"github.com/mangk/adminBox/moduleRegister"
 )
 
 var _adminBox *Http
@@ -18,8 +17,6 @@ type Http struct {
 
 func New() *Http {
 	_adminBox = &Http{}
-
-	moduleRegister.ModelInit()
 
 	return _adminBox
 }
@@ -46,6 +43,9 @@ func newHttpServer() {
 }
 
 func HttpEngine() *gin.Engine {
+	if _adminBox == nil {
+		_adminBox = &Http{}
+	}
 	if _adminBox.httpClient == nil {
 		newHttpServer()
 	}
