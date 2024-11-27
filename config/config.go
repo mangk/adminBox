@@ -5,12 +5,15 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/spf13/viper"
 )
 
 var _config *configInstance
 var _viper *viper.Viper
+var _configInitOnce sync.Once
+var _configMutex sync.Mutex
 
 type configInstance struct {
 	Server server           `json:"server,omitempty" yaml:"server,omitempty"`
@@ -20,7 +23,10 @@ type configInstance struct {
 }
 
 func (c *configInstance) i() configInstance {
-	if _config == nil {
+	_configInitOnce.Do(func() {
+		_configMutex.Lock()
+		defer _configMutex.Unlock()
+
 		// TODO 支持从 ENV 读取配置
 		cfgFilePath := flag.String("c", "./config.yaml", "config file path")
 		flag.Parse()
@@ -53,7 +59,7 @@ log:
 		if err := _viper.Unmarshal(_config); err != nil {
 			panic(fmt.Errorf("read config error: %s", err))
 		}
-	}
+	})
 
 	return *_config
 }

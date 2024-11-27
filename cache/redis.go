@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -11,10 +12,17 @@ import (
 	"github.com/mangk/adminBox/log"
 )
 
-var _redisList map[string]*redis.Client
+var (
+	_redisList     map[string]*redis.Client
+	_redisInitOnce sync.Once
+	_redisMutex    sync.Mutex
+)
 
 func Redis(driver ...string) *redis.Client {
-	if _redisList == nil {
+	_redisInitOnce.Do(func() {
+		_redisMutex.Lock()
+		defer _redisMutex.Unlock()
+
 		// 初始化redis
 		_redisList = make(map[string]*redis.Client)
 		for name, redisCfg := range config.CacheCfg() {
@@ -29,7 +37,7 @@ func Redis(driver ...string) *redis.Client {
 			}
 			_redisList[name] = client
 		}
-	}
+	})
 
 	d := "default"
 	if len(driver) == 1 {

@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mangk/adminBox"
 	"github.com/mangk/adminBox/admin/model"
 	"github.com/mangk/adminBox/db"
 	"github.com/mangk/adminBox/front"
-	"github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/http/middleware"
 	"github.com/mangk/adminBox/http/request"
 	"github.com/mangk/adminBox/http/response"
@@ -129,7 +129,7 @@ func (e *Engine) AddField(filed ...Field) *Engine {
 }
 
 func (e *Engine) Register() {
-	g := http.HttpEngine()
+	g := adminBox.HttpEngine()
 	for _, handlerFunc := range e.middleware {
 		g.Use(handlerFunc)
 	}
@@ -213,7 +213,7 @@ func (e *Engine) RegisterDeleteHandler(relativePath string, handlerFunc gin.Hand
 }
 
 func (e *Engine) register(relativePath, method string, handlerFunc ...gin.HandlerFunc) {
-	g := http.HttpEngine()
+	g := adminBox.HttpEngine()
 	switch method {
 	case "POST":
 		g.POST(e.ap+"/"+relativePath, handlerFunc...)

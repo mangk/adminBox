@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mangk/adminBox"
 	"github.com/mangk/adminBox/config"
-	myHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/log"
 
 	_ "github.com/mangk/adminBox/admin"
@@ -23,7 +23,7 @@ var frontFiles embed.FS
 var CrudTemplate string
 
 func init() {
-	root := myHttp.HttpEngine()
+	root := adminBox.HttpEngine()
 
 	root.GET("/", func(ctx *gin.Context) {
 		_, has := ctx.GetQuery("front")

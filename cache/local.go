@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"sync"
 	"time"
 
 	"github.com/mangk/adminBox/config"
@@ -9,12 +10,16 @@ import (
 
 var _blackCacheInit bool
 var _blackCache local_cache.Cache
+var _blackInitOnce sync.Once
+var _blackMutex sync.Mutex
 
 func Local() local_cache.Cache {
-	if !_blackCacheInit {
+	_blackInitOnce.Do(func() {
+		_blackMutex.Lock()
+		defer _blackMutex.Unlock()
+
 		_blackCache = local_cache.NewCache()
-		_blackCacheInit = true
-	}
+	})
 
 	return _blackCache
 }

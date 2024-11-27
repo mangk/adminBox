@@ -3,18 +3,28 @@ package admin
 import (
 	"net/http"
 	"strings"
+	"sync"
 
+	myHttp "github.com/mangk/adminBox"
 	"github.com/mangk/adminBox/admin/handler"
 	"github.com/mangk/adminBox/admin/model"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
-	myHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/http/middleware"
 	"github.com/mangk/adminBox/log"
 )
 
+var (
+	_adminInitOnce sync.Once
+	_adminMutex    sync.Mutex
+)
+
 func init() {
-	routerCreate()
+	_adminInitOnce.Do(func() {
+		_adminMutex.Lock()
+		defer _adminMutex.Unlock()
+		routerCreate()
+	})
 }
 
 func DBMigrate() {

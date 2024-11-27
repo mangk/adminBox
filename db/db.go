@@ -1,6 +1,7 @@
 package db
 
 import (
+	"sync"
 	"time"
 
 	"github.com/mangk/adminBox/config"
@@ -14,9 +15,13 @@ import (
 )
 
 var _dbList map[string]*gorm.DB
+var _dbInitOnce sync.Once
+var _dbMutex sync.Mutex
 
 func DB(name ...string) *gorm.DB {
-	if _dbList == nil {
+	_dbInitOnce.Do(func() {
+		_dbMutex.Lock()
+		defer _dbMutex.Unlock()
 		_dbList = make(map[string]*gorm.DB)
 		for name, dbCfg := range config.DBCfg() {
 			db, err := gorm.Open(dialectorBuild(dbCfg), &gorm.Config{
@@ -51,7 +56,7 @@ func DB(name ...string) *gorm.DB {
 			conn.SetConnMaxLifetime(time.Hour)
 			_dbList[name] = db
 		}
-	}
+	})
 
 	dbName := "default"
 	if len(name) == 1 {
