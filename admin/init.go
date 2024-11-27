@@ -16,13 +16,10 @@ import (
 
 var (
 	_adminInitOnce sync.Once
-	_adminMutex    sync.Mutex
 )
 
 func init() {
 	_adminInitOnce.Do(func() {
-		_adminMutex.Lock()
-		defer _adminMutex.Unlock()
 		routerCreate()
 	})
 }

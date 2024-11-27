@@ -15,14 +15,10 @@ import (
 var (
 	_redisList     map[string]*redis.Client
 	_redisInitOnce sync.Once
-	_redisMutex    sync.Mutex
 )
 
 func Redis(driver ...string) *redis.Client {
 	_redisInitOnce.Do(func() {
-		_redisMutex.Lock()
-		defer _redisMutex.Unlock()
-
 		// 初始化redis
 		_redisList = make(map[string]*redis.Client)
 		for name, redisCfg := range config.CacheCfg() {

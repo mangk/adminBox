@@ -16,12 +16,9 @@ import (
 
 var _dbList map[string]*gorm.DB
 var _dbInitOnce sync.Once
-var _dbMutex sync.Mutex
 
 func DB(name ...string) *gorm.DB {
 	_dbInitOnce.Do(func() {
-		_dbMutex.Lock()
-		defer _dbMutex.Unlock()
 		_dbList = make(map[string]*gorm.DB)
 		for name, dbCfg := range config.DBCfg() {
 			db, err := gorm.Open(dialectorBuild(dbCfg), &gorm.Config{

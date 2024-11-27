@@ -13,13 +13,9 @@ import (
 
 var _adminBox *gin.Engine
 var _adminBoxInitOnce sync.Once
-var _adminBoxMutex sync.Mutex
 
 func newHttpServer() {
 	_adminBoxInitOnce.Do(func() {
-		_adminBoxMutex.Lock()
-		defer _adminBoxMutex.Unlock()
-
 		gin.DisableConsoleColor()
 		gin.DefaultWriter = log.GinAdapter() // 设置日志输出到 zaplog
 

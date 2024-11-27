@@ -7,6 +7,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,6 +18,7 @@ import (
 )
 
 var _log *logInstance
+var _logInitOnce sync.Once
 
 func Info(msg string, keysAndValues ...interface{}) {
 	_log.Info(msg, keysAndValues...)
@@ -87,7 +89,7 @@ type logInstance struct {
 }
 
 func (l *logInstance) i() *zap.SugaredLogger {
-	if _log == nil {
+	_logInitOnce.Do(func() {
 		// 日志基础配置
 		encoderConfig := zap.NewProductionEncoderConfig()
 		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
@@ -136,7 +138,7 @@ func (l *logInstance) i() *zap.SugaredLogger {
 			logger:     logger,
 			callerSkip: 1,
 		}
-	}
+	})
 
 	_l := _log.logger.Sugar()
 	if l != nil && l.traceKey != "" {
