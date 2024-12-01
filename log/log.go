@@ -17,7 +17,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var _log *logInstance
+var _log *LogInstance
 var _logInitOnce sync.Once
 
 func Info(msg string, keysAndValues ...interface{}) {
@@ -74,21 +74,21 @@ func Zaplog() *zap.Logger {
 	return _log.logger
 }
 
-func Trace(traceKey ...string) *logInstance {
+func Trace(traceKey ...string) *LogInstance {
 	if len(traceKey) == 0 {
 		traceKey = append(traceKey, uuid.New().String())
 	}
-	return &logInstance{traceKey: traceKey[0], callerSkip: 1}
+	return &LogInstance{traceKey: traceKey[0], callerSkip: 1}
 }
 
-// logInstance
-type logInstance struct {
+// LogInstance
+type LogInstance struct {
 	callerSkip int
 	traceKey   string
 	logger     *zap.Logger
 }
 
-func (l *logInstance) i() *zap.SugaredLogger {
+func (l *LogInstance) i() *zap.SugaredLogger {
 	_logInitOnce.Do(func() {
 		// 日志基础配置
 		encoderConfig := zap.NewProductionEncoderConfig()
@@ -134,7 +134,7 @@ func (l *logInstance) i() *zap.SugaredLogger {
 
 		logger := zap.New(core, opt...)
 
-		_log = &logInstance{
+		_log = &LogInstance{
 			logger:     logger,
 			callerSkip: 1,
 		}
@@ -148,50 +148,50 @@ func (l *logInstance) i() *zap.SugaredLogger {
 	return _l.WithOptions(zap.AddCallerSkip(_log.callerSkip))
 }
 
-func (l *logInstance) Info(msg string, keysAndValues ...interface{}) {
+func (l *LogInstance) Info(msg string, keysAndValues ...interface{}) {
 	l.i().Infow(msg, keysAndValues...)
 }
 
-func (l *logInstance) Infof(format string, args ...interface{}) {
+func (l *LogInstance) Infof(format string, args ...interface{}) {
 	l.i().Infof(format, args...)
 }
 
-func (l *logInstance) Warn(msg string, keysAndValues ...interface{}) {
+func (l *LogInstance) Warn(msg string, keysAndValues ...interface{}) {
 	l.i().Warnw(msg, keysAndValues...)
 }
 
-func (l *logInstance) Warnf(format string, args ...interface{}) {
+func (l *LogInstance) Warnf(format string, args ...interface{}) {
 	l.i().Warnf(format, args...)
 }
 
-func (l *logInstance) Debug(msg string, keysAndValues ...interface{}) {
+func (l *LogInstance) Debug(msg string, keysAndValues ...interface{}) {
 	l.i().Debugw(msg, keysAndValues...)
 }
 
-func (l *logInstance) Debugf(format string, args ...interface{}) {
+func (l *LogInstance) Debugf(format string, args ...interface{}) {
 	l.i().Debugf(format, args...)
 }
 
-func (l *logInstance) Error(err error, msg string, keysAndValues ...interface{}) {
+func (l *LogInstance) Error(err error, msg string, keysAndValues ...interface{}) {
 	keysAndValues = append(keysAndValues, "err", err)
 	l.i().Errorw(msg, keysAndValues...)
 }
 
-func (l *logInstance) Errorf(format string, args ...interface{}) {
+func (l *LogInstance) Errorf(format string, args ...interface{}) {
 	l.i().Errorf(format, args...)
 }
 
-func (l *logInstance) Panic(msg string, keysAndValues ...interface{}) {
+func (l *LogInstance) Panic(msg string, keysAndValues ...interface{}) {
 	l.i().Panicw(msg, keysAndValues...)
 }
 
-func (l *logInstance) Panicf(format string, args ...interface{}) {
+func (l *LogInstance) Panicf(format string, args ...interface{}) {
 	l.i().Panicf(format, args...)
 }
 
 // GormLogger
 type GormLogger struct {
-	logger *logInstance
+	logger *LogInstance
 }
 
 func GormAdapter() *GormLogger {
@@ -213,7 +213,7 @@ func (g *GormLogger) Printf(format string, args ...interface{}) {
 
 // GinLogger
 type GinLogger struct {
-	logger *logInstance
+	logger *LogInstance
 }
 
 func GinAdapter() *GinLogger {
