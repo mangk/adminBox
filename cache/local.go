@@ -25,15 +25,15 @@ type Base64CaptchaStore struct {
 }
 
 func (b Base64CaptchaStore) Set(id string, value string) error {
-	_blackCache.Set("Base64CaptchaStore:"+id, value, time.Duration(config.CaptchaCfg().Overtime)*time.Second)
+	Local().Set("Base64CaptchaStore:"+id, value, time.Duration(config.CaptchaCfg().Overtime)*time.Second)
 	return nil
 }
 
 func (b Base64CaptchaStore) Get(id string, clear bool) string {
-	v, has := _blackCache.Get("Base64CaptchaStore:" + id)
+	v, has := Local().Get("Base64CaptchaStore:" + id)
 	if has {
 		if clear {
-			_blackCache.Delete("Base64CaptchaStore:" + id)
+			Local().Delete("Base64CaptchaStore:" + id)
 		}
 		return v.(string)
 	}
