@@ -168,7 +168,7 @@ func (s SysMenu) TranMap() map[int]string {
 
 func (s SysMenu) SystemMenu() []SysMenu {
 	return []SysMenu{
-		{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: false, Component: "views/welcome.vue", Sort: 999999, Meta: Meta{Title: "欢迎", KeepAlive: true, Icon: "sugar"}},
+		s.welcomePage(),
 		{Model: Model{ID: -200}, Pid: 0, Name: "fileUpload", Path: "fileUpload", Component: "views/setting/index.vue", Sort: 0, Meta: Meta{Title: "文件管理", KeepAlive: true, Icon: "upload-filled"}},
 		{Model: Model{ID: -300}, Pid: 0, Name: "setting", Path: "setting", Component: "views/setting/index.vue", Sort: 0, Meta: Meta{Title: "系统设置", KeepAlive: true, Icon: "setting"}},
 		{Model: Model{ID: -301}, Pid: -300, Name: "auth", Path: "auth", Hidden: true, Component: "", Sort: 0, Meta: Meta{Title: "授权分组"}},
@@ -178,4 +178,17 @@ func (s SysMenu) SystemMenu() []SysMenu {
 		{Model: Model{ID: -305}, Pid: -300, Name: "role", Path: "role", Component: "views/setting/role.vue", Sort: 0, Meta: Meta{Title: "角色管理", KeepAlive: true, Icon: "filter"}},
 		{Model: Model{ID: -306}, Pid: -300, Name: "department", Path: "department", Component: "views/setting/department.vue", Sort: 0, Meta: Meta{Title: "部门管理", KeepAlive: true, Icon: "office-building"}},
 	}
+}
+
+var newWelcome *SysMenu
+
+func (s SysMenu) welcomePage() SysMenu {
+	if newWelcome != nil {
+		return *newWelcome
+	}
+	return SysMenu{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: false, Component: "views/welcome.vue", Sort: 999999, Meta: Meta{Title: "欢迎", KeepAlive: true, Icon: "sugar"}}
+}
+
+func RewriteWelcome(title, scPath string) {
+	newWelcome = &SysMenu{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: false, Component: "views/util/serverComponent.vue", Sort: 999999, Meta: Meta{Title: title, KeepAlive: true, SCPath: scPath, Icon: "sugar"}}
 }
