@@ -69,6 +69,15 @@ http.interceptors.response.use(
       response.headers['content-type'] == 'application/json; charset=utf-8' &&
       response.data.code != 0
     ) {
+      if (response.data.code == 401) {
+        localStorage.clear()
+        if (window.adminBox?.RunAt) {
+          window.location.href = window.adminBox.RunAt
+          return
+        }
+        handler401(true)
+        return
+      }
       ElMessage({
         showClose: true,
         message: response.data.msg,
