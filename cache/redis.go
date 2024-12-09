@@ -79,7 +79,7 @@ func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duratio
 	return data
 }
 
-func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFunc func(*T) (expirationTime time.Duration, error error)) error {
+func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFunc func(*T) (expirationTime time.Duration, err error)) error {
 	data, err := Redis().Get(context.Background(), key).Bytes()
 	if err != nil && err != redis.Nil {
 		return err
