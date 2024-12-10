@@ -1,5 +1,5 @@
 import * as ElIconModules from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import http from './utils/requester'
 import { importView } from './utils/routerFormat'
 import { loadJS, loadTMPL } from './utils/loadUtil'
@@ -25,6 +25,7 @@ const register = async (app) => {
 
   // 注册全局Element消息
   app.config.globalProperties.$message = ElMessage
+  app.config.globalProperties.$messageBox = ElMessageBox
 
   // 注册http请求方法
   app.config.globalProperties.$http = http
