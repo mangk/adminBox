@@ -140,7 +140,7 @@ body {
 
 #app {
     min-width: 750px;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
 .el-header,
@@ -149,7 +149,7 @@ body {
     margin: 5px;
     padding: 0px;
     overflow: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
     border-radius: 12px;
 }
 
