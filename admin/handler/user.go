@@ -102,7 +102,37 @@ func UserEdit(ctx *gin.Context) {
 }
 
 func UserChangePassord(ctx *gin.Context) {
+	req := struct {
+		Old, New, ConfirmNew string
+	}{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
 
+	u, _ := model.SysUser{}.Detail(request.JWTLoginUserId(ctx))
+
+	_, err := model.SysUser{}.Login(u.Username, req.Old)
+	if err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	if req.New != req.ConfirmNew {
+		response.FailWithMsg(ctx, "两次输入的新密码不一致")
+		return
+	}
+	if len(req.New) < 6 {
+		response.FailWithMsg(ctx, "新密码不能少于6位")
+		return
+	}
+
+	u.Password = req.New
+
+	if err := u.Update(u); err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	response.Ok(ctx)
 }
 
 func UserDetail(ctx *gin.Context) {
