@@ -105,7 +105,11 @@ func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFun
 
 	// 缓存未命中，获取写锁
 	rwLock.Lock()
-	defer rwLock.Unlock()
+	defer func() {
+		rwLock.Unlock()
+		// 写锁释放后，清理锁对象
+		_redisCacheLock.Delete(key)
+	}()
 
 	// 再次检查缓存，防止重复执行查询函数
 	data, err = Redis().Get(ctx, key).Bytes()
