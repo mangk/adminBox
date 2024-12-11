@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	_redisList     map[string]*redis.Client
-	_redisInitOnce sync.Once
+	_redisList      map[string]*redis.Client
+	_redisInitOnce  sync.Once
+	_redisCacheLock sync.Map
 )
 
 func Redis(driver ...string) *redis.Client {
@@ -80,29 +81,56 @@ func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duratio
 }
 
 func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFunc func(*T) (expirationTime time.Duration, err error)) error {
-	data, err := Redis().Get(context.Background(), key).Bytes()
-	if err != nil && err != redis.Nil {
+	ctx := context.Background()
+
+	// 获取锁
+	lock, _ := _redisCacheLock.LoadOrStore(key, &sync.RWMutex{})
+	rwLock := lock.(*sync.RWMutex)
+
+	// 尝试读取缓存（读锁）
+	rwLock.RLock()
+	data, err := Redis().Get(ctx, key).Bytes()
+	rwLock.RUnlock()
+
+	if err == nil { // 缓存命中
+		// 反序列化并返回
+		buffer := bytes.NewBuffer(data)
+		decoder := gob.NewDecoder(buffer)
+		return decoder.Decode(resultReceiver)
+	}
+
+	if err != redis.Nil { // Redis 非缓存缺失错误
 		return err
 	}
 
-	if err == redis.Nil {
-		exp, err := queryFunc(resultReceiver)
-		if err != nil {
-			return err
-		}
-		var buffer bytes.Buffer
-		encoder := gob.NewEncoder(&buffer)
-		if err := encoder.Encode(*resultReceiver); err != nil {
-			return err
-		}
+	// 缓存未命中，获取写锁
+	rwLock.Lock()
+	defer rwLock.Unlock()
 
-		Redis().Set(context.Background(), key, buffer.Bytes(), exp)
-	} else {
+	// 再次检查缓存，防止重复执行查询函数
+	data, err = Redis().Get(ctx, key).Bytes()
+	if err == nil {
 		buffer := bytes.NewBuffer(data)
 		decoder := gob.NewDecoder(buffer)
-		if err := decoder.Decode(resultReceiver); err != nil {
-			return err
-		}
+		return decoder.Decode(resultReceiver)
 	}
-	return nil
+
+	if err != redis.Nil { // Redis 获取缓存失败
+		return err
+	}
+
+	// 缓存依然未命中，执行查询函数
+	exp, err := queryFunc(resultReceiver)
+	if err != nil {
+		return err
+	}
+
+	// 序列化结果并存储到 Redis
+	var buffer bytes.Buffer
+	encoder := gob.NewEncoder(&buffer)
+	if err := encoder.Encode(*resultReceiver); err != nil {
+		return err
+	}
+
+	return Redis().Set(ctx, key, buffer.Bytes(), exp).Err()
 }
