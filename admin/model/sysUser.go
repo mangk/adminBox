@@ -3,8 +3,11 @@ package model
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/mangk/adminBox/cache"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
 	"github.com/mangk/adminBox/log"
@@ -62,18 +65,19 @@ func (u *SysUser) UnmarshalJSON(data []byte) error {
 }
 
 func (s SysUser) Detail(id int) (user SysUser, err error) {
-	if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil && err != gorm.ErrRecordNotFound {
-		log.Error(err.Error())
-	}
+	err = cache.RedisHasOrQuerySerializerGob(fmt.Sprintf("user:%d", id), &user, func(user *SysUser) (expirationTime time.Duration, err error) {
+		if err = db.DB().Model(&user).Preload("DepartmentList").Preload("RoleList").Where("id = ?", id).First(&user).Error; err != nil && err != gorm.ErrRecordNotFound {
+			log.Error(err.Error())
+		}
+		for _, v := range user.DepartmentList {
+			user.DepartmentIds = append(user.DepartmentIds, v.ID)
+		}
 
-	for _, v := range user.DepartmentList {
-		user.DepartmentIds = append(user.DepartmentIds, v.ID)
-	}
-
-	for _, v := range user.RoleList {
-		user.RoleIds = append(user.RoleIds, v.ID)
-	}
-
+		for _, v := range user.RoleList {
+			user.RoleIds = append(user.RoleIds, v.ID)
+		}
+		return time.Second * 5, nil
+	})
 	return
 }
 
