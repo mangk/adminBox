@@ -1,5 +1,5 @@
 <template>
-  <div class="main-content" >
+  <div class="main-content"  style="margin: 0;">
     <!--    搜索-->
     <div>
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
