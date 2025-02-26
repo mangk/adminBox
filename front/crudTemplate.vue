@@ -54,7 +54,7 @@
         </el-table-column>
       </el-table>
       <div class="gva-pagination">
-        <el-pagination :current-page="tableData.page" :page-size="tableData.pageSize" :page-sizes="[20, 50, 100]"
+        <el-pagination :current-page="tableData.page" :page-size="tableData.page_size" :page-sizes="[20, 50, 100]"
           :total="tableData.count" layout="total, sizes, prev, pager, next, jumper" @current-change="_changeCurrentPage"
           @size-change="_changePageSize" />
       </div>
@@ -91,7 +91,7 @@ export default {
       tableData: {
         list: [],
         page: 1,
-        pageSize: 20,
+        page_size: 20,
         count: 0,
       },
       // 数据多选
@@ -119,7 +119,7 @@ export default {
     __list(search = false) {
       let data = {
         page: this.tableData.page,
-        pageSize: this.tableData.pageSize,
+        page_size: this.tableData.page_size,
         query: []
       }
       if (!search) {
@@ -219,7 +219,7 @@ export default {
     },
     _changePageSize(val) {
       this.tableData.page = 1
-      this.tableData.pageSize = val
+      this.tableData.page_size = val
       this.__list(true)
     },
     _changeCurrentPage(val) {

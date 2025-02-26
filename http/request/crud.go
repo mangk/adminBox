@@ -4,7 +4,7 @@ type CRUDRequest struct {
 	Query    []CRUDCondition `json:"query,omitempty"`
 	Sort     string          `json:"sort,omitempty"`
 	Page     int64             `json:"page,omitempty"`
-	PageSize int64             `json:"pageSize,omitempty"`
+	PageSize int64             `json:"page_size,omitempty"`
 	Id       string          `json:"id,omitempty"`
 	Ids      []string        `json:"ids,omitempty"`
 }
