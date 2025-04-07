@@ -59,7 +59,8 @@ export function loadTMPL(url, name = 'myConvert') {
         document.head.getElementsByTagName('style').length - 1
         ] || null
       document.head.insertBefore(style, ref)
-    }
+    },
+    devMode: true
   }
 
   const component = defineAsyncComponent(() => loadModule(`${name}.vue`, options))
