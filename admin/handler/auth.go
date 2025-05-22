@@ -82,7 +82,7 @@ func AuthUserPermission(ctx *gin.Context) {
 		return
 	}
 
-	tree, err := (model.SysMenu{}).Tree(true, false, true, false, true, user.ID)
+	tree, err := (model.SysMenu{}).Tree(true, false, true, true, true, user.ID)
 	if err != nil {
 		response.FailWithError(ctx, err)
 		return
