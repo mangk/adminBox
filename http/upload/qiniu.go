@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"mime/multipart"
+	"strings"
+	"time"
+
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
-	"mime/multipart"
-	"time"
 
 	"go.uber.org/zap"
 )
@@ -18,16 +20,7 @@ type Qiniu struct {
 	cfg config.File
 }
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@author: [ccfish86](https://github.com/ccfish86)
-//@author: [SliverHorn](https://github.com/SliverHorn)
-//@object: *Qiniu
-//@function: UploadFile
-//@description: 上传文件
-//@param: file *multipart.FileHeader
-//@return: string, string, error
-
-func (q *Qiniu) UploadFile(file *multipart.FileHeader) (string, string, error) {
+func (q *Qiniu) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
 	putPolicy := storage.PutPolicy{Scope: q.cfg.Bucket}
 	mac := qbox.NewMac(q.cfg.ID, q.cfg.Key)
 	upToken := putPolicy.UploadToken(mac)
@@ -40,26 +33,29 @@ func (q *Qiniu) UploadFile(file *multipart.FileHeader) (string, string, error) {
 	if openError != nil {
 		log.Zaplog().Error("function file.Open() Filed", zap.Any("err", openError.Error()))
 
-		return "", "", errors.New("function file.Open() Filed, err:" + openError.Error())
+		return "", "", "", errors.New("function file.Open() Filed, err:" + openError.Error())
 	}
-	defer f.Close()                                                  // 创建文件 defer 关闭
-	fileKey := fmt.Sprintf("%d%s", time.Now().Unix(), file.Filename) // 文件名格式 自己可以改 建议保证唯一性
+	defer f.Close() // 创建文件 defer 关闭
+
+	pathKeyBuild := []string{}
+	if q.cfg.PrefixPath != "" {
+		pathKeyBuild = append(pathKeyBuild, q.cfg.PrefixPath)
+	}
+	if len(keyPrefix) > 0 {
+		pathKeyBuild = append(pathKeyBuild, keyPrefix...)
+	}
+	fileName := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Filename)
+	pathKeyBuild = append(pathKeyBuild, fileName)
+	fileKey := strings.Join(pathKeyBuild, "/")
 	putErr := formUploader.Put(context.Background(), &ret, upToken, fileKey, f, file.Size, &putExtra)
 	if putErr != nil {
 		log.Zaplog().Error("function formUploader.Put() Filed", zap.Any("err", putErr.Error()))
-		return "", "", errors.New("function formUploader.Put() Filed, err:" + putErr.Error())
+		return "", "", "", errors.New("function formUploader.Put() Filed, err:" + putErr.Error())
 	}
-	return q.cfg.PrefixPath + "/" + ret.Key, ret.Key, nil
-}
 
-//@author: [piexlmax](https://github.com/piexlmax)
-//@author: [ccfish86](https://github.com/ccfish86)
-//@author: [SliverHorn](https://github.com/SliverHorn)
-//@object: *Qiniu
-//@function: DeleteFile
-//@description: 删除文件
-//@param: key string
-//@return: error
+	md5 := fileMd5(f)
+	return q.cfg.CdnURL + ret.Key, fileName, md5, nil
+}
 
 func (q *Qiniu) DeleteFile(key string) error {
 	mac := qbox.NewMac(q.cfg.ID, q.cfg.Key)
@@ -72,18 +68,12 @@ func (q *Qiniu) DeleteFile(key string) error {
 	return nil
 }
 
-//@author: [SliverHorn](https://github.com/SliverHorn)
-//@object: *Qiniu
-//@function: qiniuConfig
-//@description: 根据配置文件进行返回七牛云的配置
-//@return: *storage.Config
-
 func (q *Qiniu) qiniuConfig() *storage.Config {
 	cfg := storage.Config{
 		UseHTTPS:      q.cfg.CdnURL != "", // TODO 这里似乎不匹配
 		UseCdnDomains: q.cfg.CdnURL != "", // TODO 这里似乎不匹配
 	}
-	switch q.cfg.Bucket { // 根据配置文件进行初始化空间对应的机房 // TODO 这里似乎不匹配
+	switch q.cfg.Region {
 	case "ZoneHuadong":
 		cfg.Zone = &storage.ZoneHuadong
 	case "ZoneHuabei":

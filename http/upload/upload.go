@@ -30,8 +30,8 @@ func NewOss(ossType ...string) OSS {
 			return &TencentCOS{cfg: cfg}
 		case "oss":
 			return &AliyunOSS{cfg: cfg}
-		//case "qiniu":
-		//	return &Qiniu{}
+		case "qiniu":
+			return &Qiniu{cfg: cfg}
 		//case "aws-s3":
 		//	return &AwsS3{}
 		default:

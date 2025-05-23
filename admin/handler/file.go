@@ -68,6 +68,9 @@ func FileList(ctx *gin.Context) {
 
 	host := strings.TrimRight(config.ServerCfg().RunAt, "/")
 	for i := range list {
+		if strings.HasPrefix(list[i].Url, "http") {
+			continue			
+		}
 		list[i].Url = host + list[i].Url // TODO 这里结合config 处理
 	}
 
