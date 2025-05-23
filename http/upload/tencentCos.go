@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/mangk/adminBox/config"
-	"github.com/mangk/adminBox/log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
+
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
 
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"go.uber.org/zap"
@@ -20,7 +22,7 @@ type TencentCOS struct {
 	cfg config.File
 }
 
-func (t *TencentCOS) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (t *TencentCOS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
 	client := NewClient(t.cfg)
 	f, openError := file.Open()
 	if openError != nil {
@@ -48,6 +50,10 @@ func (t *TencentCOS) UploadFile(file *multipart.FileHeader, keyPrefix ...string)
 		return t.cfg.CdnURL + "/" + fileKey, fileKey, md5, nil
 	}
 	return client.BaseURL.BucketURL.Host + "/" + fileKey, fileKey, md5, nil
+}
+
+func (t *TencentCOS) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {
+	panic("未实现上传方法")
 }
 
 func (t *TencentCOS) DeleteFile(key string) error {

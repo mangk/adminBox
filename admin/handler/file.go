@@ -69,7 +69,7 @@ func FileList(ctx *gin.Context) {
 	host := strings.TrimRight(config.ServerCfg().RunAt, "/")
 	for i := range list {
 		if strings.HasPrefix(list[i].Url, "http") {
-			continue			
+			continue
 		}
 		list[i].Url = host + list[i].Url // TODO 这里结合config 处理
 	}
@@ -108,7 +108,7 @@ func FileEdit(ctx *gin.Context) {
 
 func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (file model.SysFileUpload, err error) {
 	oss := upload.NewOss(driver)
-	filePath, key, _, uploadErr := oss.UploadFile(header)
+	filePath, key, _, uploadErr := oss.MultipartUploadFile(header)
 	if uploadErr != nil {
 		panic(uploadErr)
 	}

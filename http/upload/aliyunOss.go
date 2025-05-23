@@ -3,20 +3,22 @@ package upload
 import (
 	"errors"
 	"fmt"
+	"mime/multipart"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
 	"go.uber.org/zap"
-	"mime/multipart"
-	"strings"
-	"time"
 )
 
 type AliyunOSS struct {
 	cfg config.File
 }
 
-func (a *AliyunOSS) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (a *AliyunOSS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
 	bucket, err := NewBucket(a.cfg)
 	c := bucket.GetConfig()
 	fmt.Println(c)
@@ -51,6 +53,10 @@ func (a *AliyunOSS) UploadFile(file *multipart.FileHeader, keyPrefix ...string) 
 		return a.cfg.CdnURL + "/" + fileKey, fileKey, md5, nil
 	}
 	return bucket.BucketName + "." + bucket.Client.Config.Endpoint + "/" + fileKey, fileKey, md5, nil
+}
+
+func (a *AliyunOSS) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {
+	panic("未实现上传方法")
 }
 
 func (a *AliyunOSS) DeleteFile(key string) error {

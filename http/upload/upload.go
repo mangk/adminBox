@@ -4,14 +4,17 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"github.com/mangk/adminBox/config"
-	"github.com/mangk/adminBox/log"
 	"io"
 	"mime/multipart"
+	"os"
+
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
 )
 
 type OSS interface {
-	UploadFile(file *multipart.FileHeader, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
+	MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
+	UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
 	DeleteFile(key string) error
 }
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"mime/multipart"
+	"os"
 	"strings"
 	"time"
 
@@ -20,7 +21,7 @@ type Qiniu struct {
 	cfg config.File
 }
 
-func (q *Qiniu) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (q *Qiniu) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
 	putPolicy := storage.PutPolicy{Scope: q.cfg.Bucket}
 	mac := qbox.NewMac(q.cfg.ID, q.cfg.Key)
 	upToken := putPolicy.UploadToken(mac)
@@ -55,6 +56,40 @@ func (q *Qiniu) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (str
 
 	md5 := fileMd5(f)
 	return q.cfg.CdnURL + ret.Key, fileName, md5, nil
+}
+
+func (q *Qiniu) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {
+
+	putPolicy := storage.PutPolicy{Scope: q.cfg.Bucket}
+	mac := qbox.NewMac(q.cfg.ID, q.cfg.Key)
+	upToken := putPolicy.UploadToken(mac)
+	cfg := q.qiniuConfig()
+	formUploader := storage.NewFormUploader(cfg)
+	ret := storage.PutRet{}
+	putExtra := storage.PutExtra{Params: map[string]string{"x:name": "github logo"}}
+
+	pathKeyBuild := []string{}
+	if q.cfg.PrefixPath != "" {
+		pathKeyBuild = append(pathKeyBuild, q.cfg.PrefixPath)
+	}
+	if len(keyPrefix) > 0 {
+		pathKeyBuild = append(pathKeyBuild, keyPrefix...)
+	}
+	fileName := fmt.Sprintf("%d_%s", time.Now().Unix(), file.Name())
+	pathKeyBuild = append(pathKeyBuild, fileName)
+
+	filePathName := strings.Join(pathKeyBuild, "/")
+
+	stat, _ := file.Stat()
+	putErr := formUploader.Put(context.Background(), &ret, upToken, filePathName, file, stat.Size(), &putExtra)
+	if putErr != nil {
+		log.Zaplog().Error("function formUploader.Put() Filed", zap.Any("err", putErr.Error()))
+		return "", "", "", errors.New("function formUploader.Put() Filed, err:" + putErr.Error())
+	}
+
+	md5 = fileMd5(file)
+	return q.cfg.CdnURL + ret.Key, fileName, md5, nil
+
 }
 
 func (q *Qiniu) DeleteFile(key string) error {

@@ -3,15 +3,16 @@ package upload
 import (
 	"errors"
 	"fmt"
-	"github.com/mangk/adminBox/config"
-	"github.com/mangk/adminBox/log"
-	"github.com/mangk/adminBox/util"
 	"io"
 	"mime/multipart"
 	"os"
 	"path"
 	"strings"
 	"time"
+
+	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/util"
 
 	"go.uber.org/zap"
 )
@@ -20,7 +21,7 @@ type Local struct {
 	cfg config.File
 }
 
-func (l *Local) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
 	// 读取文件后缀
 	ext := path.Ext(file.Filename)
 	// 读取文件名并加密
@@ -73,6 +74,10 @@ func (l *Local) UploadFile(file *multipart.FileHeader, keyPrefix ...string) (str
 		return l.cfg.CdnURL + "/" + fileKey, filename, md5, nil
 	}
 	return "/" + fileKey, filename, md5, nil
+}
+
+func (l *Local) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {
+	panic("未实现上传方法")
 }
 
 func (l *Local) DeleteFile(key string) error {
