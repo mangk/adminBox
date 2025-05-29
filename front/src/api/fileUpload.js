@@ -22,3 +22,10 @@ export const fileDelete = (id) => {
     data: { id: id }
   })
 }
+
+export const fileGroupTree = () => {
+  return http({
+    url: '/sys/fileGroup/tree',
+    method: 'GET'
+  })
+}

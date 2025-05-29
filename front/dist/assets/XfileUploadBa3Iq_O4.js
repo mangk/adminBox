@@ -1,0 +1,1 @@
+import{h as e}from"./XindexDonZ4tkV.js";const a=()=>e({url:"/sys/fileUpload/cfg",method:"GET"}),s=(a=1,s=20,o={})=>e({url:"/sys/fileUpload/page",method:"POST",data:{page:a,page_size:s,query:o}}),o=a=>e({url:"/sys/fileUpload",method:"DELETE",data:{id:a}}),d=()=>e({url:"/sys/fileGroup/tree",method:"GET"});export{d as a,s as b,o as c,a as f};

@@ -15,17 +15,26 @@ import (
 	"github.com/mangk/adminBox/log"
 )
 
+func FileGroupTree(ctx *gin.Context) {
+	tree, err := model.SysFileGroup{}.Tree(request.JWTLoginUserId(ctx))
+	if err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	response.OkWithData(ctx, tree)
+}
+
 func FileGetUploadLimit(ctx *gin.Context) {
 	uploadCfg := config.FileCfg()
 	resp := gin.H{}
 	for name, cfg := range uploadCfg {
-		resp[name] = gin.H{"name": cfg.Name, "limit": cfg.Limit * 1024, "driver": name}
+		resp[name] = gin.H{"name": cfg.Name, "limit": cfg.Limit * 1024, "driver": name, "cdn": cfg.CdnURL, "prefix": cfg.PrefixPath}
 	}
 	response.OkWithData(ctx, resp)
 }
 
 func FileUpload(ctx *gin.Context) {
-	var file model.SysFileUpload
+	var file model.SysFile
 	noSave := ctx.DefaultQuery("noSave", "0")
 	driver := ctx.DefaultQuery("driver", "default")
 	_, header, err := ctx.Request.FormFile("file")
@@ -47,11 +56,14 @@ func FileList(ctx *gin.Context) {
 	req := request.PublicRequest(ctx)
 
 	var count int64
-	list := []model.SysFileUpload{}
+	list := []model.SysFile{}
 
 	query := db.DB().Model(list).Where("cb = ?", request.JWTLoginUserId(ctx))
 	if qt, has := req.Query["tag"]; has && len(qt.([]interface{})) > 0 {
 		query = query.Where("tag in ?", qt)
+	}
+	if qg, has := req.Query["group_id"]; has {
+		query = query.Where("group_id = ?", qg)
 	}
 
 	if err := query.Count(&count).Error; err != nil {
@@ -78,7 +90,7 @@ func FileList(ctx *gin.Context) {
 }
 
 func FileDelete(c *gin.Context) {
-	var file model.SysFileUpload
+	var file model.SysFile
 	err := c.ShouldBindJSON(&file)
 	if err != nil {
 		response.FailWithMsg(c, err.Error())
@@ -92,7 +104,7 @@ func FileDelete(c *gin.Context) {
 }
 
 func FileEdit(ctx *gin.Context) {
-	var file model.SysFileUpload
+	var file model.SysFile
 	err := ctx.ShouldBindJSON(&file)
 	if err != nil {
 		response.FailWithError(ctx, err)
@@ -106,7 +118,7 @@ func FileEdit(ctx *gin.Context) {
 	response.OkWithMsg(ctx, "编辑成功")
 }
 
-func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (file model.SysFileUpload, err error) {
+func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (file model.SysFile, err error) {
 	oss := upload.NewOss(driver)
 	filePath, key, _, uploadErr := oss.MultipartUploadFile(header)
 	if uploadErr != nil {
@@ -115,14 +127,14 @@ func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (fi
 	if noSave == "0" {
 		t := model.LocalTime(time.Now())
 		s := strings.Split(header.Filename, ".")
-		f := model.SysFileUpload{
+		f := model.SysFile{
 			Model: model.Model{Cb: cb, Ct: &t},
 			Url:   filePath,
 			Name:  header.Filename,
 			Tag:   s[len(s)-1],
 			Key:   key,
 		}
-		return f, (model.SysFileUpload{}).Upload(&f)
+		return f, (model.SysFile{}).Upload(&f)
 	}
 	return
 }
