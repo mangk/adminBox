@@ -49,11 +49,12 @@ func (s SysFileGroup) getBaseChildrenList(menu *SysFileGroup, treeMap map[int][]
 
 type SysFile struct {
 	Model
-	GroupId int    `json:"group_id" gorm:"comment:路径id"` // 路径id
-	Name    string `json:"name" gorm:"comment:文件名"`      // 文件名
-	Url     string `json:"url" gorm:"comment:文件地址"`      // 文件地址
-	Tag     string `json:"tag" gorm:"comment:文件标签"`      // 文件标签
-	Key     string `json:"key" gorm:"comment:编号"`        // 编号
+	GroupId   int          `json:"group_id" gorm:"comment:路径id"` // 路径id
+	GroupInfo SysFileGroup `json:"group_info" gorm:"foreignKey:GroupId;references:ID"`
+	Name      string       `json:"name" gorm:"comment:文件名"` // 文件名
+	Url       string       `json:"url" gorm:"comment:文件地址"` // 文件地址
+	Tag       string       `json:"tag" gorm:"comment:文件标签"` // 文件标签
+	Key       string       `json:"key" gorm:"comment:编号"`   // 编号
 }
 
 func (SysFile) TableName() string {

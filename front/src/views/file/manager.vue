@@ -6,7 +6,7 @@
                 <el-tree class="file-tree-box" :data="pathTree" :props="{ label: 'name', children: 'children' }"
                     @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" draggable>
                     <template #default="{ node, data }">
-                        <div :class="data.id == selectNodeId ? 'self-node node-active' : 'self-node'">
+                        <div :class="data.id == searchGroupId ? 'self-node node-active' : 'self-node'">
                             {{ node.label }}
                         </div>
                     </template>
@@ -19,34 +19,50 @@
                             <el-button type="primary" :icon="Top">
                                 上传文件
                             </el-button>
-                            <el-button :icon="RefreshRight">
+                            <!-- <el-button :icon="RefreshRight" @click="loadData(true)">
                                 刷新
-                            </el-button>
+                            </el-button> -->
+
+                            <el-dropdown :disabled="!tableDataSelectIds.length" style="margin-left: 10px;">
+                                <el-button :disabled="!tableDataSelectIds.length">
+                                    批量操作
+                                </el-button>
+                                <template #dropdown>
+                                    <el-dropdown-menu>
+                                        <el-dropdown-item :icon="Plus">下载</el-dropdown-item>
+                                        <el-dropdown-item :icon="Plus">移动到</el-dropdown-item>
+                                        <el-dropdown-item :icon="CirclePlusFilled" type="primary">删除</el-dropdown-item>
+                                    </el-dropdown-menu>
+                                </template>
+                            </el-dropdown>
                         </div>
-                        <el-dropdown disabled>
-                            <el-button disabled>
-                                批量操作
-                            </el-button>
-                            <template #dropdown>
-                                <el-dropdown-menu>
-                                    <el-dropdown-item :icon="Plus">Action 1</el-dropdown-item>
-                                    <el-dropdown-item :icon="CirclePlusFilled">
-                                        Action 2
-                                    </el-dropdown-item>
-                                    <el-dropdown-item :icon="CirclePlus">Action 3</el-dropdown-item>
-                                    <el-dropdown-item :icon="Check">Action 4</el-dropdown-item>
-                                    <el-dropdown-item :icon="CircleCheck">Action 5</el-dropdown-item>
-                                </el-dropdown-menu>
+
+                        <el-input v-model="searchName" style="max-width: 450px" placeholder="搜索文件名" clearable
+                            class="input-with-select" @clear="loadData(true)">
+                            <template #prepend>
+                                <el-select v-model="searchTag" placeholder="筛选类型" clearable style="width: 115px"
+                                    @clear="loadData(true)">
+                                    <el-option label="Restaurant" value="1" />
+                                    <el-option label="Order No." value="2" />
+                                    <el-option label="Tel" value="3" />
+                                </el-select>
                             </template>
-                        </el-dropdown>
+                            <template #append>
+                                <el-button :icon="Search" @click="loadData(true)" />
+                            </template>
+                        </el-input>
+
 
                     </el-row>
-                    <el-table :data="tableData" highlight-current-row show-overflow-tooltip stripe
-                        height="var(--global-table)" style="width: 100%;margin-top: 10px;">
-
-                        <el-table-column prop="date" label="Date" width="180" />
-                        <el-table-column prop="name" label="Name" width="180" />
-                        <el-table-column prop="address" label="Address" />
+                    <el-table :data="tableData" row-key="id" highlight-current-row show-overflow-tooltip stripe
+                        style="width: 100%;margin-top: 9px;border-top: 1px solid var(--el-table-border-color);height: var(--global-table);"
+                        @selection-change="handleSelectionChange">
+                        <el-table-column type="selection" width="55" fixed />
+                        <el-table-column prop="name" label="文件名" width="400" />
+                        <el-table-column prop="tag" label="类型" width="80" />
+                        <el-table-column prop="group_info.name" label="分组" />
+                        <el-table-column prop="ut" label="更新时间" width="160" />
+                        <el-table-column prop="ct" label="创建时间" width="160" />
                     </el-table>
                     <el-pagination v-model:current-page="page" v-model:page-size="pageSize"
                         :page-sizes="[20, 50, 100, 200]" size="small" layout="total, sizes, prev, pager, next, jumper"
@@ -58,8 +74,8 @@
     </div>
 </template>
 <script setup>
-import { ref, watch } from 'vue'
-import { Top, RefreshRight, MoreFilled } from '@element-plus/icons-vue'
+import { ref, reactive, watch } from 'vue'
+import { Top, RefreshRight, Search, MoreFilled } from '@element-plus/icons-vue'
 import { fileDelete, fileUploadCfg, fileUploadPage, fileGroupTree } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -76,20 +92,50 @@ fileGroupTree().then((res) => {
     pathTree.value = [{ id: '', name: '全部', children: treeData }]
 })
 
-const tableData = ref([])
 const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
+// 一些查询条件
+const searchGroupId = ref('')
+const searchName = ref('')
+const searchTag = ref('')
+// 数据列表
+const tableData = ref([])
+// 数据选中
+const tableDataSelectIds = ref([])
 
-const loadData = (query = {}) => {
+const loadData = (resetPage = false) => {
+    if (resetPage) {
+        page.value = 1
+        pageSize.value = 20
+    }
+
+    let query = {}
+    if (searchGroupId.value) {
+        query.group_id = searchGroupId.value
+    }
+    if (searchName.value) {
+        query.name = searchName.value
+    }
+    if (searchTag.value) {
+        query.tag = searchTag.value
+    }
+
+
     fileUploadPage(page.value, pageSize.value, query).then((res) => {
         tableData.value = res.data.list
         page.value = res.data.page
         pageSize.value = res.data.page_size
         total.value = res.data.total
     })
+    tableDataSelectIds.value = []
 }
+
 loadData()
+
+const handleSelectionChange = (val) => {
+    tableDataSelectIds.value = val.map(item => item.id)
+}
 
 const handleSizeChange = (size) => {
     pageSize.value = size
@@ -101,18 +147,13 @@ const handleCurrentChange = (changePage) => {
     loadData()
 }
 
-const selectNodeId = ref('')
 const handleNodeClick = (data) => {
-    let query = {}
     if (data.id) {
-        selectNodeId.value = data.id
-        query = {
-            group_id: data.id
-        }
+        searchGroupId.value = data.id
     } else {
-        selectNodeId.value = ''
+        searchGroupId.value = ''
     }
-    loadData(query)
+    loadData(true)
 }
 
 </script>
@@ -198,6 +239,7 @@ const handleNodeClick = (data) => {
     font-size: 14px;
     padding: 5px;
 }
+
 .node-active {
     color: var(--el-color-primary);
 }
