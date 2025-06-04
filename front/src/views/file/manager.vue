@@ -23,15 +23,33 @@
                                 刷新
                             </el-button> -->
 
-                            <el-dropdown :disabled="!tableDataSelectIds.length" style="margin-left: 10px;">
+                            <el-dropdown :disabled="!tableDataSelectIds.length" style="margin-left: 10px;"
+                                @command="handleBatchCommand">
                                 <el-button :disabled="!tableDataSelectIds.length">
                                     批量操作
                                 </el-button>
                                 <template #dropdown>
                                     <el-dropdown-menu>
-                                        <el-dropdown-item :icon="Plus">下载</el-dropdown-item>
-                                        <el-dropdown-item :icon="Plus">移动到</el-dropdown-item>
-                                        <el-dropdown-item :icon="CirclePlusFilled" type="primary">删除</el-dropdown-item>
+                                        <el-dropdown-item command="downlaod" :icon="Bottom">下载文件</el-dropdown-item>
+                                        <el-dropdown-item command="copyUrl" :icon="CopyDocument">复制链接</el-dropdown-item>
+                                        <el-dropdown-item command="move" :icon="Right">
+                                            <template #default>
+                                                <el-popover placement="right" :width="300" trigger="hover">
+                                                    <template #reference>
+                                                        移动到
+                                                    </template>
+                                                    <el-tree :data="pathTree"
+                                                        :props="{ label: 'name', children: 'children' }"
+                                                        @node-click="handleMoveNodeClick" default-expand-all
+                                                        :expand-on-click-node="false" draggable>
+                                                        <template #default="{ node, data }">
+                                                            {{ node.label }}
+                                                        </template>
+                                                    </el-tree>
+                                                </el-popover>
+                                            </template>
+                                        </el-dropdown-item>
+                                        <el-dropdown-item command="delete" :icon="Close" divided>删除</el-dropdown-item>
                                     </el-dropdown-menu>
                                 </template>
                             </el-dropdown>
@@ -39,14 +57,14 @@
 
                         <el-input v-model="searchName" style="max-width: 450px" placeholder="搜索文件名" clearable
                             class="input-with-select" @clear="loadData(true)">
-                            <template #prepend>
+                            <!-- <template #prepend>
                                 <el-select v-model="searchTag" placeholder="筛选类型" clearable style="width: 115px"
                                     @clear="loadData(true)">
                                     <el-option label="Restaurant" value="1" />
                                     <el-option label="Order No." value="2" />
                                     <el-option label="Tel" value="3" />
                                 </el-select>
-                            </template>
+                            </template> -->
                             <template #append>
                                 <el-button :icon="Search" @click="loadData(true)" />
                             </template>
@@ -59,9 +77,10 @@
                         @selection-change="handleSelectionChange">
                         <el-table-column type="selection" width="55" fixed />
                         <el-table-column prop="name" label="文件名" width="400" />
+                        <el-table-column prop="url" label="链接" width="80" />
                         <el-table-column prop="tag" label="类型" width="80" />
                         <el-table-column prop="group_info.name" label="分组" />
-                        <el-table-column prop="ut" label="更新时间" width="160" />
+                        <!-- <el-table-column prop="ut" label="更新时间" width="160" /> -->
                         <el-table-column prop="ct" label="创建时间" width="160" />
                     </el-table>
                     <el-pagination v-model:current-page="page" v-model:page-size="pageSize"
@@ -75,8 +94,8 @@
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
-import { Top, RefreshRight, Search, MoreFilled } from '@element-plus/icons-vue'
-import { fileDelete, fileUploadCfg, fileUploadPage, fileGroupTree } from '@/api/fileUpload'
+import { Top, Search, Bottom, Right, Close, CopyDocument } from '@element-plus/icons-vue'
+import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
@@ -89,7 +108,7 @@ fileUploadCfg().then((res) => {
 const pathTree = ref([])
 fileGroupTree().then((res) => {
     const treeData = Array.isArray(res.data) ? res.data : [];
-    pathTree.value = [{ id: '', name: '全部', children: treeData }]
+    pathTree.value = treeData
 })
 
 const page = ref(1)
@@ -121,7 +140,6 @@ const loadData = (resetPage = false) => {
         query.tag = searchTag.value
     }
 
-
     fileUploadPage(page.value, pageSize.value, query).then((res) => {
         tableData.value = res.data.list
         page.value = res.data.page
@@ -130,8 +148,6 @@ const loadData = (resetPage = false) => {
     })
     tableDataSelectIds.value = []
 }
-
-loadData()
 
 const handleSelectionChange = (val) => {
     tableDataSelectIds.value = val.map(item => item.id)
@@ -156,6 +172,83 @@ const handleNodeClick = (data) => {
     loadData(true)
 }
 
+const handleMoveNodeClick = (data) => {
+    fileMove(tableDataSelectIds.value, data.id).then((res) => {
+        if (res.code != 0) {
+            ElMessage.error(res.msg)
+        } else {
+            ElMessage.success('移动成功')
+        }
+        loadData()
+    })
+}
+
+const handleBatchCommand = async (command) => {
+    switch (command) {
+        case "downlaod":
+            tableData.value.forEach(async item => {
+                if (tableDataSelectIds.value.includes(item.id)) {
+                    try {
+                        const iframe = document.createElement("iframe")
+                        iframe.style.display = "none"
+                        iframe.src = item.url
+                        iframe.style.height = "0"
+                        document.body.appendChild(iframe)
+                        setTimeout(() => {
+                            iframe.remove()
+                        }, 60 * 1000);
+                    } catch (error) {
+                        console.error('下载文件失败:', error)
+                        ElMessage.error('下载文件失败')
+                    }
+                }
+            })
+            break;
+        case "copyUrl":
+            try {
+                let urls = ""
+                tableData.value.forEach(item => {
+                    if (tableDataSelectIds.value.includes(item.id)) {
+                        urls += item.url + "\n"
+                    }
+                })
+
+                // 使用 Clipboard API 复制文本到剪贴板
+                await navigator.clipboard.writeText(urls);
+                ElMessage({
+                    message: '已复制',
+                    type: 'success'
+                })
+            } catch (err) {
+                ElMessage({
+                    message: '未授权读取剪贴板',
+                    type: 'error'
+                })
+            }
+            break;
+        case "delete":
+            ElMessageBox.confirm('删除后文件无法找回！', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                fileDelete(tableDataSelectIds.value).then((res) => {
+                    if (res.code == 0) {
+                        ElMessage({
+                            message: '已删除',
+                            type: 'success'
+                        })
+                    }
+                    loadData()
+                })
+            })
+            break;
+        default:
+            break;
+    }
+}
+
+loadData()
 </script>
 <style lang="scss">
 .el-upload-dragger {

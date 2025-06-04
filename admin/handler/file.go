@@ -21,7 +21,7 @@ func FileGroupTree(ctx *gin.Context) {
 		response.FailWithError(ctx, err)
 		return
 	}
-	response.OkWithData(ctx, tree)
+	response.OkWithData(ctx, []gin.H{{"name": "默认分组", "id": 0, "children": tree}})
 }
 
 func FileGetUploadLimit(ctx *gin.Context) {
@@ -66,6 +66,10 @@ func FileList(ctx *gin.Context) {
 		query = query.Where("group_id = ?", qg)
 	}
 
+	if name, has := req.Query["name"]; has {
+		query = query.Where("name like ?", "%"+name.(string)+"%")
+	}
+
 	if err := query.Count(&count).Error; err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -91,16 +95,51 @@ func FileList(ctx *gin.Context) {
 
 func FileDelete(c *gin.Context) {
 	var file model.SysFile
-	err := c.ShouldBindJSON(&file)
+	err := c.ShouldBindBodyWithJSON(&file)
 	if err != nil {
-		response.FailWithMsg(c, err.Error())
-		return
-	}
-	if err := file.DeleteFile(file); err != nil {
-		response.FailWithMsg(c, "删除失败")
-		return
+		req := struct {
+			Id []int `json:"id"`
+		}{}
+		if err := c.ShouldBindBodyWithJSON(&req); err != nil {
+			response.FailWithMsg(c, "参数错误")
+			return
+		}
+		if err := db.DB().Where("cb =?", request.JWTLoginUserId(c)).Where("id in?", req.Id).Delete(&file).Error; err != nil {
+			response.FailWithMsg(c, "删除失败")
+			return
+		}
+	} else {
+		if err := file.DeleteFile(file); err != nil {
+			response.FailWithMsg(c, "删除失败")
+			return
+		}
 	}
 	response.OkWithMsg(c, "删除成功")
+}
+
+func FileMove(ctx *gin.Context) {
+	req := struct {
+		Ids     []int `json:"ids"`
+		GroupId int   `json:"group_id"`
+	}{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+
+	group := model.SysFileGroup{}
+	db.DB().Where("cb = ?", request.JWTLoginUserId(ctx)).First(&group, req.GroupId)
+	if group.ID == 0 {
+		if req.GroupId == 0 {
+			db.DB().Debug().Model(&model.SysFile{}).Where("cb =?", request.JWTLoginUserId(ctx)).Where("id in ?", req.Ids).Update("group_id", nil)
+			response.OkWithMsg(ctx, "移动成功")
+			return
+		}
+		response.FailWithMsg(ctx, "分组不存在")
+		return
+	}
+	db.DB().Debug().Model(&model.SysFile{}).Where("cb =?", request.JWTLoginUserId(ctx)).Where("id in ?", req.Ids).Update("group_id", req.GroupId)
+	response.OkWithMsg(ctx, "移动成功")
 }
 
 func FileEdit(ctx *gin.Context) {

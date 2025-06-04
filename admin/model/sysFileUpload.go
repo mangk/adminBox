@@ -83,7 +83,7 @@ func (s SysFile) DeleteFile(file SysFile) (err error) {
 	// 	return
 	// }
 
-	if err := db.DB().Where("id = ?", file.ID).Delete(&file).Error; err != nil {
+	if err = db.DB().Where("id = ?", file.ID).Delete(&file).Error; err != nil {
 		return err
 	}
 

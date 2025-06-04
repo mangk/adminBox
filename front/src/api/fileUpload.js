@@ -23,6 +23,14 @@ export const fileDelete = (id) => {
   })
 }
 
+export const fileMove = (ids, group_id) => {
+  return http({
+    url: '/sys/fileUpload/move',
+    method: 'POST',
+    data: { ids: ids, group_id: group_id }
+  })
+}
+
 export const fileGroupTree = () => {
   return http({
     url: '/sys/fileGroup/tree',
