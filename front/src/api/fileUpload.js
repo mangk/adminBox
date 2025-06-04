@@ -15,6 +15,14 @@ export const fileUploadPage = (page = 1, page_size = 20, query = {}) => {
   })
 }
 
+export const fileUploadToken = (fileName) => {
+  return http({
+    url: '/sys/fileUpload/uploadToken',
+    method: 'POST',
+    data: { file_name: fileName }
+  })
+}
+
 export const fileDelete = (id) => {
   return http({
     url: '/sys/fileUpload',

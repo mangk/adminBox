@@ -77,6 +77,10 @@ func (a *AliyunOSS) DeleteFile(key string) error {
 	return nil
 }
 
+func (a *AliyunOSS) UploadTokenGet(key string) (token string, fileKey string, err error) {
+	panic("未实现上传方法")
+}
+
 func NewBucket(cfg config.File) (*oss.Bucket, error) {
 	// 创建OSSClient实例。
 	client, err := oss.New(cfg.Region, cfg.ID, cfg.Key)

@@ -116,6 +116,7 @@ func routerCreate() {
 	{ // 文件管理
 		fileUpload := backend.Group("fileUpload")
 		fileUpload.POST("upload", handler.FileUpload)
+		fileUpload.POST("uploadToken", handler.FileUploadToken)
 		fileUpload.POST("move", handler.FileMove)
 		fileUpload.POST("page", middleware.PublicRequest(), handler.FileList)
 		fileUpload.PUT("", handler.FileEdit)

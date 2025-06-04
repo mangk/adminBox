@@ -15,6 +15,7 @@ import (
 type OSS interface {
 	MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
 	UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
+	UploadTokenGet(key string) (token string, fileKey string, err error)
 	DeleteFile(key string) error
 }
 

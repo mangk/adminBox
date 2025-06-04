@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"mime/multipart"
 	"strings"
 	"time"
@@ -50,6 +51,28 @@ func FileUpload(ctx *gin.Context) {
 		return
 	}
 	response.OkWithDetail(ctx, "上传成功", file)
+}
+
+func FileUploadToken(ctx *gin.Context) {
+	// TODO 这里增加储存桶，避免 token 过度下发
+
+	req := struct {
+		FileName string `json:"file_name"`
+	}{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithMsg(ctx, "参数错误")
+		return
+	}
+
+	userId := request.JWTLoginUserId(ctx)
+	driver := ctx.DefaultQuery("driver", "default")
+	oss := upload.NewOss(driver)
+	token, key, err := oss.UploadTokenGet(fmt.Sprintf("%d/%s", userId, req.FileName))
+	if err != nil {
+		response.FailWithMsg(ctx, "获取上传凭证失败")
+		return
+	}
+	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key})
 }
 
 func FileList(ctx *gin.Context) {

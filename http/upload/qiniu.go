@@ -13,6 +13,8 @@ import (
 	"github.com/mangk/adminBox/log"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
+	"github.com/qiniu/go-sdk/v7/storagev2/credentials"
+	"github.com/qiniu/go-sdk/v7/storagev2/uptoken"
 
 	"go.uber.org/zap"
 )
@@ -89,7 +91,6 @@ func (q *Qiniu) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey
 
 	md5 = fileMd5(file)
 	return q.cfg.CdnURL + ret.Key, fileName, md5, nil
-
 }
 
 func (q *Qiniu) DeleteFile(key string) error {
@@ -101,6 +102,23 @@ func (q *Qiniu) DeleteFile(key string) error {
 		return errors.New("function bucketManager.Delete() Filed, err:" + err.Error())
 	}
 	return nil
+}
+
+func (q *Qiniu) UploadTokenGet(key string) (token string, fileKey string, err error) {
+	mac := credentials.NewCredentials(q.cfg.ID, q.cfg.Key)
+	putPolicy, err := uptoken.NewPutPolicy(q.cfg.Bucket, time.Now().Add(1*time.Hour))
+	if err != nil {
+		return "", "", err
+	}
+
+	pathKeyBuild := []string{}
+	if q.cfg.PrefixPath != "" {
+		pathKeyBuild = append(pathKeyBuild, q.cfg.PrefixPath)
+	}
+	pathKeyBuild = append(pathKeyBuild, key)
+	fileKey = "/" + strings.Join(pathKeyBuild, "/")
+	token, err = uptoken.NewSigner(putPolicy, mac).GetUpToken(context.Background())
+	return token, strings.Join(pathKeyBuild, "/"), err
 }
 
 func (q *Qiniu) qiniuConfig() *storage.Config {

@@ -80,6 +80,10 @@ func (l *Local) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey
 	panic("未实现上传方法")
 }
 
+func (l *Local) UploadTokenGet(key string) (token string, fileKey string, err error) {
+	panic("未实现上传方法")
+}
+
 func (l *Local) DeleteFile(key string) error {
 	p := l.cfg.StorePath + "/" + key
 	if strings.Contains(p, l.cfg.StorePath) {

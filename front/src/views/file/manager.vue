@@ -16,9 +16,51 @@
                 <div class="file-list-box">
                     <el-row style="display: flex;justify-content: space-between;">
                         <div>
-                            <el-button type="primary" :icon="Top">
-                                上传文件
-                            </el-button>
+                            <el-popover placement="bottom-start" :width="400" trigger="click">
+                                <template #reference>
+                                    <el-button type="primary" :icon="Top">
+                                        上传文件 {{ fileUploadList.length ?
+                                            `(${fileUploadFinishCount}/${fileUploadList.length})` : "" }}
+                                    </el-button>
+                                </template>
+
+
+                                <el-upload class="upload-demo" drag :auto-upload="false" ref="fileUploadRef"
+                                    :http-request="handleFileUpload" v-model:file-list="fileUploadList"
+                                    :on-change="handleFileListChange" multiple>
+
+                                    <template #trigger>
+                                        <div class="el-upload__text"
+                                            style="height: 30px;line-height: 30px;text-align: center;overflow: hidden;display: flex;flex-flow: row nowrap;justify-content: center;">
+                                            <el-icon class="el-icon--upload"
+                                                style="font-size: 25px; margin: 0px var(--global-padding) 0 0">
+                                                <upload-filled />
+                                            </el-icon>
+                                            将文件拖到此处或<em>点击选择文件</em>
+                                        </div>
+                                    </template>
+
+                                    <template #tip>
+                                        <div class="el-upload__tip">
+                                            <el-button
+                                                v-if="(fileUploadStatus == 0 || fileUploadStatus == 2) && fileUploadList.length"
+                                                type="success" size="small" :icon="Check" @click="handleFileUploadStart"
+                                                round>
+                                                开始上传
+                                            </el-button>
+                                            <el-button v-if="fileUploadStatus == 1" type="warning" size="small"
+                                                :icon="Warning" round>
+                                                暂停上传
+                                            </el-button>
+                                            <el-button v-if="fileUploadStatus != 0" type="danger" size="small"
+                                                :icon="Close" round>
+                                                取消上传
+                                            </el-button>
+                                        </div>
+                                    </template>
+                                </el-upload>
+                            </el-popover>
+
                             <!-- <el-button :icon="RefreshRight" @click="loadData(true)">
                                 刷新
                             </el-button> -->
@@ -94,11 +136,12 @@
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
-import { Top, Search, Bottom, Right, Close, CopyDocument } from '@element-plus/icons-vue'
-import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree } from '@/api/fileUpload'
+import { Top, Search, Bottom, Right, Close, CopyDocument, Check, Warning } from '@element-plus/icons-vue'
+import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileUploadToken } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
+import * as qiniu from 'qiniu-js'
 
 const uploadConfig = ref({})
 fileUploadCfg().then((res) => {
@@ -110,6 +153,11 @@ fileGroupTree().then((res) => {
     const treeData = Array.isArray(res.data) ? res.data : [];
     pathTree.value = treeData
 })
+
+const fileUploadRef = ref()
+const fileUploadStatus = ref(0) // 0:未上传 1:上传中 2:暂停上传
+const fileUploadList = ref([])
+const fileUploadFinishCount = ref(0)
 
 const page = ref(1)
 const pageSize = ref(20)
@@ -147,6 +195,39 @@ const loadData = (resetPage = false) => {
         total.value = res.data.total
     })
     tableDataSelectIds.value = []
+}
+
+const handleFileUpload = async (options) => {
+    // TODO 实现上传进度
+    console.log("点击上传", options);
+
+    let tokenRes = await fileUploadToken(options.file.name)
+
+    console.log("获取token", tokenRes);
+
+
+    const observable = qiniu.upload(options.file, tokenRes.data.key, tokenRes.data.token)
+    const subscription = observable.subscribe((next) => {
+        console.log("next", next);
+    }, (error) => {
+        console.log("error", error);
+    }, (complete) => {
+        console.log("complete", complete);
+    })
+
+
+}
+
+const handleFileUploadStart = () => {
+    fileUploadRef.value.submit()
+}
+
+const handleFileListChange = (f, fs) => {
+    if (fs.findIndex(fi => fi.name == f.name) != fs.findLastIndex(fi => fi.name == f.name)) {
+        ElMessage.info(f.name + " 已存在于列表中")
+        fs.pop()
+    }
+    fileUploadList.value = fs
 }
 
 const handleSelectionChange = (val) => {
@@ -188,19 +269,14 @@ const handleBatchCommand = async (command) => {
         case "downlaod":
             tableData.value.forEach(async item => {
                 if (tableDataSelectIds.value.includes(item.id)) {
-                    try {
-                        const iframe = document.createElement("iframe")
-                        iframe.style.display = "none"
-                        iframe.src = item.url
-                        iframe.style.height = "0"
-                        document.body.appendChild(iframe)
-                        setTimeout(() => {
-                            iframe.remove()
-                        }, 60 * 1000);
-                    } catch (error) {
-                        console.error('下载文件失败:', error)
-                        ElMessage.error('下载文件失败')
-                    }
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = item.url + "?attname="; // 如果是 Content-Disposition: attachment 的话就会自动下载并显示浏览器进度
+                    document.body.appendChild(iframe);
+
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                    }, 5000);
                 }
             })
             break;
@@ -249,6 +325,9 @@ const handleBatchCommand = async (command) => {
 }
 
 loadData()
+// fileUploadToken().then((res) => {
+//     console.log(333, res);
+// })
 </script>
 <style lang="scss">
 .el-upload-dragger {
