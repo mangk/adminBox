@@ -77,7 +77,7 @@ func (a *AliyunOSS) DeleteFile(key string) error {
 	return nil
 }
 
-func (a *AliyunOSS) UploadTokenGet(key string) (token string, fileKey string, err error) {
+func (a *AliyunOSS) UploadTokenGet(key string, uuid string) (token string, fileKey string, err error) {
 	panic("未实现上传方法")
 }
 

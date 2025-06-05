@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mangk/adminBox/admin/model"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/db"
@@ -67,12 +68,54 @@ func FileUploadToken(ctx *gin.Context) {
 	userId := request.JWTLoginUserId(ctx)
 	driver := ctx.DefaultQuery("driver", "default")
 	oss := upload.NewOss(driver)
-	token, key, err := oss.UploadTokenGet(fmt.Sprintf("%d/%s", userId, req.FileName))
+	uuid := uuid.NewString()
+	token, key, err := oss.UploadTokenGet(fmt.Sprintf("%d/%s", userId, req.FileName), uuid)
 	if err != nil {
 		response.FailWithMsg(ctx, "获取上传凭证失败")
 		return
 	}
+
+	s := strings.Split(req.FileName, ".")
+	file := model.SysFile{
+		Model: model.Model{Cb: userId},
+		Name:  req.FileName,
+		Tag:   s[len(s)-1],
+		Key:   key,
+		UUID:  uuid,
+	}
+	if err := db.DB().Omit("group_id").Create(&file).Error; err != nil {
+		response.FailWithMsg(ctx, "保存文件信息失败")
+		return
+	}
 	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key})
+}
+
+func FileUploadCallback(ctx *gin.Context) {
+	req := struct {
+		Key    string `json:"key"`
+		Hash   string `json:"hash"`
+		Fsize  int64  `json:"fsize"`
+		Bucket string `json:"bucket"`
+		Name   string `json:"name"`
+		UUID   string `json:"uuid"`
+	}{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithMsg(ctx, "参数错误")
+		return
+	}
+	file := model.SysFile{}
+	if err := db.DB().Where("uuid =?", req.UUID).First(&file).Error; err != nil {
+		response.FailWithMsg(ctx, "文件不存在")
+		return
+	}
+	if file.Key != req.Key {
+		response.FailWithMsg(ctx, "文件上传失败")
+		return
+	}
+	file.Url = fmt.Sprintf("%s/%s", strings.TrimRight(config.FileCfg()["default"].CdnURL, "/"), strings.TrimLeft(file.Key, "/"))
+	file.Size = req.Fsize
+	db.DB().Save(&file)
+	response.OkWithMsg(ctx, "文件上传成功")
 }
 
 func FileList(ctx *gin.Context) {

@@ -51,10 +51,12 @@ type SysFile struct {
 	Model
 	GroupId   int          `json:"group_id" gorm:"comment:路径id"` // 路径id
 	GroupInfo SysFileGroup `json:"group_info" gorm:"foreignKey:GroupId;references:ID"`
-	Name      string       `json:"name" gorm:"comment:文件名"` // 文件名
-	Url       string       `json:"url" gorm:"comment:文件地址"` // 文件地址
-	Tag       string       `json:"tag" gorm:"comment:文件标签"` // 文件标签
-	Key       string       `json:"key" gorm:"comment:编号"`   // 编号
+	Name      string       `json:"name" gorm:"comment:文件名"`    // 文件名
+	Url       string       `json:"url" gorm:"comment:文件地址"`    // 文件地址
+	Tag       string       `json:"tag" gorm:"comment:文件标签"`    // 文件标签
+	Key       string       `json:"key" gorm:"comment:编号"`      // 编号
+	UUID      string       `json:"uuid" gorm:"comment:回调uuid"` // 回调uuid
+	Size      int64        `json:"size" gorm:"comment:文件大小"`  // 文件大小
 }
 
 func (SysFile) TableName() string {

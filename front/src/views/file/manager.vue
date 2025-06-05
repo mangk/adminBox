@@ -16,11 +16,10 @@
                 <div class="file-list-box">
                     <el-row style="display: flex;justify-content: space-between;">
                         <div>
-                            <el-popover placement="bottom-start" :width="400" trigger="click">
+                            <el-popover placement="bottom-start" :width="400" :visible="uploadVisible">
                                 <template #reference>
-                                    <el-button type="primary" :icon="Top">
-                                        上传文件 {{ fileUploadList.length ?
-                                            `(${fileUploadFinishCount}/${fileUploadList.length})` : "" }}
+                                    <el-button type="primary" :icon="Top" @click="uploadVisible = !uploadVisible">
+                                        上传文件
                                     </el-button>
                                 </template>
 
@@ -42,19 +41,9 @@
 
                                     <template #tip>
                                         <div class="el-upload__tip">
-                                            <el-button
-                                                v-if="(fileUploadStatus == 0 || fileUploadStatus == 2) && fileUploadList.length"
-                                                type="success" size="small" :icon="Check" @click="handleFileUploadStart"
-                                                round>
+                                            <el-button v-if="fileUploadList.length" type="success" size="small"
+                                                :icon="Check" @click="handleFileUploadStart">
                                                 开始上传
-                                            </el-button>
-                                            <el-button v-if="fileUploadStatus == 1" type="warning" size="small"
-                                                :icon="Warning" round>
-                                                暂停上传
-                                            </el-button>
-                                            <el-button v-if="fileUploadStatus != 0" type="danger" size="small"
-                                                :icon="Close" round>
-                                                取消上传
                                             </el-button>
                                         </div>
                                     </template>
@@ -154,10 +143,10 @@ fileGroupTree().then((res) => {
     pathTree.value = treeData
 })
 
+const uploadVisible = ref(false)
 const fileUploadRef = ref()
 const fileUploadStatus = ref(0) // 0:未上传 1:上传中 2:暂停上传
 const fileUploadList = ref([])
-const fileUploadFinishCount = ref(0)
 
 const page = ref(1)
 const pageSize = ref(20)
@@ -199,23 +188,24 @@ const loadData = (resetPage = false) => {
 
 const handleFileUpload = async (options) => {
     // TODO 实现上传进度
-    console.log("点击上传", options);
-
+    // console.log("点击上传", options);
     let tokenRes = await fileUploadToken(options.file.name)
-
-    console.log("获取token", tokenRes);
-
+    // console.log("获取token", tokenRes);
 
     const observable = qiniu.upload(options.file, tokenRes.data.key, tokenRes.data.token)
     const subscription = observable.subscribe((next) => {
-        console.log("next", next);
+        options.onProgress(next.total)
     }, (error) => {
-        console.log("error", error);
+        options.onError(error)
+        setTimeout(() => {
+            loadData(true)
+        }, 1500);
     }, (complete) => {
-        console.log("complete", complete);
+        options.onSuccess(complete)
+        setTimeout(() => {
+            loadData(true)
+        }, 1500);
     })
-
-
 }
 
 const handleFileUploadStart = () => {
@@ -223,11 +213,16 @@ const handleFileUploadStart = () => {
 }
 
 const handleFileListChange = (f, fs) => {
+    // console.log(1234,f, fs);
     if (fs.findIndex(fi => fi.name == f.name) != fs.findLastIndex(fi => fi.name == f.name)) {
         ElMessage.info(f.name + " 已存在于列表中")
         fs.pop()
     }
     fileUploadList.value = fs
+}
+
+const handleFileUploadListClean = () => {
+    fileUploadList.value = []
 }
 
 const handleSelectionChange = (val) => {

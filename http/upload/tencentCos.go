@@ -56,7 +56,7 @@ func (t *TencentCOS) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fi
 	panic("未实现上传方法")
 }
 
-func (t *TencentCOS) UploadTokenGet(key string) (token string, fileKey string, err error) {
+func (t *TencentCOS) UploadTokenGet(key string, uuid string) (token string, fileKey string, err error) {
 	panic("未实现上传方法")
 }
 

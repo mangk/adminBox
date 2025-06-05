@@ -117,6 +117,7 @@ func routerCreate() {
 		fileUpload := backend.Group("fileUpload")
 		fileUpload.POST("upload", handler.FileUpload)
 		fileUpload.POST("uploadToken", handler.FileUploadToken)
+		router.POST("/sys/fileUpload/callback", middleware.OperationRecord(1), handler.FileUploadCallback)
 		fileUpload.POST("move", handler.FileMove)
 		fileUpload.POST("page", middleware.PublicRequest(), handler.FileList)
 		fileUpload.PUT("", handler.FileEdit)

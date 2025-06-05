@@ -104,19 +104,25 @@ func (q *Qiniu) DeleteFile(key string) error {
 	return nil
 }
 
-func (q *Qiniu) UploadTokenGet(key string) (token string, fileKey string, err error) {
-	mac := credentials.NewCredentials(q.cfg.ID, q.cfg.Key)
-	putPolicy, err := uptoken.NewPutPolicy(q.cfg.Bucket, time.Now().Add(1*time.Hour))
-	if err != nil {
-		return "", "", err
-	}
-
+func (q *Qiniu) UploadTokenGet(key string, uuid string) (token string, fileKey string, err error) {
 	pathKeyBuild := []string{}
 	if q.cfg.PrefixPath != "" {
 		pathKeyBuild = append(pathKeyBuild, q.cfg.PrefixPath)
 	}
 	pathKeyBuild = append(pathKeyBuild, key)
-	fileKey = "/" + strings.Join(pathKeyBuild, "/")
+	fileKey = strings.Join(pathKeyBuild, "/")
+
+	mac := credentials.NewCredentials(q.cfg.ID, q.cfg.Key)
+	putPolicy, err := uptoken.NewPutPolicyWithKey(q.cfg.Bucket, fileKey, time.Now().Add(1*time.Hour))
+	if err != nil {
+		return "", "", err
+	}
+
+	putPolicy.
+		SetCallbackUrl(strings.TrimRight(config.ServerCfg().RunAt, "/") + "/sys/fileUpload/callback").
+		SetCallbackBody(`{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)","uuid":"` + uuid + `"}`).
+		SetCallbackBodyType("application/json")
+
 	token, err = uptoken.NewSigner(putPolicy, mac).GetUpToken(context.Background())
 	return token, strings.Join(pathKeyBuild, "/"), err
 }
