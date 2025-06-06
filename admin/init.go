@@ -131,6 +131,8 @@ func routerCreate() {
 
 		fileGroup := backend.Group("fileGroup")
 		fileGroup.GET("tree", handler.FileGroupTree)
+		fileGroup.POST("", handler.FileGroupCreate)
+		fileGroup.DELETE("", handler.FileGroupDelete)
 	}
 
 	setting := backend.Group("setting")

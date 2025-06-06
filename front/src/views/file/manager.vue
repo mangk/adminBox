@@ -2,7 +2,7 @@
 
     <div class="main-content">
         <el-row :gutter="10">
-            <el-col :span="4">
+            <el-col :span="4" style="position: relative;">
                 <el-tree class="file-tree-box" :data="pathTree" :props="{ label: 'name', children: 'children' }"
                     @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" draggable>
                     <template #default="{ node, data }">
@@ -11,6 +11,18 @@
                         </div>
                     </template>
                 </el-tree>
+                <div style="position: absolute;bottom: 5px;left: 10px;">
+                    <el-popover placement="top-start" :width="260" trigger="hover">
+                        <template #reference>
+                            <el-button :icon="Plus" size="small" style="border-right: 0px;" link />
+                        </template>
+                        <el-input v-model="fileGroupCreateInput" style="width: 200px" size="small"
+                            placeholder="输入分组名称" />
+                        <el-button :icon="Select" type="success" style="margin-left: 10px;" @click="handlePathCreate"
+                            link />
+                    </el-popover>
+                    <el-button :icon="Minus" size="small" @click="handlePathDelete" link />
+                </div>
             </el-col>
             <el-col :span="20">
                 <div class="file-list-box">
@@ -125,8 +137,8 @@
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
-import { Top, Search, Bottom, Right, Close, CopyDocument, Check, Warning } from '@element-plus/icons-vue'
-import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileUploadToken } from '@/api/fileUpload'
+import { Top, Search, Bottom, Right, Close, CopyDocument, Check, Warning, Plus, Minus, Select } from '@element-plus/icons-vue'
+import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileGroupCreate, fileGroupDelete, fileUploadToken } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
@@ -138,10 +150,15 @@ fileUploadCfg().then((res) => {
 })
 
 const pathTree = ref([])
-fileGroupTree().then((res) => {
-    const treeData = Array.isArray(res.data) ? res.data : [];
-    pathTree.value = treeData
-})
+const loadFileGroupTree = () => {
+    fileGroupTree().then((res) => {
+        const treeData = Array.isArray(res.data) ? res.data : [];
+        pathTree.value = treeData
+    })
+}
+loadFileGroupTree()
+
+const fileGroupCreateInput = ref("")
 
 const uploadVisible = ref(false)
 const fileUploadRef = ref()
@@ -152,7 +169,7 @@ const page = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
 // 一些查询条件
-const searchGroupId = ref('')
+const searchGroupId = ref(0)
 const searchName = ref('')
 const searchTag = ref('')
 // 数据列表
@@ -186,6 +203,27 @@ const loadData = (resetPage = false) => {
     tableDataSelectIds.value = []
 }
 
+const handlePathCreate = () => {
+    if (!fileGroupCreateInput.value) {
+        ElMessage.warning('请输入分组名称')
+        return
+    }
+    fileGroupCreate(fileGroupCreateInput.value, searchGroupId.value).then((res) => {
+        loadFileGroupTree()
+        fileGroupCreateInput.value = ''
+    })
+}
+
+const handlePathDelete = () => {
+    if (searchGroupId.value) {
+        fileGroupDelete(searchGroupId.value).then((res) => {
+            loadFileGroupTree()
+        })
+    } else {
+        ElMessage.warning('请选择分组')
+    }
+}
+
 const handleFileUpload = async (options) => {
     // TODO 实现上传进度
     // console.log("点击上传", options);
@@ -198,11 +236,13 @@ const handleFileUpload = async (options) => {
     }, (error) => {
         options.onError(error)
         setTimeout(() => {
+            searchGroupId.value = 0
             loadData(true)
         }, 1500);
     }, (complete) => {
         options.onSuccess(complete)
         setTimeout(() => {
+            searchGroupId.value = 0
             loadData(true)
         }, 1500);
     })
@@ -392,6 +432,7 @@ loadData()
     width: 100%;
     height: calc(100vh - 70px);
     overflow: scroll;
+    padding-bottom: 30px;
 }
 
 .file-list-box {
@@ -402,9 +443,14 @@ loadData()
     overflow-y: scroll;
 }
 
+.el-tree-node__content>.el-tree-node__expand-icon {
+    padding: 0px;
+}
+
 .self-node {
     font-size: 14px;
     padding: 5px;
+    padding-left: 2px;
 }
 
 .node-active {

@@ -45,3 +45,19 @@ export const fileGroupTree = () => {
     method: 'GET'
   })
 }
+
+export const fileGroupCreate = (name, parent_id) => {
+  return http({
+    url: '/sys/fileGroup',
+    method: 'POST',
+    data: { name: name, parent_id: parent_id }
+  })
+}
+
+export const fileGroupDelete = (id) => {
+  return http({
+    url: '/sys/fileGroup',
+    method: 'DELETE',
+    data: { id: id }
+  })
+}

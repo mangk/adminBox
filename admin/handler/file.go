@@ -26,6 +26,50 @@ func FileGroupTree(ctx *gin.Context) {
 	response.OkWithData(ctx, []gin.H{{"name": "默认分组", "id": 0, "children": tree}})
 }
 
+func FileGroupCreate(ctx *gin.Context) {
+	req := model.SysFileGroup{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	req.Cb = request.JWTLoginUserId(ctx)
+	db.DB().Create(&req)
+	response.OkWithMsg(ctx, "创建成功")
+}
+
+func FileGroupDelete(ctx *gin.Context) {
+	req := model.SysFileGroup{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	if req.ID == 0 {
+		response.FailWithMsg(ctx, "参数错误")
+		return
+	}
+
+	// 检查是否有子分组
+	var count int64
+	db.DB().Model(model.SysFileGroup{}).Where("parent_id =?", req.ID).Count(&count)
+	if count > 0 {
+		response.FailWithMsg(ctx, "分组下存在子分组，无法删除")
+		return
+	}
+	// 检查是否有文件
+	var count2 int64
+	db.DB().Model(model.SysFile{}).Where("group_id =?", req.ID).Count(&count2)
+	if count2 > 0 {
+		response.FailWithMsg(ctx, "分组下存在文件，无法删除")
+		return
+	}
+
+	if err := db.DB().Delete(&req).Error; err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	response.OkWithMsg(ctx, "删除成功")
+}
+
 func FileGetUploadLimit(ctx *gin.Context) {
 	uploadCfg := config.FileCfg()
 	resp := gin.H{}

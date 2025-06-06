@@ -87,5 +87,7 @@ func (s SysApi) SysApi() []SysApi {
 		{Model: Model{ID: -705}, MenuId: -200, Name: "文件目录", Description: "", Path: backendPrefix + "/sys/fileGroup/tree", Method: "GET"},
 		{Model: Model{ID: -706}, MenuId: -200, Name: "移动文件目录", Description: "", Path: backendPrefix + "/sys/fileUpload/move", Method: "POST"},
 		{Model: Model{ID: -707}, MenuId: -200, Name: "文件上传(前端TOKEN授权直传)", Description: "", Path: backendPrefix + "/sys/fileUpload/uploadToken", Method: "POST"},
+		{Model: Model{ID: -708}, MenuId: -200, Name: "文件目录新建", Description: "", Path: backendPrefix + "/sys/fileGroup", Method: "POST"},
+		{Model: Model{ID: -709}, MenuId: -200, Name: "文件目录删除", Description: "", Path: backendPrefix + "/sys/fileGroup", Method: "DELETE"},
 	}
 }
