@@ -269,7 +269,7 @@ func FileEdit(ctx *gin.Context) {
 
 func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (file model.SysFile, err error) {
 	oss := upload.NewOss(driver)
-	filePath, key, _, uploadErr := oss.MultipartUploadFile(header)
+	filePath, key, _,fsize, uploadErr := oss.MultipartUploadFile(header, fmt.Sprintf("%d", cb))
 	if uploadErr != nil {
 		panic(uploadErr)
 	}
@@ -282,6 +282,8 @@ func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (fi
 			Name:  header.Filename,
 			Tag:   s[len(s)-1],
 			Key:   key,
+			UUID:  uuid.NewString(),
+			Size:  fsize,
 		}
 		return f, (model.SysFile{}).Upload(&f)
 	}

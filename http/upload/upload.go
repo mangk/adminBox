@@ -13,7 +13,7 @@ import (
 )
 
 type OSS interface {
-	MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
+	MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (reqPath, fileKey, md5 string, fsize int64, err error)
 	UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error)
 	UploadTokenGet(key string, uuid string) (token string, fileKey string, err error)
 	DeleteFile(key string) error

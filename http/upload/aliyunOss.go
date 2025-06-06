@@ -18,23 +18,23 @@ type AliyunOSS struct {
 	cfg config.File
 }
 
-func (a *AliyunOSS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (a *AliyunOSS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, int64, error) {
 	bucket, err := NewBucket(a.cfg)
 	c := bucket.GetConfig()
 	fmt.Println(c)
 	if err != nil {
 		log.Zaplog().Error("function AliyunOSS.NewBucket() Failed", zap.Any("err", err.Error()))
-		return "", "", "", errors.New("function AliyunOSS.NewBucket() Failed, err:" + err.Error())
+		return "", "", "", file.Size, errors.New("function AliyunOSS.NewBucket() Failed, err:" + err.Error())
 	}
 
 	// 读取本地文件。
 	f, openError := file.Open()
 	if openError != nil {
 		log.Zaplog().Error("function file.Open() Failed", zap.Any("err", openError.Error()))
-		return "", "", "", errors.New("function file.Open() Failed, err:" + openError.Error())
+		return "", "", "", file.Size, errors.New("function file.Open() Failed, err:" + openError.Error())
 	}
 	defer f.Close() // 创建文件 defer 关闭
-	fileKeyBuild := make([]string, 0)
+	fileKeyBuild := make([]string, file.Size)
 	if a.cfg.PrefixPath != "" {
 		fileKeyBuild = append(fileKeyBuild, a.cfg.PrefixPath)
 	}
@@ -46,13 +46,13 @@ func (a *AliyunOSS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ..
 	err = bucket.PutObject(fileKey, f)
 	if err != nil {
 		log.Zaplog().Error("function formUploader.Put() Failed", zap.Any("err", err.Error()))
-		return "", "", "", errors.New("function formUploader.Put() Failed, err:" + err.Error())
+		return "", "", "", file.Size, errors.New("function formUploader.Put() Failed, err:" + err.Error())
 	}
 
 	if a.cfg.CdnURL != "" {
-		return a.cfg.CdnURL + "/" + fileKey, fileKey, md5, nil
+		return a.cfg.CdnURL + "/" + fileKey, fileKey, md5, file.Size, nil
 	}
-	return bucket.BucketName + "." + bucket.Client.Config.Endpoint + "/" + fileKey, fileKey, md5, nil
+	return bucket.BucketName + "." + bucket.Client.Config.Endpoint + "/" + fileKey, fileKey, md5, file.Size, nil
 }
 
 func (a *AliyunOSS) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {

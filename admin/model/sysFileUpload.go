@@ -56,7 +56,7 @@ type SysFile struct {
 	Tag       string       `json:"tag" gorm:"comment:文件标签"`    // 文件标签
 	Key       string       `json:"key" gorm:"comment:编号"`      // 编号
 	UUID      string       `json:"uuid" gorm:"comment:回调uuid"` // 回调uuid
-	Size      int64        `json:"size" gorm:"comment:文件大小"`  // 文件大小
+	Size      int64        `json:"size" gorm:"comment:文件大小"`   // 文件大小
 }
 
 func (SysFile) TableName() string {
@@ -64,7 +64,7 @@ func (SysFile) TableName() string {
 }
 
 func (s SysFile) Upload(file *SysFile) error {
-	return db.DB().Create(file).Error
+	return db.DB().Omit("group_id").Create(file).Error
 }
 
 func (s SysFile) FindFile(id int) (SysFile, error) {

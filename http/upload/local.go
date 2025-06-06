@@ -21,7 +21,7 @@ type Local struct {
 	cfg config.File
 }
 
-func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, int64, error) {
 	// 读取文件后缀
 	ext := path.Ext(file.Filename)
 	// 读取文件名并加密
@@ -36,7 +36,7 @@ func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 	mkdirErr := os.MkdirAll(l.cfg.StorePath, os.ModePerm)
 	if mkdirErr != nil {
 		log.Zaplog().Error("function os.MkdirAll() Filed", zap.Any("err", mkdirErr.Error()))
-		return "", "", "", errors.New("function os.MkdirAll() Filed, err:" + mkdirErr.Error())
+		return "", "", "", file.Size, errors.New("function os.MkdirAll() Filed, err:" + mkdirErr.Error())
 	}
 	// 拼接路径和文件名
 	p := l.cfg.StorePath + "/" + filename
@@ -51,7 +51,7 @@ func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 	f, openError := file.Open() // 读取文件
 	if openError != nil {
 		log.Zaplog().Error("function file.Open() Filed", zap.Any("err", openError.Error()))
-		return "", "", "", errors.New("function file.Open() Filed, err:" + openError.Error())
+		return "", "", "", file.Size, errors.New("function file.Open() Filed, err:" + openError.Error())
 	}
 	defer f.Close() // 创建文件 defer 关闭
 
@@ -59,7 +59,7 @@ func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 	if createErr != nil {
 		log.Zaplog().Error("function os.Create() Filed", zap.Any("err", createErr.Error()))
 
-		return "", "", "", errors.New("function os.Create() Filed, err:" + createErr.Error())
+		return "", "", "", file.Size, errors.New("function os.Create() Filed, err:" + createErr.Error())
 	}
 	defer out.Close() // 创建文件 defer 关闭
 
@@ -67,13 +67,13 @@ func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 	_, copyErr := io.Copy(out, f) // 传输（拷贝）文件
 	if copyErr != nil {
 		log.Zaplog().Error("function io.Copy() Filed", zap.Any("err", copyErr.Error()))
-		return "", "", "", errors.New("function io.Copy() Filed, err:" + copyErr.Error())
+		return "", "", "", file.Size, errors.New("function io.Copy() Filed, err:" + copyErr.Error())
 	}
 
 	if l.cfg.CdnURL != "" {
-		return l.cfg.CdnURL + "/" + fileKey, filename, md5, nil
+		return l.cfg.CdnURL + "/" + fileKey, filename, md5, file.Size, nil
 	}
-	return "/" + fileKey, filename, md5, nil
+	return "/" + fileKey, filename, md5, file.Size, nil
 }
 
 func (l *Local) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {

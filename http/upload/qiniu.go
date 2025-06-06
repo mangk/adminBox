@@ -23,7 +23,7 @@ type Qiniu struct {
 	cfg config.File
 }
 
-func (q *Qiniu) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (q *Qiniu) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, int64, error) {
 	putPolicy := storage.PutPolicy{Scope: q.cfg.Bucket}
 	mac := qbox.NewMac(q.cfg.ID, q.cfg.Key)
 	upToken := putPolicy.UploadToken(mac)
@@ -36,7 +36,7 @@ func (q *Qiniu) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 	if openError != nil {
 		log.Zaplog().Error("function file.Open() Filed", zap.Any("err", openError.Error()))
 
-		return "", "", "", errors.New("function file.Open() Filed, err:" + openError.Error())
+		return "", "", "", file.Size, errors.New("function file.Open() Filed, err:" + openError.Error())
 	}
 	defer f.Close() // 创建文件 defer 关闭
 
@@ -53,11 +53,11 @@ func (q *Qiniu) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 	putErr := formUploader.Put(context.Background(), &ret, upToken, fileKey, f, file.Size, &putExtra)
 	if putErr != nil {
 		log.Zaplog().Error("function formUploader.Put() Filed", zap.Any("err", putErr.Error()))
-		return "", "", "", errors.New("function formUploader.Put() Filed, err:" + putErr.Error())
+		return "", "", "", file.Size, errors.New("function formUploader.Put() Filed, err:" + putErr.Error())
 	}
 
 	md5 := fileMd5(f)
-	return q.cfg.CdnURL + ret.Key, fileName, md5, nil
+	return q.cfg.CdnURL + ret.Key, fileName, md5, file.Size, nil
 }
 
 func (q *Qiniu) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {

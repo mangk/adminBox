@@ -22,12 +22,12 @@ type TencentCOS struct {
 	cfg config.File
 }
 
-func (t *TencentCOS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, error) {
+func (t *TencentCOS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...string) (string, string, string, int64, error) {
 	client := NewClient(t.cfg)
 	f, openError := file.Open()
 	if openError != nil {
 		log.Zaplog().Error("function file.Open() Filed", zap.Any("err", openError.Error()))
-		return "", "", "", errors.New("function file.Open() Filed, err:" + openError.Error())
+		return "", "", "", file.Size, errors.New("function file.Open() Filed, err:" + openError.Error())
 	}
 	defer f.Close() // 创建文件 defer 关闭
 	fileKeyBuild := make([]string, 0)
@@ -47,9 +47,9 @@ func (t *TencentCOS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix .
 	}
 
 	if t.cfg.CdnURL != "" {
-		return t.cfg.CdnURL + "/" + fileKey, fileKey, md5, nil
+		return t.cfg.CdnURL + "/" + fileKey, fileKey, md5, file.Size, nil
 	}
-	return client.BaseURL.BucketURL.Host + "/" + fileKey, fileKey, md5, nil
+	return client.BaseURL.BucketURL.Host + "/" + fileKey, fileKey, md5, file.Size, nil
 }
 
 func (t *TencentCOS) UploadFile(file *os.File, keyPrefix ...string) (reqPath, fileKey, md5 string, err error) {
