@@ -15,7 +15,7 @@ type PublicPageRequest struct {
 	Page     int64                  `json:"page,omitempty"`
 	PageSize int64                  `json:"page_size,omitempty"`
 	Id       string                 `json:"id,omitempty"`
-	Ids      []string               `json:"ids,omitempty"`
+	Ids      []any                  `json:"ids,omitempty"`
 }
 
 func PublicRequest(ctx *gin.Context) PublicPageRequest {
