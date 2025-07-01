@@ -47,18 +47,23 @@ func HttpEngine() *gin.Engine {
 
 func ListenAndServer() {
 	addr := Addr()
-	log.Info("Project Start", "listen", addr)
-	if err := endless.ListenAndServe(addr, HttpEngine()); err != nil {
-		log.Error("Project Error", "error", err)
+	log.Info("[Project Start]", "listen", addr)
+
+	es := endless.NewServer(addr, HttpEngine())
+	es.BeforeBegin = func(add string) {}
+
+	if err := es.ListenAndServe(); err != nil {
+		log.Error("[Project Error]", "error", err)
 	}
-	log.Info("Project EXIT")
+
+	log.Info("[Project EXIT]")
 	defer log.Close()
 }
 
 func Run() {
-	log.Info("Project Start", "listen", Addr())
+	log.Info("[Project Start]", "listen", Addr())
 	HttpEngine().Run(Addr())
-	log.Info("Project EXIT")
+	log.Info("[Project EXIT]")
 	defer log.Close()
 }
 
