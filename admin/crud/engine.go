@@ -133,7 +133,7 @@ func (e *Engine) Register() {
 		for _, handlerFunc := range e.middleware {
 			root.Use(handlerFunc)
 		}
-	})
+	}, true)
 
 	// 注册模版
 	e.register("tmp", "GET", e.tmp)
@@ -228,7 +228,7 @@ func (e *Engine) register(relativePath, method string, handlerFunc ...gin.Handle
 			log.Error("Unsupported methods")
 			panic("Unsupported methods")
 		}
-	})
+	}, true)
 }
 
 func (e *Engine) tmp(ctx *gin.Context) {

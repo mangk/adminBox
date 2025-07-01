@@ -101,7 +101,7 @@ func CacheCfg() map[string]cache {
 }
 
 func FileCfg() map[string]File {
-	return *_config.Server.File
+	return *_config.i().Server.File
 }
 
 func pathExists(path string) bool {

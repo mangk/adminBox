@@ -3,16 +3,20 @@ package adminBox
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sync"
+	"time"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
+	"github.com/kardianos/service"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
 )
 
 var _adminBox *gin.Engine
 var _adminBoxInitOnce sync.Once
+var _waitInitRoter []func(root *gin.Engine)
 
 func newHttpServer() {
 	_adminBoxInitOnce.Do(func() {
@@ -35,6 +39,7 @@ func newHttpServer() {
 		http.Use(gin.Recovery())
 
 		_adminBox = http
+		_waitInitRoter = make([]func(root *gin.Engine), 0)
 	})
 }
 
@@ -45,13 +50,22 @@ func httpEngine() *gin.Engine {
 	return _adminBox
 }
 
-func SetRouter(f func(root *gin.Engine)) {
-	f(httpEngine())
+func SetRouter(f func(root *gin.Engine), setNow ...bool) {
+	if len(setNow) > 0 && setNow[0] {
+		f(httpEngine())
+	} else {
+		_waitInitRoter = append(_waitInitRoter, f)
+	}
 }
 
 func ListenAndServer() {
 	addr := Addr()
 	log.Info("[Project Start]", "listen", addr)
+	defer log.Close()
+
+	for _, f := range _waitInitRoter {
+		f(httpEngine())
+	}
 
 	es := endless.NewServer(addr, httpEngine())
 	es.BeforeBegin = func(add string) {}
@@ -61,18 +75,19 @@ func ListenAndServer() {
 	}
 
 	log.Info("[Project EXIT]")
-	defer log.Close()
 }
 
 func Run() {
 	log.Info("[Project Start]", "listen", Addr())
-	httpEngine().Run(Addr())
-	log.Info("[Project EXIT]")
 	defer log.Close()
-}
 
-func Daemon() {
+	for _, f := range _waitInitRoter {
+		f(httpEngine())
+	}
 
+	httpEngine().Run(Addr())
+
+	log.Info("[Project EXIT]")
 }
 
 func Addr() string {
@@ -85,4 +100,54 @@ func Addr() string {
 		port = config.ServerCfg().Port
 	}
 	return fmt.Sprintf("%s:%d", host, port)
+}
+
+func Daemon(svcConfig *service.Config) {
+	prg := &program{}
+	s, err := service.New(prg, svcConfig)
+	if err != nil {
+		log.Panicf("[Daemon New Error] %s", err)
+		return
+	}
+
+	if len(os.Args) > 1 {
+		err = service.Control(s, os.Args[1])
+		if err != nil {
+			log.Errorf("[Daemon Control Error] %s", err)
+		}
+		return
+	}
+
+	logger, err := s.Logger(nil)
+	if err != nil {
+		log.Errorf("[Daemon Logger Error] %s", err)
+	}
+	err = s.Run()
+	if err != nil {
+		log.Errorf("[Daemon Run Error] %s", err)
+		logger.Error(err)
+	}
+}
+
+type program struct{}
+
+func (p *program) Start(s service.Service) error {
+	// Start should not block. Do the actual work async.
+	log.Info("[Daemon Start]")
+	go p.run()
+	return nil
+}
+func (p *program) run() {
+	// Do work here
+	log.Info("[Daemon run] 1")
+	Run()
+	log.Info("[Daemon run] 2")
+}
+func (p *program) Stop(s service.Service) error {
+	// Stop should not block. Return with a few seconds.
+	log.Info("[Daemon Stop 1]")
+	<-time.After(time.Second * 2)
+
+	log.Info("[Daemon Stop 2]")
+	return nil
 }
