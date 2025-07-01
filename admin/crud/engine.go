@@ -129,10 +129,11 @@ func (e *Engine) AddField(filed ...Field) *Engine {
 }
 
 func (e *Engine) Register() {
-	g := adminBox.HttpEngine()
-	for _, handlerFunc := range e.middleware {
-		g.Use(handlerFunc)
-	}
+	adminBox.SetRouter(func(root *gin.Engine) {
+		for _, handlerFunc := range e.middleware {
+			root.Use(handlerFunc)
+		}
+	})
 
 	// 注册模版
 	e.register("tmp", "GET", e.tmp)
@@ -213,20 +214,21 @@ func (e *Engine) RegisterDeleteHandler(relativePath string, handlerFunc gin.Hand
 }
 
 func (e *Engine) register(relativePath, method string, handlerFunc ...gin.HandlerFunc) {
-	g := adminBox.HttpEngine()
-	switch method {
-	case "POST":
-		g.POST(e.ap+"/"+relativePath, handlerFunc...)
-	case "GET":
-		g.GET(e.ap+"/"+relativePath, handlerFunc...)
-	case "PATCH":
-		g.PATCH(e.ap+"/"+relativePath, handlerFunc...)
-	case "DELETE":
-		g.DELETE(e.ap+"/"+relativePath, handlerFunc...)
-	default:
-		log.Error("Unsupported methods")
-		panic("Unsupported methods")
-	}
+	adminBox.SetRouter(func(root *gin.Engine) {
+		switch method {
+		case "POST":
+			root.POST(e.ap+"/"+relativePath, handlerFunc...)
+		case "GET":
+			root.GET(e.ap+"/"+relativePath, handlerFunc...)
+		case "PATCH":
+			root.PATCH(e.ap+"/"+relativePath, handlerFunc...)
+		case "DELETE":
+			root.DELETE(e.ap+"/"+relativePath, handlerFunc...)
+		default:
+			log.Error("Unsupported methods")
+			panic("Unsupported methods")
+		}
+	})
 }
 
 func (e *Engine) tmp(ctx *gin.Context) {

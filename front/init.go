@@ -23,34 +23,35 @@ var frontFiles embed.FS
 var CrudTemplate string
 
 func init() {
-	root := adminBox.HttpEngine()
+	adminBox.SetRouter(func(root *gin.Engine) {
+		root.GET("/", func(ctx *gin.Context) {
+			_, has := ctx.GetQuery("front")
+			if frontIndexHanler != nil && !has {
+				frontIndexHanler(ctx)
+			} else {
+				d, _ := fs.ReadFile(frontFiles, "dist/index.html")
+				ctx.Data(200, "text/html; charset=utf-8", d)
+			}
+		})
 
-	root.GET("/", func(ctx *gin.Context) {
-		_, has := ctx.GetQuery("front")
-		if frontIndexHanler != nil && !has {
-			frontIndexHanler(ctx)
-		} else {
-			d, _ := fs.ReadFile(frontFiles, "dist/index.html")
-			ctx.Data(200, "text/html; charset=utf-8", d)
-		}
-	})
+		assets, _ := fs.Sub(frontFiles, "dist/assets")
+		root.StaticFS("/assets", http.FS(assets))
 
-	assets, _ := fs.Sub(frontFiles, "dist/assets")
-	root.StaticFS("/assets", http.FS(assets))
+		images, _ := fs.Sub(frontFiles, "dist/images")
+		root.StaticFS("/images", http.FS(images))
 
-	images, _ := fs.Sub(frontFiles, "dist/images")
-	root.StaticFS("/images", http.FS(images))
-
-	// 重写 adminBox.js
-	root.SetHTMLTemplate(template.Must(template.New("adminBox.js").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
-	root.GET("/adminBox.js", func(ctx *gin.Context) {
-		ctx.Header("Content-Type", "application/javascript")
-		allConfig := fmt.Sprintf(`BackendRouterPrefix: '%s',%s`, config.ServerCfg().BackendRouterPrefix, writeByadminBoxConfig)
-		ctx.HTML(http.StatusOK, "adminBox.js", gin.H{
-			"writeByadminBox_config": template.HTML(allConfig),
-			"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
+		// 重写 adminBox.js
+		root.SetHTMLTemplate(template.Must(template.New("adminBox.js").Delims("/***", "***/").ParseFS(frontFiles, "dist/adminBox.js")))
+		root.GET("/adminBox.js", func(ctx *gin.Context) {
+			ctx.Header("Content-Type", "application/javascript")
+			allConfig := fmt.Sprintf(`BackendRouterPrefix: '%s',%s`, config.ServerCfg().BackendRouterPrefix, writeByadminBoxConfig)
+			ctx.HTML(http.StatusOK, "adminBox.js", gin.H{
+				"writeByadminBox_config": template.HTML(allConfig),
+				"writeByadminBox_func":   template.HTML(writeByadminBoxFunc),
+			})
 		})
 	})
+
 }
 
 var frontIndexHanler func(ctx *gin.Context)

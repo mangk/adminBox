@@ -5,6 +5,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/gin-gonic/gin"
 	myHttp "github.com/mangk/adminBox"
 	"github.com/mangk/adminBox/admin/handler"
 	"github.com/mangk/adminBox/admin/model"
@@ -20,7 +21,7 @@ var (
 
 func init() {
 	_adminInitOnce.Do(func() {
-		routerCreate()
+		myHttp.SetRouter(routerCreate)
 	})
 }
 
@@ -93,8 +94,7 @@ func DBMigrate() {
 	)
 }
 
-func routerCreate() {
-	router := myHttp.HttpEngine()
+func routerCreate(router *gin.Engine) {
 
 	router.Use(middleware.Cors()) // TODO 跨域限制基于配置
 

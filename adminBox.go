@@ -18,7 +18,7 @@ func newHttpServer() {
 	_adminBoxInitOnce.Do(func() {
 		gin.DisableConsoleColor()
 		gin.DefaultWriter = log.GinAdapter() // 设置日志输出到 zaplog
-
+		gin.SetMode(config.ServerCfg().Env)
 		http := gin.New()
 		http.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
 			m := []interface{}{}
@@ -38,18 +38,22 @@ func newHttpServer() {
 	})
 }
 
-func HttpEngine() *gin.Engine {
+func httpEngine() *gin.Engine {
 	if _adminBox == nil {
 		newHttpServer()
 	}
 	return _adminBox
 }
 
+func SetRouter(f func(root *gin.Engine)) {
+	f(httpEngine())
+}
+
 func ListenAndServer() {
 	addr := Addr()
 	log.Info("[Project Start]", "listen", addr)
 
-	es := endless.NewServer(addr, HttpEngine())
+	es := endless.NewServer(addr, httpEngine())
 	es.BeforeBegin = func(add string) {}
 
 	if err := es.ListenAndServe(); err != nil {
@@ -62,9 +66,13 @@ func ListenAndServer() {
 
 func Run() {
 	log.Info("[Project Start]", "listen", Addr())
-	HttpEngine().Run(Addr())
+	httpEngine().Run(Addr())
 	log.Info("[Project EXIT]")
 	defer log.Close()
+}
+
+func Daemon() {
+
 }
 
 func Addr() string {
