@@ -237,8 +237,15 @@ func getLogfileWriter(dirName string) *rotatelogs.RotateLogs {
 	if config.LogCfg().MaxAge != 0 {
 		maxAge = config.LogCfg().MaxAge
 	}
+
+	var p string
+	if dirName[0] == '/' {
+		p = dirName
+	} else {
+		p = path.Join(config.GetExePath(), dirName, config.LogCfg().Prefix+"%Y-%m-%d.log")
+	}
 	fileWriter, err := rotatelogs.New(
-		path.Join(config.GetExePath(), dirName, config.LogCfg().Prefix+"%Y-%m-%d.log"),
+		p,
 		rotatelogs.WithClock(rotatelogs.Local),
 		rotatelogs.WithMaxAge(time.Duration(maxAge)*24*time.Hour), // 日志留存时间
 		rotatelogs.WithRotationTime(time.Hour*24),
