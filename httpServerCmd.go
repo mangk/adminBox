@@ -30,12 +30,12 @@ func init() {
 	rootCmd.AddCommand(daemonRestart)
 
 	daemonInstall.Flags().StringVarP(&_configFilePath, "config", "c", "", "指定配置文件(绝对)路径")
-	daemonInstall.MarkFlagRequired("config")
+	// daemonInstall.MarkFlagRequired("config")
 	rootCmd.AddCommand(daemonInstall)
 
 	rootCmd.AddCommand(daemonUninstall)
 
-	endlessListenAndServer.Flags().StringVarP(&_configFilePath, "config", "c", "./config.yaml", "指定配置文件路径")
+	endlessListenAndServer.Flags().StringVarP(&_configFilePath, "config", "c", "", "指定配置文件路径")
 	rootCmd.AddCommand(endlessListenAndServer)
 }
 

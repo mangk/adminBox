@@ -238,7 +238,7 @@ func getLogfileWriter(dirName string) *rotatelogs.RotateLogs {
 		maxAge = config.LogCfg().MaxAge
 	}
 	fileWriter, err := rotatelogs.New(
-		path.Join(dirName, config.LogCfg().Prefix+"%Y-%m-%d.log"),
+		path.Join(config.GetExePath(), dirName, config.LogCfg().Prefix+"%Y-%m-%d.log"),
 		rotatelogs.WithClock(rotatelogs.Local),
 		rotatelogs.WithMaxAge(time.Duration(maxAge)*24*time.Hour), // 日志留存时间
 		rotatelogs.WithRotationTime(time.Hour*24),

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	defaultLog "log"
 	"os"
 	"path/filepath"
 	"sync"
@@ -15,6 +14,8 @@ import (
 var _config *configInstance
 var _viper *viper.Viper
 var _configInitOnce sync.Once
+var _configPath string
+var _execPath string
 
 type configInstance struct {
 	Server server           `json:"server,omitempty" yaml:"server,omitempty"`
@@ -23,37 +24,33 @@ type configInstance struct {
 	Cache  map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
-func getConfigPath() string {
-	cfgFilePath := flag.String("c", "", "config file path")
-	flag.Parse()
+func init() {
+	exePath, _ := os.Executable()
+	_execPath = filepath.Dir(exePath)
+}
 
-	if *cfgFilePath != "" {
-		if _, err := os.Stat(*cfgFilePath); err == nil {
-			return *cfgFilePath
-		} else {
-			defaultLog.Fatalf("指定的配置文件路径不存在: %s", *cfgFilePath)
-		}
-	}
+func SetConfigPath(path string) {
+	_configPath = path
+}
 
-	// fallback: 使用可执行文件所在目录
-	exePath, err := os.Executable()
-	if err != nil {
-		defaultLog.Fatalf("获取可执行文件路径失败: %v", err)
-	}
-	exeDir := filepath.Dir(exePath)
-	defaultCfg := filepath.Join(exeDir, "config.yaml")
-
-	if _, err := os.Stat(defaultCfg); err == nil {
-		return defaultCfg
-	}
-
-	defaultLog.Fatalf("未提供配置文件路径，且在可执行文件目录下未找到 config.yaml: %s", defaultCfg)
-	return ""
+func GetExePath() string {
+	return _execPath
 }
 
 func (c *configInstance) i() configInstance {
 	_configInitOnce.Do(func() {
-		configPath := getConfigPath()
+		var configPath string
+		if _configPath != "" { // 指定路径优先级最高
+			configPath = _configPath
+		} else { // 未指定路径尝试判断
+			p := flag.String("c", "", "config file path")
+			flag.Parse()
+			if *p != "" { // 命令行参数尝试读取
+				configPath = *p
+			} else { // 命令行没有 尝试从程序目录寻找
+				configPath = filepath.Join(_execPath, "config.yaml")
+			}
+		}
 
 		_config = &configInstance{}
 
@@ -73,6 +70,8 @@ server:
   runAt: 
 log:
   prefix: noConfigFile
+  output:
+    - console
 `)
 			if err := _viper.ReadConfig(bytes.NewBuffer(configStr)); err != nil {
 				panic(fmt.Errorf("read config error: %s", err))
@@ -128,7 +127,11 @@ func CacheCfg() map[string]cache {
 }
 
 func FileCfg() map[string]File {
-	return *_config.i().Server.File
+	c := _config.i()
+	if c.Server.File != nil {
+		return *c.Server.File
+	}
+	return map[string]File{}
 }
 
 func pathExists(path string) bool {
