@@ -17,6 +17,7 @@ require (
 	github.com/mojocn/base64Captcha v1.3.6
 	github.com/qiniu/go-sdk/v7 v7.21.1
 	github.com/songzhibin97/gkit v1.2.13
+	github.com/spf13/cobra v1.9.1
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.54
 	golang.org/x/crypto v0.38.0
 	gorm.io/driver/mysql v1.5.7
@@ -47,6 +48,7 @@ require (
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.5.5 // indirect
@@ -96,7 +98,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.19.0
 	github.com/subosito/gotenv v1.6.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect

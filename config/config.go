@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	defaultLog "log"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/spf13/viper"
@@ -21,21 +23,46 @@ type configInstance struct {
 	Cache  map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
+func getConfigPath() string {
+	cfgFilePath := flag.String("c", "", "config file path")
+	flag.Parse()
+
+	if *cfgFilePath != "" {
+		if _, err := os.Stat(*cfgFilePath); err == nil {
+			return *cfgFilePath
+		} else {
+			defaultLog.Fatalf("指定的配置文件路径不存在: %s", *cfgFilePath)
+		}
+	}
+
+	// fallback: 使用可执行文件所在目录
+	exePath, err := os.Executable()
+	if err != nil {
+		defaultLog.Fatalf("获取可执行文件路径失败: %v", err)
+	}
+	exeDir := filepath.Dir(exePath)
+	defaultCfg := filepath.Join(exeDir, "config.yaml")
+
+	if _, err := os.Stat(defaultCfg); err == nil {
+		return defaultCfg
+	}
+
+	defaultLog.Fatalf("未提供配置文件路径，且在可执行文件目录下未找到 config.yaml: %s", defaultCfg)
+	return ""
+}
+
 func (c *configInstance) i() configInstance {
 	_configInitOnce.Do(func() {
-		// TODO 支持从 ENV 读取配置
-		cfgFilePath := flag.String("c", "./config.yaml", "config file path")
-		flag.Parse()
+		configPath := getConfigPath()
 
 		_config = &configInstance{}
 
 		_viper = viper.New()
 		_viper.SetConfigType("yaml")
-
-		if pathExists(*cfgFilePath) {
-			_viper.SetConfigFile(*cfgFilePath)
+		if pathExists(configPath) {
+			_viper.SetConfigFile(configPath)
 			if err := _viper.ReadInConfig(); err != nil {
-				panic(fmt.Errorf("read config file (%s) error: %s", *cfgFilePath, err))
+				panic(fmt.Errorf("read config file (%s) error: %s", configPath, err))
 			}
 		} else {
 			configStr := []byte(`
