@@ -24,8 +24,8 @@ type configInstance struct {
 	Cache  map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
-func SetConfigPath(path string) {
-	_configPath = path
+func GetConfigPath() string {
+	return _configPath
 }
 
 func (c *configInstance) i() configInstance {
@@ -42,6 +42,7 @@ func (c *configInstance) i() configInstance {
 				configPath = filepath.Join(util.GetExecPath(), "config.yaml")
 			}
 		}
+		_configPath = configPath
 
 		_config = &configInstance{}
 
