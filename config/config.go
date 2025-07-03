@@ -2,7 +2,6 @@ package config
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -24,34 +23,30 @@ type configInstance struct {
 	Cache  map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
+func SetConfigPath(path string) {
+	_configPath = path
+}
+
 func GetConfigPath() string {
 	return _configPath
 }
 
 func (c *configInstance) i() configInstance {
 	_configInitOnce.Do(func() {
-		var configPath string
-		if _configPath != "" { // 指定路径优先级最高
-			configPath = _configPath
-		} else { // 未指定路径尝试判断
-			p := flag.String("c", "", "config file path")
-			flag.Parse()
-			if *p != "" { // 命令行参数尝试读取
-				configPath = *p
-			} else { // 命令行没有 尝试从程序目录寻找
-				configPath = filepath.Join(util.GetExecPath(), "config.yaml")
-			}
+		if _configPath == "" { // 指定路径优先级最高
+			_configPath = filepath.Join(util.GetExecPath(), "config.yaml")
+			print(_configPath)
+			os.Chdir(_configPath)
 		}
-		_configPath = configPath
 
 		_config = &configInstance{}
 
 		_viper = viper.New()
 		_viper.SetConfigType("yaml")
-		if pathExists(configPath) {
-			_viper.SetConfigFile(configPath)
+		if pathExists(_configPath) {
+			_viper.SetConfigFile(_configPath)
 			if err := _viper.ReadInConfig(); err != nil {
-				panic(fmt.Errorf("read config file (%s) error: %s", configPath, err))
+				panic(fmt.Errorf("read config file (%s) error: %s", _configPath, err))
 			}
 		} else {
 			configStr := []byte(`
@@ -65,6 +60,8 @@ log:
   output:
     - console
 `)
+			println("USE DEFAULT CONFIG!")
+			println(string(configStr))
 			if err := _viper.ReadConfig(bytes.NewBuffer(configStr)); err != nil {
 				panic(fmt.Errorf("read config error: %s", err))
 			}

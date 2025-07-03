@@ -3,14 +3,12 @@ package adminBox
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"sync"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
-	"github.com/mangk/adminBox/util"
 )
 
 var _adminBox *gin.Engine
@@ -65,7 +63,6 @@ func httpEngine() *gin.Engine {
 	return _adminBox
 }
 func listenAndServer() {
-	os.Chdir(util.GetExecPath())
 	addr := GetServerAddr()
 	log.Info("[Project Start]", "listen", addr)
 	defer log.Close()
@@ -85,7 +82,6 @@ func listenAndServer() {
 }
 
 func run() {
-	os.Chdir(util.GetExecPath())
 	log.Info("[Project Start]", "listen", GetServerAddr())
 	defer log.Close()
 
