@@ -35,7 +35,6 @@ func (c *configInstance) i() configInstance {
 	_configInitOnce.Do(func() {
 		if _configPath == "" { // 指定路径优先级最高
 			_configPath = filepath.Join(util.GetExecPath(), "config.yaml")
-			print(_configPath)
 			os.Chdir(_configPath)
 		}
 
