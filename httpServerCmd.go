@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/kardianos/service"
+	"github.com/mangk/adminBox/util"
 	"github.com/spf13/cobra"
 )
 
@@ -16,6 +17,7 @@ var _Long string
 
 var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		run()
 	},
 }
@@ -56,6 +58,7 @@ var daemonStart = &cobra.Command{
 	Short: "启动服务",
 	Long:  "启动服务，启动服务前，需要通过 install 注册",
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		if err := newDaemon(_Use, _Use, _Long, _userName).Start(); err != nil {
 			log.Printf("[Daemon Start] err: %s", err)
 		}
@@ -67,6 +70,7 @@ var daemonStop = &cobra.Command{
 	Short: "停止服务",
 	Long:  "停止正在运行的服务",
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		if err := newDaemon(_Use, _Use, _Long, _userName).Stop(); err != nil {
 			log.Printf("[Daemon Stop] err: %s", err)
 		}
@@ -78,6 +82,7 @@ var daemonRestart = &cobra.Command{
 	Short: "重启服务",
 	Long:  "重启服务",
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		if err := newDaemon(_Use, _Use, _Long, _userName).Restart(); err != nil {
 			log.Printf("[Daemon Restart] err: %s", err)
 		}
@@ -89,6 +94,7 @@ var daemonInstall = &cobra.Command{
 	Short: "安装服务",
 	Long:  "将程序加入到系统的守护进程中，使其能够在后台运行以及跟随系统开机启动",
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		var s service.Service
 		if _configFilePath != "" {
 			s = newDaemon(_Use, _Use, _Long, "root", "-c", _configFilePath)
@@ -107,6 +113,7 @@ var daemonUninstall = &cobra.Command{
 	Short: "卸载服务",
 	Long:  "将程序从系统服务中移除，以便在系统启动时不再自动启动服务",
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		if err := newDaemon(_Use, _Use, _Long, _userName).Uninstall(); err != nil {
 			log.Printf("[Daemon Uninstall] err: %s", err)
 		}
@@ -118,6 +125,7 @@ var endlessListenAndServer = &cobra.Command{
 	Short: "平滑重启运行程序",
 	Long:  "不将程序注册成服务，但程序以平滑重启方式运行，通过传递信号 kill -1 实现服务平滑重启",
 	Run: func(cmd *cobra.Command, args []string) {
+		util.GetExecPath()
 		listenAndServer()
 	},
 }
