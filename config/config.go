@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/mangk/adminBox/util"
 	"github.com/spf13/viper"
 )
 
@@ -15,7 +16,6 @@ var _config *configInstance
 var _viper *viper.Viper
 var _configInitOnce sync.Once
 var _configPath string
-var _execPath string
 
 type configInstance struct {
 	Server server           `json:"server,omitempty" yaml:"server,omitempty"`
@@ -24,17 +24,8 @@ type configInstance struct {
 	Cache  map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
-func init() {
-	exePath, _ := os.Executable()
-	_execPath = filepath.Dir(exePath)
-}
-
 func SetConfigPath(path string) {
 	_configPath = path
-}
-
-func GetExePath() string {
-	return _execPath
 }
 
 func (c *configInstance) i() configInstance {
@@ -48,7 +39,7 @@ func (c *configInstance) i() configInstance {
 			if *p != "" { // 命令行参数尝试读取
 				configPath = *p
 			} else { // 命令行没有 尝试从程序目录寻找
-				configPath = filepath.Join(_execPath, "config.yaml")
+				configPath = filepath.Join(util.GetExecPath(), "config.yaml")
 			}
 		}
 

@@ -10,11 +10,32 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
+	"github.com/mangk/adminBox/util"
 )
 
 var _adminBox *gin.Engine
 var _adminBoxInitOnce sync.Once
 var _waitInitRoter []func(root *gin.Engine)
+
+func SetRouter(f func(root *gin.Engine), setNow ...bool) {
+	if len(setNow) > 0 && setNow[0] {
+		f(httpEngine())
+	} else {
+		_waitInitRoter = append(_waitInitRoter, f)
+	}
+}
+
+func GetServerAddr() string {
+	var host string
+	var port int
+	if config.ServerCfg().Host != "" {
+		host = config.ServerCfg().Host
+	}
+	if config.ServerCfg().Port != 0 {
+		port = config.ServerCfg().Port
+	}
+	return fmt.Sprintf("%s:%d", host, port)
+}
 
 func httpEngine() *gin.Engine {
 	if _adminBox == nil {
@@ -43,16 +64,8 @@ func httpEngine() *gin.Engine {
 	}
 	return _adminBox
 }
-
-func SetRouter(f func(root *gin.Engine), setNow ...bool) {
-	if len(setNow) > 0 && setNow[0] {
-		f(httpEngine())
-	} else {
-		_waitInitRoter = append(_waitInitRoter, f)
-	}
-}
-
 func listenAndServer() {
+	os.Chdir(util.GetExecPath())
 	addr := GetServerAddr()
 	log.Info("[Project Start]", "listen", addr)
 	defer log.Close()
@@ -72,7 +85,7 @@ func listenAndServer() {
 }
 
 func run() {
-	os.Chdir(config.GetExePath())
+	os.Chdir(util.GetExecPath())
 	log.Info("[Project Start]", "listen", GetServerAddr())
 	defer log.Close()
 
@@ -83,16 +96,4 @@ func run() {
 	httpEngine().Run(GetServerAddr())
 
 	log.Info("[Project EXIT]")
-}
-
-func GetServerAddr() string {
-	var host string
-	var port int
-	if config.ServerCfg().Host != "" {
-		host = config.ServerCfg().Host
-	}
-	if config.ServerCfg().Port != 0 {
-		port = config.ServerCfg().Port
-	}
-	return fmt.Sprintf("%s:%d", host, port)
 }
