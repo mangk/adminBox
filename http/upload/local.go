@@ -7,7 +7,6 @@ import (
 	"mime/multipart"
 	"os"
 	"path"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -34,7 +33,7 @@ func (l *Local) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ...str
 		filename = strings.Join(keyPrefix, "_") + "_" + filename
 	}
 	// 尝试创建此路径
-	mkdirErr := os.MkdirAll(filepath.Join(config.GetExePath(), l.cfg.StorePath), os.ModePerm)
+	mkdirErr := os.MkdirAll(l.cfg.StorePath, os.ModePerm)
 	if mkdirErr != nil {
 		log.Zaplog().Error("function os.MkdirAll() Filed", zap.Any("err", mkdirErr.Error()))
 		return "", "", "", file.Size, errors.New("function os.MkdirAll() Filed, err:" + mkdirErr.Error())

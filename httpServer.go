@@ -3,6 +3,7 @@ package adminBox
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/fvbock/endless"
@@ -71,6 +72,7 @@ func listenAndServer() {
 }
 
 func run() {
+	os.Chdir(config.GetExePath())
 	log.Info("[Project Start]", "listen", GetServerAddr())
 	defer log.Close()
 
