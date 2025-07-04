@@ -3,39 +3,93 @@ package adminBox
 import (
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
-	"github.com/kardianos/service"
+	"github.com/mangk/adminBox/config"
 	"github.com/spf13/cobra"
 )
 
-var _configFilePath, _userName, _serviceFileName, _desc string
+var (
+	_userName        string // 执行程序的用户名
+	_serviceFileName string // 用来 daemon 创建服务的文件名
+	_desc            string // 程序描述
+)
+
+var (
+	_execDir string // 可执行程序的所在绝对目录
+)
+var (
+	_argsConfigFilePath string // 来自 args 的配置文件地址
+)
 
 var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		// panic("TODO")
+	},
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&_configFilePath, "config", "c", "./config.yaml", "指定配置文件路径")
+	cobra.OnInitialize(initExecPwd)
+	rootCmd.PersistentFlags().StringVarP(&_argsConfigFilePath, "config", "c", "config.yaml", "指定配置文件路径")
 
-	runServer.Flags().StringVarP(&_configFilePath, "config", "c", "", "指定配置文件(绝对)路径")
-	rootCmd.AddCommand(runServer)
+	rootCmd.AddCommand(serve)
+	// rootCmd.AddCommand(serverEndless)
 
-	rootCmd.AddCommand(daemonStart)
+	rootCmd.AddCommand(daemon)
+	daemon.AddCommand(daemonStart)
+	daemon.AddCommand(daemonStop)
+	daemon.AddCommand(daemonRestart)
+	daemon.AddCommand(daemonInstall)
+	daemon.AddCommand(daemonUninstall)
+}
 
-	rootCmd.AddCommand(daemonStop)
+func initExecPwd() {
+	pwd, _ := os.Getwd()
+	args0 := os.Args[0]
 
-	rootCmd.AddCommand(daemonRestart)
+	if filepath.Dir(args0) == pwd {
+		_execDir = pwd
+	} else {
+		if pwd == "/" {
+			_execDir = filepath.Dir(args0)
+		} else {
+			if strings.Contains(args0, os.TempDir()) || (strings.Contains(args0, "Caches") && strings.Contains(args0, "go-build")) {
+				_execDir = pwd
+			} else {
+				_execDir = filepath.Dir(filepath.Join(pwd, args0))
+			}
+		}
+	}
 
-	daemonInstall.Flags().StringVarP(&_configFilePath, "config", "c", "", "指定配置文件(绝对)路径")
-	// daemonInstall.MarkFlagRequired("config")
-	rootCmd.AddCommand(daemonInstall)
+	os.Chdir(_execDir)
+	println("程序目录: " + _execDir)
+}
 
-	rootCmd.AddCommand(daemonUninstall)
+func buildConfigFilePath() string {
+	if _argsConfigFilePath == "" {
+		_argsConfigFilePath = "config.yaml"
+	}
 
-	endlessListenAndServer.Flags().StringVarP(&_configFilePath, "config", "c", "", "指定配置文件路径")
-	rootCmd.AddCommand(endlessListenAndServer)
+	var path string
+	if []rune(_argsConfigFilePath)[0] != '/' {
+		path = filepath.Join(_execDir, _argsConfigFilePath)
+	} else {
+		path = _argsConfigFilePath
+	}
+
+	_, err := os.Stat(path)
+	if err != nil {
+		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
+	}
+	if os.IsNotExist(err) {
+		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
+	}
+
+	return path
 }
 
 func Execute(serviceFileName, desc string) {
@@ -47,8 +101,30 @@ func Execute(serviceFileName, desc string) {
 	rootCmd.Long = _desc
 
 	if err := rootCmd.Execute(); err != nil {
+		log.Fatalf("[%s Run Error] %s", _serviceFileName, err)
 		os.Exit(1)
 	}
+}
+
+var serve = &cobra.Command{
+	Use:     "serve",
+	Aliases: []string{"s"},
+	Short:   "运行程序",
+	Long:    "直接以阻塞模式运行程序",
+	Run: func(cmd *cobra.Command, args []string) {
+		config.SetConfigPath(buildConfigFilePath())
+		run()
+	},
+}
+
+var daemon = &cobra.Command{
+	Use:     "daemon",
+	Aliases: []string{"d"},
+	Short:   "守护程序运行",
+	Long:    "通过守护程序运行",
+	Run: func(cmd *cobra.Command, args []string) {
+		cmd.Help()
+	},
 }
 
 var daemonStart = &cobra.Command{
@@ -58,7 +134,9 @@ var daemonStart = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := newDaemon(_serviceFileName, _desc, _desc, _userName).Start(); err != nil {
 			log.Printf("[Daemon Start] err: %s", err)
+			return
 		}
+		log.Printf("[Daemon Start Success]")
 	},
 }
 
@@ -69,7 +147,9 @@ var daemonStop = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := newDaemon(_serviceFileName, _desc, _desc, _userName).Stop(); err != nil {
 			log.Printf("[Daemon Stop] err: %s", err)
+			return
 		}
+		log.Printf("[Daemon Stop Success]")
 	},
 }
 
@@ -80,7 +160,9 @@ var daemonRestart = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := newDaemon(_serviceFileName, _desc, _desc, _userName).Restart(); err != nil {
 			log.Printf("[Daemon Restart] err: %s", err)
+			return
 		}
+		log.Printf("[Daemon Restart Success]")
 	},
 }
 
@@ -89,16 +171,11 @@ var daemonInstall = &cobra.Command{
 	Short: "安装服务",
 	Long:  "将程序加入到系统的守护进程中，使其能够在后台运行以及跟随系统开机启动",
 	Run: func(cmd *cobra.Command, args []string) {
-		var s service.Service
-		if _configFilePath != "" {
-			s = newDaemon(_serviceFileName, _desc, _desc, "root", "-c", _configFilePath)
-		} else {
-			s = newDaemon(_serviceFileName, _desc, _desc, _userName)
-		}
-
-		if err := s.Install(); err != nil {
+		if err := newDaemon(_serviceFileName, _desc, _desc, _userName, "s", "-c", buildConfigFilePath()).Install(); err != nil {
 			log.Printf("[Daemon Install] err: %s", err)
+			return
 		}
+		log.Printf("[Daemon Install Success]")
 	},
 }
 
@@ -109,24 +186,8 @@ var daemonUninstall = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := newDaemon(_serviceFileName, _desc, _desc, _userName).Uninstall(); err != nil {
 			log.Printf("[Daemon Uninstall] err: %s", err)
+			return
 		}
-	},
-}
-
-var endlessListenAndServer = &cobra.Command{
-	Use:   "endlessRun",
-	Short: "平滑重启运行程序",
-	Long:  "不将程序注册成服务，但程序以平滑重启方式运行，通过传递信号 kill -1 实现服务平滑重启",
-	Run: func(cmd *cobra.Command, args []string) {
-		listenAndServer()
-	},
-}
-
-var runServer = &cobra.Command{
-	Use:   "run",
-	Short: "运行程序",
-	Long:  "直接以阻塞模式运行程序",
-	Run: func(cmd *cobra.Command, args []string) {
-		run()
+		log.Printf("[Daemon Uninstall Success]")
 	},
 }

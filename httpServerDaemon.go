@@ -31,22 +31,16 @@ func newDaemon(Name, DisplayName, Description, UserName string, args ...string) 
 type program struct{}
 
 func (p *program) Start(s service.Service) error {
-	// Start should not block. Do the actual work async.
 	log.Info("[Daemon Start]")
 	go p.run()
 	return nil
 }
 func (p *program) run() {
-	// Do work here
-	log.Info("[Daemon run] 1")
+	log.Info("[Daemon run]")
 	run()
-	log.Info("[Daemon run] 2")
 }
 func (p *program) Stop(s service.Service) error {
-	// Stop should not block. Return with a few seconds.
-	log.Info("[Daemon Stop 1]")
 	<-time.After(time.Second * 2)
-
-	log.Info("[Daemon Stop 2]")
+	log.Info("[Daemon Stop]")
 	return nil
 }
