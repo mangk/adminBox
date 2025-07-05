@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/util"
 	"github.com/spf13/cobra"
 )
 
@@ -48,22 +48,7 @@ func init() {
 }
 
 func initExecPwd() {
-	pwd, _ := os.Getwd()
-	args0 := os.Args[0]
-
-	if filepath.Dir(args0) == pwd {
-		_execDir = pwd
-	} else {
-		if pwd == "/" {
-			_execDir = filepath.Dir(args0)
-		} else {
-			if strings.Contains(args0, os.TempDir()) || (strings.Contains(args0, "Caches") && strings.Contains(args0, "go-build")) {
-				_execDir = pwd
-			} else {
-				_execDir = filepath.Dir(filepath.Join(pwd, args0))
-			}
-		}
-	}
+	_execDir = util.GetExecPath()
 
 	os.Chdir(_execDir)
 	println("程序目录: " + _execDir)
