@@ -1,5 +1,5 @@
 <template>
-  <div class="main-content"  style="margin: 0;">
+  <div class="main-content" style="background-color: #fff;">
     <!--    搜索-->
     <div>
       <el-form ref="searchForm" :inline="true" :model="searchInfo">
@@ -31,7 +31,8 @@
           </template>
         </el-popover>
       </div>
-      <el-table :data="tableData.list" @sort-change="_sortChange" @selection-change="_selectionChange">
+      <el-table :data="tableData.list" @sort-change="_sortChange" @selection-change="_selectionChange"
+        height="calc(var(--global-table ) - 30px))" border>
         <el-table-column type="selection" width="55" />
         {[{ range .field }]}
         <el-table-column align="left" label="{[{.Name}]}" min-width="160" prop="{[{.Column}]}"
