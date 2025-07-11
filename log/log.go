@@ -60,6 +60,10 @@ func Panicf(format string, args ...interface{}) {
 	_log.Panicf(format, args...)
 }
 
+func Sync() {
+	_log.Sync()
+}
+
 func Print(args ...interface{}) {
 	if len(args) > 0 {
 		format := []string{}
@@ -187,6 +191,10 @@ func (l *LogInstance) Panic(msg string, keysAndValues ...interface{}) {
 
 func (l *LogInstance) Panicf(format string, args ...interface{}) {
 	l.i().Panicf(format, args...)
+}
+
+func (l *LogInstance) Sync() {
+	l.i().Sync()
 }
 
 // GormLogger

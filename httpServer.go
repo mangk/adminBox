@@ -1,13 +1,13 @@
 package adminBox
 
 import (
-	"encoding/json"
 	"fmt"
 	"sync"
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/http/middleware"
 	"github.com/mangk/adminBox/log"
 )
 
@@ -42,18 +42,7 @@ func httpEngine() *gin.Engine {
 			gin.DefaultWriter = log.GinAdapter() // 设置日志输出到 zaplog
 			gin.SetMode(config.ServerCfg().Env)
 			http := gin.New()
-			http.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-				m := []interface{}{}
-				m = append(m, "status", fmt.Sprintf("%3d", param.StatusCode),
-					"latency", fmt.Sprintf("%v", param.Latency),
-					"clientIP", param.ClientIP,
-					"method", param.Method,
-					"path", param.Path,
-					"errorMessage", param.ErrorMessage,
-				)
-				b, _ := json.Marshal(m)
-				return string(b)
-			}))
+			http.Use(middleware.TraceLogger(config.ServerCfg().LogLevel))
 			http.Use(gin.Recovery())
 
 			_adminBox = http

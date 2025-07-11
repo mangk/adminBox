@@ -13,6 +13,7 @@ type server struct {
 	BackendRouterPrefix string `json:"backendRouterPrefix" yaml:"backendRouterPrefix"` // 后端项目接口前缀
 	RunAt               string `json:"runAt" yaml:"runAt"`                             // 运行位置
 	Endless             bool   `json:"endless" yaml:"endless"`                         // 通过endless启动
+	LogLevel            int    `json:"logLevel" yaml:"logLevel"`
 
 	CORS    cors             `json:"cors,omitempty" yaml:"cors,omitempty"`
 	Jwt     JWT              `json:"jwt,omitempty" yaml:"jwt,omitempty"`
