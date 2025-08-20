@@ -13,7 +13,8 @@ import (
 
 var _adminBox *gin.Engine
 var _adminBoxInitOnce sync.Once
-var _waitInitRoter []func(root *gin.Engine)
+var _waitInitRoter = make([]func(root *gin.Engine), 0)
+var _waitBrforeRun = make([]func(), 0)
 
 func SetRouter(f func(root *gin.Engine), setNow ...bool) {
 	if len(setNow) > 0 && setNow[0] {
@@ -21,6 +22,10 @@ func SetRouter(f func(root *gin.Engine), setNow ...bool) {
 	} else {
 		_waitInitRoter = append(_waitInitRoter, f)
 	}
+}
+
+func SetBeforeRun(f func()) {
+	_waitBrforeRun = append(_waitBrforeRun, f)
 }
 
 func GetServerAddr() string {
@@ -58,7 +63,6 @@ func httpEngine() *gin.Engine {
 			http.Use(gin.Recovery())
 
 			_adminBox = http
-			_waitInitRoter = make([]func(root *gin.Engine), 0)
 		})
 	}
 	return _adminBox
@@ -85,6 +89,10 @@ func listenAndServer() {
 func run() {
 	log.Info("[Project Start]", "listen", GetServerAddr())
 	defer log.Close()
+
+	for _, f := range _waitBrforeRun {
+		f()
+	}
 
 	for _, f := range _waitInitRoter {
 		f(httpEngine())
