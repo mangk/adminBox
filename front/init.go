@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox"
@@ -24,7 +25,12 @@ var CrudTemplate string
 
 func init() {
 	adminBox.SetRouter(func(root *gin.Engine) {
-		root.GET("/", func(ctx *gin.Context) {
+		path := ""
+		frontPrefix := config.ServerCfg().FrontRouterPrefix
+		if frontPrefix != "" {
+			path = strings.TrimRight(frontPrefix, "/")
+		}
+		root.GET(path, func(ctx *gin.Context) {
 			_, has := ctx.GetQuery("front")
 			if frontIndexHanler != nil && !has {
 				frontIndexHanler(ctx)

@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,6 +43,12 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 		sub := jwtUserInfo.Id
 		obj := ctx.Request.URL.Path
 		act := ctx.Request.Method
+
+		adminPrefix := config.ServerCfg().BackendRouterPrefix
+		if adminPrefix != "" {
+			objs := strings.Split(obj, adminPrefix)
+			obj = objs[len(objs)-1]
+		}
 
 		access, err := model.LoadEnforce().Enforce(sub, obj, act)
 		if err != nil {
