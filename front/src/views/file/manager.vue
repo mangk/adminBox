@@ -30,8 +30,9 @@
                         <div>
                             <el-popover placement="bottom-start" :width="400" :visible="uploadVisible">
                                 <template #reference>
-                                    <el-button type="primary" :icon="Top" @click="uploadVisible = !uploadVisible">
-                                        上传文件
+                                    <el-button :type="uploadVisible ? 'danger' : 'primary'"
+                                        :icon="uploadVisible ? Close : Top" @click="uploadVisible = !uploadVisible">
+                                        {{ uploadVisible ? '关闭窗口' : '上传文件' }}
                                     </el-button>
                                 </template>
 
@@ -138,7 +139,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { Top, Search, Bottom, Right, Close, CopyDocument, Check, Warning, Plus, Minus, Select } from '@element-plus/icons-vue'
-import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileGroupCreate, fileGroupDelete, fileUploadToken } from '@/api/fileUpload'
+import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileGroupCreate, fileGroupDelete, fileUploadToken, fileSaveFileInfo } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
@@ -241,7 +242,7 @@ const handleFileUpload = async (options) => {
                 StartTime: StartTime,
                 ExpiredTime: ExpiredTime,
             });
-            
+
             // 上传文件
             cos.putObject({
                 Bucket: bucket,
@@ -258,6 +259,8 @@ const handleFileUpload = async (options) => {
                     options.onError(error)
                 } else {
                     options.onSuccess(data)
+                    data.driver = "cos"
+                    fileSaveFileInfo({ path: data.Location, driver: "cos", group: searchGroupId.value ? searchGroupId.value : 0, key: key })
                 }
                 setTimeout(() => {
                     searchGroupId.value = 0
@@ -473,7 +476,7 @@ loadData()
     padding: 10px;
     width: 100%;
     height: calc(100vh - 70px);
-    overflow: scroll;
+    // overflow: scroll;
     padding-bottom: 30px;
 }
 
@@ -482,7 +485,7 @@ loadData()
     padding: 10px;
     box-sizing: border-box;
     height: calc(100vh - 70px);
-    overflow-y: scroll;
+    // overflow-y: scroll;
 }
 
 .el-tree-node__content>.el-tree-node__expand-icon {

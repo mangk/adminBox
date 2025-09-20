@@ -13,8 +13,10 @@ const register = async (app) => {
 
   // 注册全局组件
   const FileUpload = await importView('views/util/fileUpload.vue')()
+  const FileManagerBox = await importView('views/file/fileManagerBox.vue')()
   const MenuTree = await importView('views/main/menuTree.vue')()
   app.component('FileUpload', FileUpload.default || FileUpload)
+  app.component('FileManagerBox', FileManagerBox.default || FileManagerBox)
   app.component('MenuTree', MenuTree.default || MenuTree)
 
   // 注册js加载方法

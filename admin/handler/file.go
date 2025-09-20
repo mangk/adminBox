@@ -120,19 +120,54 @@ func FileUploadToken(ctx *gin.Context) {
 		return
 	}
 
-	s := strings.Split(req.FileName, ".")
-	file := model.SysFile{
-		Model: model.Model{Cb: userId},
-		Name:  req.FileName,
-		Tag:   s[len(s)-1],
-		Key:   key,
-		UUID:  uuid,
-	}
-	if err := db.DB().Omit("group_id").Create(&file).Error; err != nil {
-		response.FailWithMsg(ctx, "保存文件信息失败")
+	// s := strings.Split(req.FileName, ".")
+	// file := model.SysFile{
+	// 	Model: model.Model{Cb: userId},
+	// 	Name:  req.FileName,
+	// 	Tag:   s[len(s)-1],
+	// 	Key:   key,
+	// 	UUID:  uuid,
+	// }
+	// if err := db.DB().Omit("group_id").Create(&file).Error; err != nil {
+	// 	response.FailWithMsg(ctx, "保存文件信息失败")
+	// 	return
+	// }
+	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key, "driver": cfg.Driver})
+}
+
+func FileSaveUploadFileInfo(ctx *gin.Context) {
+	req := struct {
+		Path   string `json:"path"`
+		Driver string `json:"driver"`
+		Group  int    `json:"group"`
+		Key    string `json:"key"`
+	}{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithMsg(ctx, "参数错误")
 		return
 	}
-	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key, "driver": cfg.Driver})
+
+	userId := request.JWTLoginUserId(ctx)
+	pathInfo := strings.Split(req.Path, "/")
+	lenPathInfo := len(pathInfo)
+	if lenPathInfo > 1 {
+		tagInfo := strings.Split(pathInfo[lenPathInfo-1], ".")
+
+		uuid := uuid.NewString()
+		file := model.SysFile{
+			Model:   model.Model{Cb: userId},
+			Name:    pathInfo[lenPathInfo-1],
+			Tag:     tagInfo[len(tagInfo)-1],
+			Key:     req.Key,
+			UUID:    uuid,
+			Url:     req.Path,
+			GroupId: req.Group,
+		}
+		if err := db.DB().Create(&file).Error; err != nil {
+			response.FailWithMsg(ctx, "保存文件信息失败")
+			return
+		}
+	}
 }
 
 func FileUploadCallback(ctx *gin.Context) {
@@ -187,7 +222,7 @@ func FileList(ctx *gin.Context) {
 	}
 
 	if count > 0 {
-		if err := query.Order("ut desc,id desc").Limit(int(req.PageSize)).Offset(int(req.PageSize * (req.Page - 1))).Preload("GroupInfo").Find(&list).Error; err != nil {
+		if err := query.Order("id desc").Limit(int(req.PageSize)).Offset(int(req.PageSize * (req.Page - 1))).Preload("GroupInfo").Find(&list).Error; err != nil {
 			response.FailWithError(ctx, err)
 			return
 		}
