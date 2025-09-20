@@ -111,27 +111,63 @@ func FileUploadToken(ctx *gin.Context) {
 
 	userId := request.JWTLoginUserId(ctx)
 	driver := ctx.DefaultQuery("driver", "default")
+	cfg := config.FileCfg()[driver]
 	oss := upload.NewOss(driver)
 	uuid := uuid.NewString()
-	token, key, err := oss.UploadTokenGet(fmt.Sprintf("%d/%s", userId, req.FileName), uuid)
+	token, key, err := oss.UploadTokenGet(fmt.Sprintf("%d/%d_%s", userId, time.Now().Unix(), req.FileName), uuid)
 	if err != nil {
 		response.FailWithMsg(ctx, "获取上传凭证失败")
 		return
 	}
 
-	s := strings.Split(req.FileName, ".")
-	file := model.SysFile{
-		Model: model.Model{Cb: userId},
-		Name:  req.FileName,
-		Tag:   s[len(s)-1],
-		Key:   key,
-		UUID:  uuid,
-	}
-	if err := db.DB().Omit("group_id").Create(&file).Error; err != nil {
-		response.FailWithMsg(ctx, "保存文件信息失败")
+	// s := strings.Split(req.FileName, ".")
+	// file := model.SysFile{
+	// 	Model: model.Model{Cb: userId},
+	// 	Name:  req.FileName,
+	// 	Tag:   s[len(s)-1],
+	// 	Key:   key,
+	// 	UUID:  uuid,
+	// }
+	// if err := db.DB().Omit("group_id").Create(&file).Error; err != nil {
+	// 	response.FailWithMsg(ctx, "保存文件信息失败")
+	// 	return
+	// }
+	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key, "driver": cfg.Driver})
+}
+
+func FileSaveUploadFileInfo(ctx *gin.Context) {
+	req := struct {
+		Path   string `json:"path"`
+		Driver string `json:"driver"`
+		Group  int    `json:"group"`
+		Key    string `json:"key"`
+	}{}
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithMsg(ctx, "参数错误")
 		return
 	}
-	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key})
+
+	userId := request.JWTLoginUserId(ctx)
+	pathInfo := strings.Split(req.Path, "/")
+	lenPathInfo := len(pathInfo)
+	if lenPathInfo > 1 {
+		tagInfo := strings.Split(pathInfo[lenPathInfo-1], ".")
+
+		uuid := uuid.NewString()
+		file := model.SysFile{
+			Model:   model.Model{Cb: userId},
+			Name:    pathInfo[lenPathInfo-1],
+			Tag:     tagInfo[len(tagInfo)-1],
+			Key:     req.Key,
+			UUID:    uuid,
+			Url:     req.Path,
+			GroupId: req.Group,
+		}
+		if err := db.DB().Create(&file).Error; err != nil {
+			response.FailWithMsg(ctx, "保存文件信息失败")
+			return
+		}
+	}
 }
 
 func FileUploadCallback(ctx *gin.Context) {
@@ -186,7 +222,7 @@ func FileList(ctx *gin.Context) {
 	}
 
 	if count > 0 {
-		if err := query.Order("ut desc,id desc").Limit(int(req.PageSize)).Offset(int(req.PageSize * (req.Page - 1))).Preload("GroupInfo").Find(&list).Error; err != nil {
+		if err := query.Order("id desc").Limit(int(req.PageSize)).Offset(int(req.PageSize * (req.Page - 1))).Preload("GroupInfo").Find(&list).Error; err != nil {
 			response.FailWithError(ctx, err)
 			return
 		}
@@ -269,7 +305,7 @@ func FileEdit(ctx *gin.Context) {
 
 func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (file model.SysFile, err error) {
 	oss := upload.NewOss(driver)
-	filePath, key, _,fsize, uploadErr := oss.MultipartUploadFile(header, fmt.Sprintf("%d", cb))
+	filePath, key, _, fsize, uploadErr := oss.MultipartUploadFile(header, fmt.Sprintf("%d", cb))
 	if uploadErr != nil {
 		panic(uploadErr)
 	}

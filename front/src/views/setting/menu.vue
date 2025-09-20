@@ -9,15 +9,8 @@
       </el-button>
     </el-form-item>
 
-    <el-table
-      :data="tableData"
-      row-key="id"
-      height="var(--global-table)"
-      border
-      highlight-current-row
-      show-overflow-tooltip
-      default-expand-all
-    >
+    <el-table :data="tableData" row-key="id" height="var(--global-table)" border highlight-current-row
+      show-overflow-tooltip default-expand-all>
       <el-table-column prop="id" label="ID" sortable fixed />
       <el-table-column label="菜单名称" min-width="120">
         <template #default="scope">
@@ -65,12 +58,8 @@
             </el-icon>
             编辑动作
           </el-button>
-          <el-popconfirm
-            v-if="!scope.row.children"
-            :title="'删除后不可恢复，确定删除菜单【' + scope.row.meta.title + '】?'"
-            @confirm="del(scope.row.id)"
-            width="200"
-          >
+          <el-popconfirm v-if="!scope.row.children" :title="'删除后不可恢复，确定删除菜单【' + scope.row.meta.title + '】?'"
+            @confirm="del(scope.row.id)" width="200">
             <template #reference>
               <el-button link type="primary" size="small">
                 <el-icon>
@@ -84,35 +73,18 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog
-      v-model="dialogVisible"
-      :title="form.id ? '编辑菜单' : '新建菜单'"
-      width="80vw"
-      append-to-body
-      @close="cancel(formRef)"
-    >
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        status-icon
-        label-position="top"
-        :show-all-levels="false"
-        inline
-      >
+    <el-dialog v-model="dialogVisible" :title="form.id ? '编辑菜单' : '新建菜单'" width="80vw" append-to-body
+      @close="cancel(formRef)">
+      <el-form ref="formRef" :model="form" :rules="rules" status-icon label-position="top" :show-all-levels="false"
+        inline>
         <el-form-item label="父级菜单" prop="pid" style="width: 40%">
-          <el-cascader
-            v-model="form.pid"
-            :options="menuOption"
-            :props="{
-              expandTrigger: 'hover',
-              checkStrictly: true,
-              value: 'id',
-              label: 'title',
-              emitPath: false
-            }"
-            style="width: 100%"
-          />
+          <el-cascader v-model="form.pid" :options="menuOption" :props="{
+            expandTrigger: 'hover',
+            checkStrictly: true,
+            value: 'id',
+            label: 'title',
+            emitPath: false
+          }" style="width: 100%" />
         </el-form-item>
         <el-form-item label="菜单名称" prop="meta.title" style="width: 40%">
           <el-input v-model="form.meta.title" />
@@ -124,21 +96,13 @@
           <el-input v-model="form.path" />
         </el-form-item>
         <el-form-item label="图标" prop="meta.icon" style="width: 40%">
-          <span
-            style="position: absolute; z-index: 9999; padding: 4px 10px 0"
-            v-if="form.meta.icon"
-          >
+          <span style="position: absolute; z-index: 9999; padding: 4px 10px 0" v-if="form.meta.icon">
             <el-icon>
               <component :is="form.meta.icon" />
             </el-icon>
           </span>
           <el-select v-model="form.meta.icon" clearable class="icon-select">
-            <el-option
-              v-for="item in iconList"
-              :key="item.key"
-              :label="item.key"
-              :value="item.label"
-            >
+            <el-option v-for="item in iconList" :key="item.key" :label="item.key" :value="item.label">
               <span class="gva-icon" style="padding: 3px 0 0" :class="item.label">
                 <el-icon>
                   <component :is="item.label" />

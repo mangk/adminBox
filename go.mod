@@ -19,6 +19,8 @@ require (
 	github.com/songzhibin97/gkit v1.2.13
 	github.com/spf13/cobra v1.9.1
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.54
+	github.com/tencentyun/qcloud-cos-sts-sdk v0.0.0-20250515025012-e0eec8a5d123
+	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.38.0
 	gorm.io/driver/mysql v1.5.7
 )
@@ -67,6 +69,9 @@ require (
 	github.com/mozillazg/go-httpheader v0.4.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230126093431-47fa9a501578 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.8.0 // indirect

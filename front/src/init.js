@@ -12,10 +12,12 @@ const register = async (app) => {
   }
 
   // 注册全局组件
-  const FileUpload = await importView('views/util/fileUpload.vue')()
   const MenuTree = await importView('views/main/menuTree.vue')()
-  app.component('FileUpload', FileUpload.default || FileUpload)
   app.component('MenuTree', MenuTree.default || MenuTree)
+  const FileUpload = await importView('views/util/fileUpload.vue')()
+  app.component('FileUpload', FileUpload.default || FileUpload)
+  const FileManagerBox = await importView('views/file/fileManagerBox.vue')()
+  app.component('FileManagerBox', FileManagerBox.default || FileManagerBox)
 
   // 注册js加载方法
   app.config.globalProperties.$loadJS = loadJS

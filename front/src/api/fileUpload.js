@@ -23,6 +23,14 @@ export const fileUploadToken = (fileName) => {
   })
 }
 
+export const fileSaveFileInfo = (fileInfo) => {
+  return http({
+    url: '/sys/fileUpload/saveFileInfo',
+    method: 'POST',
+    data: fileInfo
+  })
+}
+
 export const fileDelete = (id) => {
   return http({
     url: '/sys/fileUpload',
