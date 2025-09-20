@@ -143,6 +143,7 @@ import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
 import * as qiniu from 'qiniu-js'
+import COS from 'cos-js-sdk-v5'
 
 const uploadConfig = ref({})
 fileUploadCfg().then((res) => {
@@ -225,27 +226,68 @@ const handlePathDelete = () => {
 }
 
 const handleFileUpload = async (options) => {
-    // TODO 实现上传进度
     // console.log("点击上传", options);
     let tokenRes = await fileUploadToken(options.file.name)
-    // console.log("获取token", tokenRes);
+    console.log("获取token", tokenRes);
+    switch (tokenRes.data.driver) {
+        case "cos":
+            let data = JSON.parse(tokenRes.data.token)
+            const { Credentials = {}, StartTime, ExpiredTime, bucket, region, key } = data;
 
-    const observable = qiniu.upload(options.file, tokenRes.data.key, tokenRes.data.token)
-    const subscription = observable.subscribe((next) => {
-        options.onProgress(next.total)
-    }, (error) => {
-        options.onError(error)
-        setTimeout(() => {
-            searchGroupId.value = 0
-            loadData(true)
-        }, 1500);
-    }, (complete) => {
-        options.onSuccess(complete)
-        setTimeout(() => {
-            searchGroupId.value = 0
-            loadData(true)
-        }, 1500);
-    })
+            const cos = new COS({
+                SecretId: Credentials.TmpSecretId,
+                SecretKey: Credentials.TmpSecretKey,
+                SecurityToken: Credentials.Token,
+                StartTime: StartTime,
+                ExpiredTime: ExpiredTime,
+            });
+            
+            // 上传文件
+            cos.putObject({
+                Bucket: bucket,
+                Region: region,
+                Key: key,
+                Body: options.file, // 要上传的文件对象。
+                onProgress: (progressData) => {
+                    console.log('上传进度：', progressData);
+                    options.onProgress(progressData.percent)
+                }
+            }, (err, data) => {
+                console.log('上传结束', err || data);
+                if (err) {
+                    options.onError(error)
+                } else {
+                    options.onSuccess(data)
+                }
+                setTimeout(() => {
+                    searchGroupId.value = 0
+                    loadData(true)
+                }, 1500);
+            });
+            break;
+
+        case "qiniu":
+            const observable = qiniu.upload(options.file, tokenRes.data.key, tokenRes.data.token)
+            const subscription = observable.subscribe((next) => {
+                options.onProgress(next.total)
+            }, (error) => {
+                options.onError(error)
+                setTimeout(() => {
+                    searchGroupId.value = 0
+                    loadData(true)
+                }, 1500);
+            }, (complete) => {
+                options.onSuccess(complete)
+                setTimeout(() => {
+                    searchGroupId.value = 0
+                    loadData(true)
+                }, 1500);
+            })
+            break;
+        default:
+            break;
+    }
+
 }
 
 const handleFileUploadStart = () => {

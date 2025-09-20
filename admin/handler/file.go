@@ -111,6 +111,7 @@ func FileUploadToken(ctx *gin.Context) {
 
 	userId := request.JWTLoginUserId(ctx)
 	driver := ctx.DefaultQuery("driver", "default")
+	cfg := config.FileCfg()[driver]
 	oss := upload.NewOss(driver)
 	uuid := uuid.NewString()
 	token, key, err := oss.UploadTokenGet(fmt.Sprintf("%d/%s", userId, req.FileName), uuid)
@@ -131,7 +132,7 @@ func FileUploadToken(ctx *gin.Context) {
 		response.FailWithMsg(ctx, "保存文件信息失败")
 		return
 	}
-	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key})
+	response.OkWithDetail(ctx, "获取上传凭证成功", gin.H{"token": token, "key": key, "driver": cfg.Driver})
 }
 
 func FileUploadCallback(ctx *gin.Context) {
@@ -269,7 +270,7 @@ func FileEdit(ctx *gin.Context) {
 
 func uploadFile(header *multipart.FileHeader, noSave, driver string, cb int) (file model.SysFile, err error) {
 	oss := upload.NewOss(driver)
-	filePath, key, _,fsize, uploadErr := oss.MultipartUploadFile(header, fmt.Sprintf("%d", cb))
+	filePath, key, _, fsize, uploadErr := oss.MultipartUploadFile(header, fmt.Sprintf("%d", cb))
 	if uploadErr != nil {
 		panic(uploadErr)
 	}
