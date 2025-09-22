@@ -10,9 +10,10 @@
         </slot>
     </div>
 
-    <el-dialog v-model="show" width="70vw" :show-close="false" :before-close="handleClose"
+    <el-dialog v-model="show" width="70vw" :show-close="false" :before-close="handleClose" :append-to-body="true"
         style="height: 70vh;background-color: #f1f2f5;">
-        <BaseManager v-model="internalValue" :select-key="'url'" style="width: calc(100% + 10px);height: calc(70vh - 65px);" />
+        <BaseManager v-model="internalValue" :select-key="'url'"
+            style="width: calc(100% + 10px);height: calc(70vh - 65px);" />
         <div style="padding: 10px 0px;display: flex;justify-content: space-between;">
             <span :style="{
                 'font-size': '12px',
@@ -36,10 +37,6 @@ import BaseManager from './baseManager.vue'
 
 const show = ref(false)
 const props = defineProps({
-    modelValue: {
-        type: Array, // 修正为数组格式，支持多种类型
-        default: () => []
-    },
     multiple: {
         type: Number,
         default: 1
@@ -51,14 +48,7 @@ const props = defineProps({
     },
 })
 
-// 创建内部状态，用来处理双向绑定的数据
-const internalValue = ref(props.modelValue)
-// 定义 emit 事件
-const modelValueEmit = defineEmits(['update:modelValue'])
-watch(internalValue, (newVal) => {
-    modelValueEmit('update:modelValue', newVal)
-})
-
+const internalValue = ref([])
 
 const shoFileManagerBox = () => {
     show.value = true
@@ -70,6 +60,7 @@ const handleClose = () => {
 
 const selectedOK = () => {
     props.selected(internalValue.value)
+    internalValue.value = []
     show.value = false
 }
 </script>

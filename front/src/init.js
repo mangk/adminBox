@@ -31,10 +31,10 @@ const register = async (app) => {
   // 注册全局组件
   const MenuTree = await importView('views/main/menuTree.vue')()
   app.component('MenuTree', MenuTree.default || MenuTree)
-  const FileUpload = await importView('views/util/fileUpload.vue')()
-  app.component('FileUpload', FileUpload.default || FileUpload)
+  // const FileUpload = await importView('views/util/fileUpload.vue')()
+  // app.component('FileUpload', FileUpload.default || FileUpload)
   const FileManagerBox = await importView('views/file/fileManagerBox.vue')()
-  app.component('FileManagerBox', FileManagerBox.default || FileManagerBox)
+  app.component('FMB', FileManagerBox.default || FileManagerBox)
 }
 
 export default {
