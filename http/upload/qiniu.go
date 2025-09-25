@@ -119,9 +119,9 @@ func (q *Qiniu) UploadTokenGet(key string, uuid string) (token string, fileKey s
 	}
 
 	putPolicy.
-		SetCallbackUrl(strings.TrimRight(config.ServerCfg().RunAt, "/") + "/sys/fileUpload/callback").
-		SetCallbackBody(`{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)","uuid":"` + uuid + `"}`).
-		SetCallbackBodyType("application/json")
+		// 	SetCallbackUrl(strings.TrimRight(config.ServerCfg().RunAt, "/") + "/sys/fileUpload/callback").
+		SetReturnBody(`{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)","uuid":"` + uuid + `","cdn":"` + config.FileCfg()["default"].CdnURL + `"}`)
+	// 	SetCallbackBodyType("application/json")
 
 	token, err = uptoken.NewSigner(putPolicy, mac).GetUpToken(context.Background())
 	return token, strings.Join(pathKeyBuild, "/"), err

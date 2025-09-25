@@ -24,47 +24,9 @@
         <el-col :span="20"
             style="position: relative;height: 100%;background-color: #fff;box-sizing: border-box;padding: 10px;">
             <el-row style="display: flex;justify-content: space-between;">
-                <div>
-                    <el-popover placement="bottom-start" :width="400" :visible="uploadVisible">
-                        <template #reference>
-                            <el-button :type="uploadVisible ? 'danger' : 'primary'" :icon="uploadVisible ? Close : Top"
-                                @click="uploadVisible = !uploadVisible">
-                                {{ uploadVisible ? '关闭窗口' : '上传文件' }}
-                            </el-button>
-                        </template>
-
-
-                        <el-upload class="upload-demo" drag :auto-upload="false" ref="fileUploadRef"
-                            :http-request="handleFileUpload" v-model:file-list="fileUploadList"
-                            :on-change="handleFileListChange" multiple>
-
-                            <template #trigger>
-                                <div class="el-upload__text"
-                                    style="height: 30px;line-height: 30px;text-align: center;overflow: hidden;display: flex;flex-flow: row nowrap;justify-content: center;">
-                                    <el-icon class="el-icon--upload"
-                                        style="font-size: 25px; margin: 0px var(--global-padding) 0 0">
-                                        <upload-filled />
-                                    </el-icon>
-                                    将文件拖到此处或<em>点击选择文件</em>
-                                </div>
-                            </template>
-
-                            <template #tip>
-                                <div class="el-upload__tip">
-                                    <el-button v-if="fileUploadList.length" type="success" size="small" :icon="Check"
-                                        @click="handleFileUploadStart">
-                                        开始上传
-                                    </el-button>
-                                </div>
-                            </template>
-                        </el-upload>
-                    </el-popover>
-
-                    <!-- <el-button :icon="RefreshRight" @click="loadData(true)">
-                                刷新
-                            </el-button> -->
-
-                    <el-dropdown :disabled="!tableDataSelectedList.length" style="margin-left: 10px;"
+                <div style="display: flex;">
+                    <el-button :icon="RefreshRight" @click="loadData(true)" style="margin-right: 10px;" />
+                    <el-dropdown :disabled="!tableDataSelectedList.length" style="margin-right: 10px;"
                         @command="handleBatchCommand">
                         <el-button :disabled="!tableDataSelectedList.length">
                             批量操作{{ tableDataSelectedList.length ? "(" + tableDataSelectedList.length + ")" : "" }}
@@ -94,22 +56,46 @@
                             </el-dropdown-menu>
                         </template>
                     </el-dropdown>
+                    <el-input v-model="searchName" style="max-width: 450px;min-width: 100px;" placeholder="搜索文件名"
+                        clearable class="input-with-select" @clear="loadData(true)">
+                        <template #append>
+                            <el-button :icon="Search" @click="loadData(true)" />
+                        </template>
+                    </el-input>
                 </div>
 
-                <el-input v-model="searchName" style="max-width: 450px;width: 30%;" placeholder="搜索文件名" clearable
-                    class="input-with-select" @clear="loadData(true)">
-                    <!-- <template #prepend>
-                                <el-select v-model="searchTag" placeholder="筛选类型" clearable style="width: 115px"
-                                    @clear="loadData(true)">
-                                    <el-option label="Restaurant" value="1" />
-                                    <el-option label="Order No." value="2" />
-                                    <el-option label="Tel" value="3" />
-                                </el-select>
-                            </template> -->
-                    <template #append>
-                        <el-button :icon="Search" @click="loadData(true)" />
+                <el-popover placement="bottom-start" :width="400" :height="200" :visible="uploadVisible">
+                    <template #reference>
+                        <el-button :type="uploadVisible ? 'danger' : 'primary'" :icon="uploadVisible ? Close : Top"
+                            @click="uploadVisible = !uploadVisible">
+                            {{ uploadVisible ? '关闭窗口' : '上传文件' }}
+                        </el-button>
                     </template>
-                </el-input>
+
+                    <el-upload class="upload-demo" drag :auto-upload="false" ref="fileUploadRef"
+                        :http-request="handleFileUpload" v-model:file-list="fileUploadList"
+                        :on-change="handleFileListChange" multiple>
+
+                        <template #trigger>
+                            <div class="el-upload__text"
+                                style="height: 30px;line-height: 30px;text-align: center;overflow: hidden;display: flex;flex-flow: row nowrap;justify-content: center;">
+                                <el-icon class="el-icon--upload"
+                                    style="font-size: 25px; margin: 0px var(--global-padding) 0 0">
+                                    <upload-filled />
+                                </el-icon>
+                                将文件拖到此处或<em>点击选择文件</em>
+                            </div>
+                        </template>
+                        <template #tip>
+                            <div class="el-upload__tip">
+                                <el-button v-if="fileUploadList.length" type="success" size="small" :icon="Check"
+                                    @click="handleFileUploadStart">
+                                    开始上传
+                                </el-button>
+                            </div>
+                        </template>
+                    </el-upload>
+                </el-popover>
 
 
             </el-row>
@@ -118,7 +104,7 @@
                 style="margin-top: 9px;border-top: 1px solid var(--el-table-border-color);overflow: auto;height: calc(100% - 80px);"
                 @selection-change="handleSelectionChange">
                 <el-table-column type="selection" :reserve-selection="true" width="55" fixed />
-                <el-table-column prop="name" label="文件名" width="400" />
+                <el-table-column prop="name" label="文件名" width="350" fixed />
                 <el-table-column prop="url" label="链接" width="80" />
                 <el-table-column prop="tag" label="类型" width="80" />
                 <el-table-column prop="group_info.name" label="分组" />
@@ -133,7 +119,7 @@
 </template>
 <script setup>
 import { ref, reactive, watch } from 'vue'
-import { Top, Search, Bottom, Right, Close, CopyDocument, Check, Warning, Plus, Minus, Select } from '@element-plus/icons-vue'
+import { Top, Search, Bottom, Right, Close, CopyDocument, Check, RefreshRight, Plus, Minus, Select } from '@element-plus/icons-vue'
 import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileGroupCreate, fileGroupDelete, fileUploadToken, fileSaveFileInfo } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -299,6 +285,8 @@ const handleFileUpload = async (options) => {
                     loadData(true)
                 }, 1500);
             }, (complete) => {
+                fileSaveFileInfo({ path: complete.cdn + complete.key, driver: "qiniu", group: searchGroupId.value ? searchGroupId.value : 0, key: complete.key })
+
                 options.onSuccess(complete)
                 setTimeout(() => {
                     searchGroupId.value = 0
