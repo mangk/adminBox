@@ -11,7 +11,7 @@
     </div>
 
     <el-dialog v-model="show" width="70vw" :show-close="false" :before-close="handleClose" :append-to-body="true"
-        style="height: 70vh;background-color: #f1f2f5;">
+        style="height: 70vh;background-color: #f1f2f5;" :destroy-on-close="true">
         <BaseManager v-model="internalValue" :select-key="'url'"
             style="width: calc(100% + 10px);height: calc(70vh - 65px);" />
         <div style="padding: 10px 0px;display: flex;justify-content: space-between;">
