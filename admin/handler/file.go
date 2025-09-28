@@ -160,7 +160,7 @@ func FileSaveUploadFileInfo(ctx *gin.Context) {
 			Tag:     tagInfo[len(tagInfo)-1],
 			Key:     req.Key,
 			UUID:    uuid,
-			Url:     req.Path,
+			Url:     "http://"+strings.TrimPrefix(strings.TrimPrefix(req.Path, "https://"), "http://"),
 			GroupId: req.Group,
 		}
 		if err := db.DB().Create(&file).Error; err != nil {
