@@ -105,6 +105,14 @@
                 @selection-change="handleSelectionChange">
                 <el-table-column type="selection" :reserve-selection="true" width="55" fixed />
                 <el-table-column prop="name" label="文件名" width="350" fixed />
+                <el-table-column prop="url" label="预览" width="80">
+                    <template #default="scope">
+                        <el-image v-if="isImage(scope.row.url)" style="width: 50px; height: 50px"
+                            :src="scope.row.url.startsWith('http') ? scope.row.url : '//' + scope.row.url" lazy
+                            fit="scale-down" />
+                    </template>
+
+                </el-table-column>
                 <el-table-column prop="url" label="链接" width="80" />
                 <el-table-column prop="tag" label="类型" width="80" />
                 <el-table-column prop="group_info.name" label="分组" />
@@ -413,6 +421,10 @@ const handleBatchCommand = async (command) => {
         default:
             break;
     }
+}
+
+const isImage = (url) => {
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url);
 }
 
 loadData()
