@@ -11,6 +11,7 @@ type File struct {
 	StorePath  string  `json:"storePath" yaml:"storePath"`   // 本地文件存储路径(类型为local时必填)
 	CdnURL     string  `json:"cdnUrl" yaml:"cdnUrl"`         // 文件访问CND域名
 	Limit      float64 `json:"limit" yaml:"limit"`
+	Style      string  `json:"style" yaml:"style"`
 }
 
 type Local struct {
