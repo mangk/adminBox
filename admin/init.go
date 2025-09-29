@@ -134,6 +134,7 @@ func routerCreate(router *gin.Engine) {
 		fileGroup.GET("tree", handler.FileGroupTree)
 		fileGroup.POST("", handler.FileGroupCreate)
 		fileGroup.DELETE("", handler.FileGroupDelete)
+		fileGroup.POST("move", handler.FileGroupMove)
 	}
 
 	setting := backend.Group("setting")

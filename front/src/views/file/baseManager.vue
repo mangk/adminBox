@@ -2,7 +2,8 @@
     <el-row :gutter="20" style="width: 100%;height: 100%;box-sizing: border-box;">
         <el-col :span="4" style="position: relative;height: 100%;">
             <el-tree class="file-tree-box" :data="pathTree" :props="{ label: 'name', children: 'children' }"
-                @node-click="handleNodeClick" default-expand-all :expand-on-click-node="false" draggable>
+                @node-click="handleNodeClick" @node-drop="moveNode" default-expand-all :expand-on-click-node="false"
+                draggable>
                 <template #default="{ node, data }">
                     <div :class="data.id == searchGroupId ? 'self-node node-active' : 'self-node'">
                         {{ node.label }}
@@ -128,7 +129,7 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import { Top, Search, Bottom, Right, Close, CopyDocument, Check, RefreshRight, Plus, Minus, Select } from '@element-plus/icons-vue'
-import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileGroupCreate, fileGroupDelete, fileUploadToken, fileSaveFileInfo } from '@/api/fileUpload'
+import { fileDelete, fileMove, fileUploadCfg, fileUploadPage, fileGroupTree, fileGroupCreate, fileGroupDelete, fileUploadToken, fileSaveFileInfo, fileGroupMove } from '@/api/fileUpload'
 import { useUserStore } from '@/pinia/useUserStore'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { serverHost } from '@/utils/requester'
@@ -425,6 +426,18 @@ const handleBatchCommand = async (command) => {
 
 const isImage = (url) => {
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(url);
+}
+
+const moveNode = (draggingNode, dropNode, dropType, ev) => {
+    console.log(12344);
+    
+    fileGroupMove({
+        from: draggingNode.data.id,
+        to: dropNode.data.id,
+        type: dropType
+    }).then((res) => {
+        proxy.$message.success('移动完成')
+    })
 }
 
 loadData()

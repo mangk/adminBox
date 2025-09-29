@@ -70,6 +70,31 @@ func FileGroupDelete(ctx *gin.Context) {
 	response.OkWithMsg(ctx, "删除成功")
 }
 
+func FileGroupMove(ctx *gin.Context) {
+	req := struct {
+		From int    `json:"from" binding:"required"`
+		To   int    `json:"to" `
+		Type string `json:"type" binding:"required"`
+	}{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithMsg(ctx, err.Error())
+		return
+	}
+
+	node := model.SysFileGroup{}
+
+	db.DB().Where("id = ?", req.From).First(&node)
+	if node.ID == 0 {
+		response.FailWithMsg(ctx, "数据不存在")
+		return
+	}
+
+	node.ParentId = req.To
+	db.DB().Select("parent_id").Save(&node)
+	response.Ok(ctx)
+}
+
 func FileGetUploadLimit(ctx *gin.Context) {
 	uploadCfg := config.FileCfg()
 	resp := gin.H{}
@@ -160,7 +185,7 @@ func FileSaveUploadFileInfo(ctx *gin.Context) {
 			Tag:     tagInfo[len(tagInfo)-1],
 			Key:     req.Key,
 			UUID:    uuid,
-			Url:     "http://"+strings.TrimPrefix(strings.TrimPrefix(req.Path, "https://"), "http://"),
+			Url:     "http://" + strings.TrimPrefix(strings.TrimPrefix(req.Path, "https://"), "http://"),
 			GroupId: req.Group,
 		}
 		if err := db.DB().Create(&file).Error; err != nil {

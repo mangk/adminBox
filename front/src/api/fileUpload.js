@@ -69,3 +69,11 @@ export const fileGroupDelete = (id) => {
     data: { id: id }
   })
 }
+
+export const fileGroupMove = (data) => {
+  return http({
+    url: '/sys/fileGroup/move',
+    method: 'POST',
+    data
+  })
+}
