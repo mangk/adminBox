@@ -512,7 +512,7 @@ loadData()
     padding: 10px;
     width: 100%;
     height: 100%;
-    // overflow: scroll;
+    overflow: scroll;
     padding-bottom: 30px;
 }
 
