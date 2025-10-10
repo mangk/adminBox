@@ -80,6 +80,17 @@ func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duratio
 	return data
 }
 
+func RedisHasOrQueryByte(key string, queryFunc func() (data []byte, exp time.Duration)) []byte {
+	data := RedisStrGet(key)
+	if data == "" {
+		d, exp := queryFunc()
+		RedisStrSet(key, string(d), exp)
+		return d
+	}
+
+	return []byte(data)
+}
+
 func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFunc func(*T) (expirationTime time.Duration, err error)) error {
 	ctx := context.Background()
 
