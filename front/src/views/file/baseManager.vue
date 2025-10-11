@@ -446,6 +446,10 @@ loadData()
 // })
 </script>
 <style lang="scss">
+.el-checkbox__inner {
+    border: 1px solid #409EFF;
+}
+
 .el-upload-dragger {
     padding: var(--global-padding);
 }
