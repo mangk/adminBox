@@ -75,13 +75,13 @@ log:
 	return *_config
 }
 
-func GetAny(path string) any {
+func Get(path string) any {
+	if _viper ==nil {
+		_config.i()
+	}
 	return _viper.Get(path)
 }
 
-func Get(path string) string {
-	return _viper.GetString(path)
-}
 
 func ServerCfg() server {
 	return _config.i().Server
