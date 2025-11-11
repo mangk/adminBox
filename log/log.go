@@ -60,6 +60,15 @@ func Panicf(format string, args ...interface{}) {
 	_log.Panicf(format, args...)
 }
 
+func JsonMarshal(data any) {
+	if v, ok := data.(string); ok {
+		_log.Info(v)
+		return
+	}
+	v, e := json.Marshal(data)
+	_log.Infof("%s; %e", v, e)
+}
+
 func Sync() {
 	_log.Sync()
 }
