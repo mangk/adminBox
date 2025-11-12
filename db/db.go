@@ -46,9 +46,9 @@ func DB(name ...string) *gorm.DB {
 
 			conn, _ := db.DB()
 			// 设置空闲连接池中连接的最大数量
-			conn.SetMaxIdleConns(dbCfg.MaxIdleConn)
+			conn.SetMaxIdleConns(dbCfg.MaxIdleConns)
 			// 设置打开数据库连接的最大数量
-			conn.SetMaxOpenConns(dbCfg.MaxOpenConn)
+			conn.SetMaxOpenConns(dbCfg.MaxOpenConns)
 			// 设置了连接可复用的最大时间
 			conn.SetConnMaxLifetime(time.Hour)
 			_dbList[name] = db
