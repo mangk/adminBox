@@ -20,8 +20,8 @@ export const handler401 = (back = false) => {
   }
 
   let query = { path: '/login' }
-  if (redirect) {
-    query.query = { redirect: redirect }
-  }
+  // if (redirect) {
+  //   query.query = { redirect: redirect }
+  // }
   router.replace(query)
 }
