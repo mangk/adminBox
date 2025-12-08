@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	abHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/http/request"
 )
 
@@ -14,6 +15,11 @@ type Response struct {
 	MsgShowTimeout int64       `json:"msg_show_timeout,omitempty"`
 	Data           interface{} `json:"data,omitempty"`
 	T              int64       `json:"t"`
+}
+
+type PageResponse struct {
+	List     any             `json:"list"`
+	PageInfo abHttp.PageInfo `json:"page_info"`
 }
 
 type PageData struct {
