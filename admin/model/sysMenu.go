@@ -170,7 +170,7 @@ func (s SysMenu) SystemMenu() []SysMenu {
 	return []SysMenu{
 		s.welcomePage(),
 		{Model: Model{ID: -200}, Pid: 0, Name: "fileManager", Path: "fileManager", Component: "views/file/manager.vue", Sort: 0, Meta: Meta{Title: "文件管理", KeepAlive: true, Icon: "upload-filled"}},
-		{Model: Model{ID: -300}, Pid: 0, Name: "setting", Path: "setting", Component: "views/setting/index.vue", Sort: 0, Meta: Meta{Title: "系统设置", KeepAlive: true, Icon: "setting"}},
+		{Model: Model{ID: -300}, Pid: 0, Name: "setting", Path: "setting", Component: "", Sort: 0, Meta: Meta{Title: "系统设置", KeepAlive: true, Icon: "setting"}},
 		{Model: Model{ID: -301}, Pid: -300, Name: "auth", Path: "auth", Hidden: true, Component: "", Sort: 0, Meta: Meta{Title: "授权分组"}},
 		{Model: Model{ID: -302}, Pid: -300, Name: "menu", Path: "menu", Component: "views/setting/menu.vue", Sort: 0, Meta: Meta{Title: "菜单管理", KeepAlive: true, Icon: "menu"}},
 		{Model: Model{ID: -303}, Pid: -300, Name: "api", Path: "api", Component: "views/setting/api.vue", Sort: 0, Meta: Meta{Title: "API管理", KeepAlive: true, Icon: "link"}},
