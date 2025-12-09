@@ -35,7 +35,7 @@ export function formatRouter(serverRouterList) {
       }
 
       if (item.children && item.children.length) {
-        delete item['component']
+        // delete item['component']
         formatRouter(item.children)
       }
     })
