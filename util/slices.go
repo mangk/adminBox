@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/tidwall/gjson"
 )
@@ -22,7 +23,7 @@ func SlicesDistinct[T comparable](slice []T) []T {
 	return result
 }
 
-func SliceColumn[T any](items []T, jsonPath string) (map[string][]T, error) {
+func SliceColumn[T any](items []T, separator string, jsonPath ...string) (map[string][]T, error) {
 	result := make(map[string][]T)
 
 	for _, item := range items {
@@ -31,13 +32,18 @@ func SliceColumn[T any](items []T, jsonPath string) (map[string][]T, error) {
 			return nil, err
 		}
 
-		key := gjson.GetBytes(b, jsonPath)
-		if !key.Exists() {
-			return nil, fmt.Errorf("json key '%s' not found", jsonPath)
+		k := []string{}
+		for _, p := range jsonPath {
+			key := gjson.GetBytes(b, p)
+			if !key.Exists() {
+				return nil, fmt.Errorf("json key '%s' not found", jsonPath)
+			}
+
+			k = append(k, key.String())
 		}
 
-		k := key.String()
-		result[k] = append(result[k], item)
+		sk := strings.Join(k, separator)
+		result[sk] = append(result[sk], item)
 	}
 
 	return result, nil
