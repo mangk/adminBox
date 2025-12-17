@@ -8,6 +8,8 @@ import (
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
+	"github.com/mangk/adminBox/http/middleware"
+	"github.com/mangk/adminBox/http/response"
 	"github.com/mangk/adminBox/log"
 )
 
@@ -44,23 +46,28 @@ func httpEngine() *gin.Engine {
 	if _adminBox == nil {
 		_adminBoxInitOnce.Do(func() {
 			gin.DisableConsoleColor()
-			gin.DefaultWriter = log.GinAdapter() // 设置日志输出到 zaplog
+
+			adapter := log.GinAdapter()
+			gin.DefaultWriter = adapter
+			gin.DefaultErrorWriter = adapter
+
 			gin.SetMode(config.ServerCfg().Env)
 			http := gin.New()
-			http.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
-				m := []interface{}{}
-				m = append(m, "status", fmt.Sprintf("%3d", param.StatusCode),
-					"latency", fmt.Sprintf("%v", param.Latency),
-					"clientIP", param.ClientIP,
-					"method", param.Method,
-					"path", param.Path,
-					"errorMessage", param.ErrorMessage,
-				)
+			http.Use(gin.LoggerWithFormatter(func(p gin.LogFormatterParams) string {
+				m := map[string]interface{}{
+					"status":       p.StatusCode,
+					"latency":      p.Latency.String(),
+					"clientIP":     p.ClientIP,
+					"method":       p.Method,
+					"path":         p.Path,
+					"errorMessage": p.ErrorMessage,
+				}
 				b, _ := json.Marshal(m)
 				return string(b)
 			}))
-			// http.Use(middleware.TraceLogger(config.ServerCfg().LogLevel))
-			http.Use(gin.Recovery())
+
+			response.EnableResponseRecover()
+			http.Use(middleware.ResponseRecover())
 
 			_adminBox = http
 		})

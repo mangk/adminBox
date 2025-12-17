@@ -1,13 +1,34 @@
 package response
 
 import (
+	"errors"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	abHttp "github.com/mangk/adminBox/http"
 	"github.com/mangk/adminBox/http/request"
 )
+
+var useResponseRecover atomic.Bool
+
+// ResponseAbort is used ONLY to stop gin handler chain
+// after response has been written.
+// It MUST be recovered by middleware.ResponseRecover.
+type ResponseAbort struct{}
+
+func EnableResponseRecover() {
+	useResponseRecover.Store(true)
+}
+
+func DisableResponseRecover() {
+	useResponseRecover.Store(false)
+}
+
+func IsUseResponseRecover() bool {
+	return useResponseRecover.Load()
+}
 
 type Response struct {
 	Code           int         `json:"code"`
@@ -36,6 +57,10 @@ const (
 	MsgOK   = "ok"
 	MsgFail = "fail"
 )
+
+// func ()  {
+
+// }
 
 func Ok(ctx *gin.Context) {
 	jsonResponse(ctx, SuccessStatus, MsgOK, nil)
@@ -98,6 +123,10 @@ func jsonResponse(ctx *gin.Context, code int, msg string, data interface{}, show
 		st = showTime[0]
 	}
 
+	if code != 0 {
+		ctx.Error(errors.New(msg))
+	}
+
 	ctx.JSON(http.StatusOK, Response{
 		Code:           code,
 		Msg:            msg,
@@ -105,4 +134,7 @@ func jsonResponse(ctx *gin.Context, code int, msg string, data interface{}, show
 		Data:           data,
 		T:              time.Now().Unix(),
 	})
+	if IsUseResponseRecover() {
+		panic(ResponseAbort{})
+	}
 }
