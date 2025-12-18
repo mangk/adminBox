@@ -117,7 +117,55 @@ func FailWithCodeAndNeedReload(ctx *gin.Context, code int, msg string) {
 	jsonResponse(ctx, code, msg, gin.H{"reload": true})
 }
 
+
+func FailAndAbort(ctx *gin.Context) {
+	jsonResponseAndAbort(ctx, FailStatus, MsgFail, nil)
+}
+
+func FailWithMsgAndAbort(ctx *gin.Context, msg string, showTime ...int64) {
+	jsonResponseAndAbort(ctx, FailStatus, msg, nil, showTime...)
+}
+
+func FailWithErrorAndAbort(ctx *gin.Context, err error, showTime ...int64) {
+	// TODO 提供错误提示转换map
+	jsonResponseAndAbort(ctx, FailStatus, err.Error(), nil, showTime...)
+}
+
+func FailWithDataAndAbort(ctx *gin.Context, data interface{}) {
+	jsonResponseAndAbort(ctx, FailStatus, MsgFail, data)
+}
+
+func FailWithDetailAndAbort(ctx *gin.Context, msg string, data interface{}, showTime ...int64) {
+	jsonResponseAndAbort(ctx, FailStatus, msg, data, showTime...)
+}
+
+func FailWithCodeAndAbort(ctx *gin.Context, code int, msg string) {
+	jsonResponseAndAbort(ctx, code, msg, nil)
+}
+
+func FailWithCodeAndNeedReloadAndAbort(ctx *gin.Context, code int, msg string) {
+	jsonResponseAndAbort(ctx, code, msg, gin.H{"reload": true})
+}
+
 func jsonResponse(ctx *gin.Context, code int, msg string, data interface{}, showTime ...int64) {
+	var st int64 = 0
+	if len(showTime) > 0 && showTime[0] > 0 {
+		st = showTime[0]
+	}
+
+	if code != 0 {
+		ctx.Error(errors.New(msg))
+	}
+
+	ctx.JSON(http.StatusOK, Response{
+		Code:           code,
+		Msg:            msg,
+		MsgShowTimeout: st,
+		Data:           data,
+		T:              time.Now().Unix(),
+	})
+}
+func jsonResponseAndAbort(ctx *gin.Context, code int, msg string, data interface{}, showTime ...int64) {
 	var st int64 = 0
 	if len(showTime) > 0 && showTime[0] > 0 {
 		st = showTime[0]
@@ -138,3 +186,4 @@ func jsonResponse(ctx *gin.Context, code int, msg string, data interface{}, show
 		panic(ResponseAbort{})
 	}
 }
+
