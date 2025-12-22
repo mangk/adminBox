@@ -53,15 +53,15 @@ func httpEngine() *gin.Engine {
 
 			gin.SetMode(config.ServerCfg().Env)
 			http := gin.New()
-			http.Use(gin.LoggerWithFormatter(func(p gin.LogFormatterParams) string {
-				m := map[string]interface{}{
-					"status":       p.StatusCode,
-					"latency":      p.Latency.String(),
-					"clientIP":     p.ClientIP,
-					"method":       p.Method,
-					"path":         p.Path,
-					"errorMessage": p.ErrorMessage,
-				}
+			http.Use(gin.LoggerWithFormatter(func(param gin.LogFormatterParams) string {
+				m := []interface{}{}
+				m = append(m, "status", fmt.Sprintf("%3d", param.StatusCode),
+					"latency", fmt.Sprintf("%v", param.Latency),
+					"clientIP", param.ClientIP,
+					"method", param.Method,
+					"path", param.Path,
+					"errorMessage", param.ErrorMessage,
+				)
 				b, _ := json.Marshal(m)
 				return string(b)
 			}))
