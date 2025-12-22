@@ -239,13 +239,7 @@ func GinAdapter() *GinLogger {
 	}
 }
 func (g *GinLogger) Write(p []byte) (n int, err error) {
-	// TODO 这里处理的不够全面，不够深入 gin
-	args := []interface{}{}
-	if e := json.Unmarshal(p, &args); e == nil {
-		g.logger.i().WithOptions(zap.WithCaller(false)).Infow("httpRequest", args...)
-	} else {
-		g.logger.i().WithOptions(zap.AddCallerSkip(5)).Infof("%s", p)
-	}
+	g.logger.i().WithOptions(zap.WithCaller(false)).Infof("%s", p)
 	return
 }
 
