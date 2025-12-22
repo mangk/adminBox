@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"runtime/debug"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/http/response"
+	"github.com/mangk/adminBox/log"
 )
 
 func ResponseRecover() gin.HandlerFunc {
@@ -31,14 +31,11 @@ func ResponseRecover() gin.HandlerFunc {
 					}
 				}
 				headersToStr := strings.Join(headers, "\r\n")
-				fmt.Fprintf(
-					gin.DefaultErrorWriter,
-					"[Recovery] %s panic recovered:\n%s\n%v\n%s\n",
+				log.Errorf("[Recovery] %s panic recovered:\n%s\n%v\n%s\n",
 					time.Now().Format("2006/01/02 - 15:04:05"),
 					headersToStr,
 					r,
-					debug.Stack(),
-				)
+					debug.Stack())
 
 				if !c.Writer.Written() {
 					c.AbortWithStatus(http.StatusInternalServerError)
