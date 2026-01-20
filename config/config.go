@@ -76,12 +76,11 @@ log:
 }
 
 func Get(path string) any {
-	if _viper ==nil {
+	if _viper == nil {
 		_config.i()
 	}
 	return _viper.Get(path)
 }
-
 
 func ServerCfg() server {
 	return _config.i().Server
@@ -121,6 +120,12 @@ func FileCfg() map[string]File {
 		return *c.Server.File
 	}
 	return map[string]File{}
+}
+
+func Custom[T any]() (T, error) {
+	var c T
+	_config.i()
+	return c, _viper.Unmarshal(&c)
 }
 
 func pathExists(path string) bool {
