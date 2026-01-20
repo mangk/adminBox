@@ -30,7 +30,7 @@ func SetBeforeRun(f func()) {
 
 func GetServerAddr() string {
 	var host string
-	var port int
+	var port int = 8910
 	if config.ServerCfg().Host != "" {
 		host = config.ServerCfg().Host
 	}
