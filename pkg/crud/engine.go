@@ -90,6 +90,14 @@ type Options struct {
 	CustomDataOrigin DataOrigin
 }
 
+type CRUDResponse struct {
+	Count     int64       `json:"count"`
+	Page      int64         `json:"page"`
+	PageCount int         `json:"pageCount"`
+	PageSize  int64         `json:"pageSize"`
+	List      interface{} `json:"list"`
+}
+
 type DataOrigin interface {
 	Page(req request.CRUDRequest) (data []map[string]interface{}, count int64, pageSize int64, err error)
 	GetById(req request.CRUDRequest) (data map[string]interface{}, err error)
@@ -379,7 +387,7 @@ func (e *Engine) page(ctx *gin.Context) {
 		return
 	}
 
-	response.OkWithDetail(ctx, "success", response.CRUDResponse{
+	response.OkWithDetail(ctx, "success", CRUDResponse{
 		Count:     count,
 		Page:      req.Page,
 		PageSize:  req.PageSize,
