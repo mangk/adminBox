@@ -1,4 +1,4 @@
-package http
+package request
 
 type PageInfo struct {
 	Page     int64 `json:"page,omitempty"`

@@ -11,6 +11,9 @@ import (
 //go:embed all:dist
 var staticFiles embed.FS
 
+//go:embed crudTemplate.vue
+var CrudTemplate string
+
 func init() {
 	router := bootstrap.GetRouter()
 	if router == nil {
