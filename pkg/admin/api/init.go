@@ -1,0 +1,107 @@
+package api
+
+import (
+	"net/http"
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/mangk/adminBox/pkg/admin/api/handler"
+	"github.com/mangk/adminBox/pkg/config"
+	"github.com/mangk/adminBox/pkg/httpServer"
+	"github.com/mangk/adminBox/pkg/middleware"
+)
+
+func init() {
+
+	httpServer.SetRouter(func(router *gin.Engine) {
+		
+	router.Use(middleware.Cors()) // TODO 跨域限制基于配置
+
+	backend := router.Group(strings.Trim(config.ServerCfg().BackendRouterPrefix, "/") + "/sys")
+	backend.POST("login", handler.AuthLogin)
+	backend.GET("logout", handler.AuthLogout)
+	backend.GET("verificationCode", handler.AuthVerificationCode)
+
+	backend.Use(middleware.JWTCheckByCasbin())
+
+	auth := backend.Group("auth")
+	{ // 用户授权信息
+		auth.GET("userPermission", handler.AuthUserPermission)
+		auth.GET("permissionAll", handler.AuthPermissionAll)
+		auth.POST("permissionGetByIdAndModule", handler.AuthPermissionGetByIdAndModule)
+		auth.PUT("permissionSave", handler.AuthPermissionSave)
+	}
+
+	{ // 文件管理
+		fileUpload := backend.Group("fileUpload")
+		fileUpload.POST("upload", handler.FileUpload)
+		fileUpload.POST("uploadToken", handler.FileUploadToken)
+		fileUpload.POST("saveFileInfo", handler.FileSaveUploadFileInfo)
+		router.POST("/sys/fileUpload/callback", middleware.OperationRecord(1), handler.FileUploadCallback)
+		fileUpload.POST("move", handler.FileMove)
+		fileUpload.POST("page", middleware.PublicRequest(), handler.FileList)
+		fileUpload.PUT("", handler.FileEdit)
+		fileUpload.DELETE("", handler.FileDelete)
+		fileUpload.GET("cfg", handler.FileGetUploadLimit)
+		for _, cfg := range config.FileCfg() {
+			if cfg.Driver == "local" {
+				router.StaticFS(cfg.PrefixPath, http.Dir(cfg.StorePath))
+			}
+		}
+
+		fileGroup := backend.Group("fileGroup")
+		fileGroup.GET("tree", handler.FileGroupTree)
+		fileGroup.POST("", handler.FileGroupCreate)
+		fileGroup.DELETE("", handler.FileGroupDelete)
+		fileGroup.POST("move", handler.FileGroupMove)
+	}
+
+	setting := backend.Group("setting")
+	{ // 菜单管理
+		menu := setting.Group("menu")
+		menu.POST("page", handler.Menu)
+		menu.POST("getById", handler.MenuDetail)
+		menu.POST("", handler.MenuCreate)
+		menu.PUT("", handler.MenuEdit)
+		menu.DELETE("", handler.MenuDelete)
+	}
+
+	{ // 接口管理
+		api := setting.Group("api")
+		api.POST("page", middleware.PublicRequest(), handler.Api)
+		api.POST("getById", handler.ApiDetail)
+		api.POST("", handler.ApiCreate)
+		api.PUT("", handler.ApiEdit)
+		api.DELETE("", handler.ApiDelete)
+	}
+
+	{ // 用户管理
+		api := setting.Group("user")
+		api.POST("page", middleware.PublicRequest(), handler.User)
+		api.POST("getById", handler.UserDetail)
+		api.POST("", handler.UserCreate)
+		api.PUT("", handler.UserEdit)
+		api.PUT("changePassword", handler.UserChangePassord)
+		api.DELETE("", handler.UserDelete)
+	}
+
+	{ // 角色管理
+		role := setting.Group("role")
+		role.POST("page", middleware.PublicRequest(), handler.Role)
+		role.POST("getById", handler.RoleDetail)
+		role.POST("", handler.RoleCreate)
+		role.PUT("", handler.RoleEdit)
+		role.DELETE("", handler.RoleDelete)
+		role.GET("all", handler.RoleAll)
+	}
+
+	{ // 部门管理
+		department := setting.Group("department")
+		department.POST("page", handler.Department)
+		department.POST("getById", handler.DepartmentDetail)
+		department.POST("", handler.DepartmentCreate)
+		department.PUT("", handler.DepartmentEdit)
+		department.DELETE("", handler.DepartmentDelete)
+	}
+	})
+}

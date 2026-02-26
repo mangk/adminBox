@@ -2,17 +2,17 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/internal/module/model"
+	"github.com/mangk/adminBox/pkg/admin/model"
 	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/request"
 	"github.com/mangk/adminBox/pkg/response"
 )
 
-func Api(ctx *gin.Context) {
+func Role(ctx *gin.Context) {
 	req := request.PublicRequest(ctx)
 
 	var count int64
-	list := []model.SysApi{}
+	list := []model.SysRole{}
 
 	query := db.DB().Model(list) // TODO 补充搜索条件
 
@@ -28,18 +28,11 @@ func Api(ctx *gin.Context) {
 		}
 	}
 
-	tranMap := model.SysMenu{}.TranMap()
-	for i, api := range list {
-		if menuName, ok := tranMap[api.MenuId]; ok {
-			list[i].MenuName = menuName
-		}
-	}
-
 	response.OkWithPageData(ctx, count, list)
 }
 
-func ApiCreate(ctx *gin.Context) {
-	req := model.SysApi{}
+func RoleCreate(ctx *gin.Context) {
+	req := model.SysRole{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -53,20 +46,16 @@ func ApiCreate(ctx *gin.Context) {
 	response.OkWithData(ctx, req.ID)
 }
 
-func ApiEdit(ctx *gin.Context) {
-	req := model.SysApi{}
+func RoleEdit(ctx *gin.Context) {
+	req := model.SysRole{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
 	}
 
 	update := make(map[string]interface{})
-	//update["ub"] = req.
-	update["menu_id"] = req.MenuId
 	update["name"] = req.Name
 	update["description"] = req.Description
-	update["path"] = req.Path
-	update["method"] = req.Method
 
 	if err := db.DB().Model(&req).Where("id = ?", req.ID).Updates(update).Error; err != nil {
 		response.FailWithError(ctx, err)
@@ -76,8 +65,8 @@ func ApiEdit(ctx *gin.Context) {
 	response.Ok(ctx)
 }
 
-func ApiDetail(ctx *gin.Context) {
-	req := model.SysApi{}
+func RoleDetail(ctx *gin.Context) {
+	req := model.SysRole{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -92,8 +81,8 @@ func ApiDetail(ctx *gin.Context) {
 
 }
 
-func ApiDelete(ctx *gin.Context) {
-	req := model.SysApi{}
+func RoleDelete(ctx *gin.Context) {
+	req := model.SysRole{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -105,4 +94,13 @@ func ApiDelete(ctx *gin.Context) {
 	}
 
 	response.Ok(ctx)
+}
+
+func RoleAll(ctx *gin.Context) {
+	list := []model.SysRole{}
+	if err := db.DB().Find(&list).Error; err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+	response.OkWithData(ctx, list)
 }

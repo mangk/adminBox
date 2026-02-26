@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/internal/module/model"
+	"github.com/mangk/adminBox/pkg/admin/model"
 	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/request"
 	"github.com/mangk/adminBox/pkg/response"

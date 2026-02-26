@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/front"
-	"github.com/mangk/adminBox/internal/module/model"
+	"github.com/mangk/adminBox/pkg/admin/front"
+	"github.com/mangk/adminBox/pkg/admin/api/model"
 	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/log"
 	"github.com/mangk/adminBox/pkg/middleware"

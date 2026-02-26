@@ -1,4 +1,4 @@
-package daemon
+package httpServer
 
 import (
 	"fmt"
@@ -13,45 +13,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func buildConfigFilePath() string {
-	if _argsConfigFilePath == "" {
-		_argsConfigFilePath = "config.yaml"
-	}
-
-	var path string
-	if []rune(_argsConfigFilePath)[0] != '/' {
-		path = filepath.Join(_execDir, _argsConfigFilePath)
-	} else {
-		path = _argsConfigFilePath
-	}
-
-	_, err := os.Stat(path)
-	if err != nil {
-		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
-	}
-	if os.IsNotExist(err) {
-		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
-	}
-
-	return path
-}
-
 func Execute(serviceFileName, desc string) {
 	execDir := util.GetExecPath()
 	os.Chdir(execDir)
 
 	var argsConfigFilePath string
-
-	program := &program{}
-	s, err := service.New(program, &service.Config{
-		Name:        serviceFileName,
-		DisplayName: desc,
-		Description: desc,
-		Arguments:   []string{"s", "-c", buildConfigFilePath()},
-	})
-	if err != nil {
-		panic(fmt.Sprintf("[Daemon Create Error] %s", err))
-	}
 
 	rootCmd := &cobra.Command{
 		Use:   serviceFileName,
@@ -63,14 +29,38 @@ func Execute(serviceFileName, desc string) {
 	}
 	rootCmd.PersistentFlags().StringVarP(&argsConfigFilePath, "config", "c", "config.yaml", "指定配置文件路径")
 
+	var path string
+	if []rune(argsConfigFilePath)[0] != '/' {
+		path = filepath.Join(execDir, argsConfigFilePath)
+	} else {
+		path = argsConfigFilePath
+	}
+
+	_, err := os.Stat(path)
+	if err != nil {
+		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
+	}
+	if os.IsNotExist(err) {
+		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
+	}
+
+	s, err := service.New(&program{}, &service.Config{
+		Name:        serviceFileName,
+		DisplayName: desc,
+		Description: desc,
+		Arguments:   []string{"s", "-c", path},
+	})
+	if err != nil {
+		panic(fmt.Sprintf("[Daemon Create Error] %s", err))
+	}
+
 	rootCmd.AddCommand(&cobra.Command{
 		Use:     "serve",
 		Aliases: []string{"s"},
 		Short:   "运行程序",
 		Long:    "直接以阻塞模式运行程序",
 		Run: func(cmd *cobra.Command, args []string) {
-			// config.SetConfigPath(buildConfigFilePath())
-			program.run()
+			httpServer()
 		},
 	})
 
@@ -153,26 +143,10 @@ type program struct{}
 
 func (p *program) Start(s service.Service) error {
 	plog.Info("[Daemon Start]")
-	go p.run()
+	go httpServer()
 	return nil
 }
-func (p *program) run() {
-	plog.Info("[Daemon run]")
-	plog.Info("[Project Start]", "listen", GetServerAddr())
-	defer plog.Close()
 
-	for _, f := range _waitBrforeRun {
-		f()
-	}
-
-	for _, f := range _waitInitRoter {
-		f(httpEngine())
-	}
-
-	httpEngine().Run(GetServerAddr())
-
-	log.Info("[Project EXIT]")
-}
 func (p *program) Stop(s service.Service) error {
 	<-time.After(time.Second * 2)
 	plog.Info("[Daemon Stop]")

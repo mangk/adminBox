@@ -1,22 +1,33 @@
 package handler
 
 import (
+	"encoding/json"
+
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/internal/module/model"
+	"github.com/mangk/adminBox/pkg/admin/model"
 	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/response"
 )
 
-func Department(ctx *gin.Context) {
-	if tree, err := (model.SysDepartment{}).All(); err == nil {
+func Menu(ctx *gin.Context) {
+	req := struct {
+		LoadSystem bool `json:"loadSystem"`
+	}{}
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.FailWithError(ctx, err)
+		return
+	}
+
+	if tree, err := (model.SysMenu{}).Tree(req.LoadSystem, false, true, true, false); err == nil {
 		response.OkWithData(ctx, tree)
 	} else {
 		response.FailWithError(ctx, err)
 	}
 }
 
-func DepartmentCreate(ctx *gin.Context) {
-	req := model.SysDepartment{}
+func MenuCreate(ctx *gin.Context) {
+	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -30,8 +41,8 @@ func DepartmentCreate(ctx *gin.Context) {
 	response.OkWithData(ctx, req.ID)
 }
 
-func DepartmentDetail(ctx *gin.Context) {
-	req := model.SysDepartment{}
+func MenuDetail(ctx *gin.Context) {
+	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -45,8 +56,8 @@ func DepartmentDetail(ctx *gin.Context) {
 	response.OkWithData(ctx, req)
 }
 
-func DepartmentEdit(ctx *gin.Context) {
-	req := model.SysDepartment{}
+func MenuEdit(ctx *gin.Context) {
+	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
@@ -56,7 +67,18 @@ func DepartmentEdit(ctx *gin.Context) {
 	//update["ub"] = req.
 	update["pid"] = req.Pid
 	update["name"] = req.Name
-	update["description"] = req.Description
+	update["path"] = req.Path
+	update["hidden"] = req.Hidden
+	update["component"] = req.Component
+	update["sort"] = req.Sort
+	update["title"] = req.Title
+	update["keep_alive"] = req.KeepAlive
+	update["default_menu"] = req.DefaultMenu
+	update["icon"] = req.Icon
+	update["auto_close"] = req.AutoClose
+	update["sc_path"] = req.SCPath
+	al, _ := json.Marshal(req.ActionList)
+	update["action_list"] = string(al)
 
 	if err := db.DB().Model(&req).Where("id = ?", req.ID).Updates(update).Error; err != nil {
 		response.FailWithError(ctx, err)
@@ -65,8 +87,8 @@ func DepartmentEdit(ctx *gin.Context) {
 
 	response.Ok(ctx)
 }
-func DepartmentDelete(ctx *gin.Context) {
-	req := model.SysDepartment{}
+func MenuDelete(ctx *gin.Context) {
+	req := model.SysMenu{}
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.FailWithError(ctx, err)
 		return
