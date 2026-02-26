@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/internal/module/model"
-	db "github.com/mangk/adminBox/pkg/database"
+	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/response"
 )
 

@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/mangk/adminBox/pkg/config"
-	db "github.com/mangk/adminBox/pkg/database"
+	"github.com/mangk/adminBox/pkg/db"
 )
 
 type SysApi struct {

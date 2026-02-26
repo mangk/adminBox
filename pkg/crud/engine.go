@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/internal/module/model"
-	db "github.com/mangk/adminBox/pkg/database"
 	"github.com/mangk/adminBox/front"
+	"github.com/mangk/adminBox/internal/module/model"
+	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/log"
 	"github.com/mangk/adminBox/pkg/middleware"
 	"github.com/mangk/adminBox/pkg/request"
@@ -92,9 +92,9 @@ type Options struct {
 
 type CRUDResponse struct {
 	Count     int64       `json:"count"`
-	Page      int64         `json:"page"`
+	Page      int64       `json:"page"`
 	PageCount int         `json:"pageCount"`
-	PageSize  int64         `json:"pageSize"`
+	PageSize  int64       `json:"pageSize"`
 	List      interface{} `json:"list"`
 }
 

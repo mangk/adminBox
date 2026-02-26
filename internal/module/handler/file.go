@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mangk/adminBox/internal/module/model"
 	"github.com/mangk/adminBox/pkg/config"
-	db "github.com/mangk/adminBox/pkg/database"
+	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/log"
 	"github.com/mangk/adminBox/pkg/request"
 	"github.com/mangk/adminBox/pkg/response"

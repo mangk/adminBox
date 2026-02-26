@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/mangk/adminBox/pkg/config"
-	db "github.com/mangk/adminBox/pkg/database"
+	"github.com/mangk/adminBox/pkg/db"
 	"gorm.io/gorm"
 )
 

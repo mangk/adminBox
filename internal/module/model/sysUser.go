@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mangk/adminBox/pkg/cache"
 	"github.com/mangk/adminBox/pkg/config"
-	db "github.com/mangk/adminBox/pkg/database"
+	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/log"
 	"github.com/mangk/adminBox/pkg/util"
 	"gorm.io/gorm"

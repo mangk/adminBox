@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	db "github.com/mangk/adminBox/pkg/database"
+	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/log"
 	"gorm.io/gorm"
 )
