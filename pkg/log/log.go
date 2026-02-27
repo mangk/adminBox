@@ -21,7 +21,7 @@ var _log *LogInstance
 var _logInitMutex sync.Mutex
 
 // Init initializes the global logger. It should be called once from the main application.
-func Init() {
+func init() {
 	_logInitMutex.Lock()
 	defer _logInitMutex.Unlock()
 	if _log != nil {

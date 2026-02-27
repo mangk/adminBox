@@ -7,7 +7,7 @@ server:
   ipLimitCount: 15000
   ipLimitTime: 3600
   frontRouterPrefix:
-  backendRouterPrefix: _
+  backendRouterPrefix: 
   captcha:
     keyLong: 4
     imgWidth: 240

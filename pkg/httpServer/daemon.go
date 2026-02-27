@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/kardianos/service"
-	plog "github.com/mangk/adminBox/pkg/log"
 	"github.com/mangk/adminBox/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -142,13 +141,13 @@ func Execute(serviceFileName, desc string) {
 type program struct{}
 
 func (p *program) Start(s service.Service) error {
-	plog.Info("[Daemon Start]")
+	log.Print("[Daemon Start]")
 	go httpServer()
 	return nil
 }
 
 func (p *program) Stop(s service.Service) error {
 	<-time.After(time.Second * 2)
-	plog.Info("[Daemon Stop]")
+	log.Print("[Daemon Stop]")
 	return nil
 }
