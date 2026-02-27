@@ -8,7 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/mangk/adminBox/pkg/admin/model"
+	"github.com/mangk/adminBox/pkg/admin/api/model"
 	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/db"
 	"github.com/mangk/adminBox/pkg/log"
