@@ -4,14 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"sync"
 
 	"github.com/spf13/viper"
 )
 
 var _config *configInstance
 var _viper *viper.Viper
-var _configInitOnce sync.Once
 
 type configInstance struct {
 	Server server           `json:"server,omitempty" yaml:"server,omitempty"`
@@ -22,44 +20,36 @@ type configInstance struct {
 
 // Load initializes the configuration from a given path.
 // This function should be called once from the main application.
-func Load(path string, v interface{}) error {
-	var err error
-	_configInitOnce.Do(func() {
-		_viper = viper.New()
-		_viper.SetConfigFile(path)
-		_viper.SetConfigType("yaml")
+func init() {
+	_viper = viper.New()
+	_viper.SetConfigFile("config.yaml")
+	// _viper.SetConfigType("yaml")
+	err := _viper.ReadInConfig()
 
-		if err = _viper.ReadInConfig(); err != nil {
-			// If config file is not found, use a default one
-			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-				fmt.Println("config file not found, using default settings.")
-				defaultConfig := []byte(`
+	if err != nil {
+		// If config file is not found, use a default one
+		fmt.Println("config file not found, using default settings.")
+		defaultConfig := []byte(`
 server:
   name: adminBox
-  port: ":8080"
+  port: 8910
+  host: 0.0.0.0
 log:
   prefix: adminBox
   output:
     - console
 `)
-				err = _viper.ReadConfig(bytes.NewBuffer(defaultConfig))
-			}
-		}
-
-		if err == nil {
-			_config = &configInstance{}
-			err = _viper.Unmarshal(_config)
-		}
-
-		if err == nil && v != nil {
-			err = _viper.Unmarshal(v)
-		}
-	})
-
-	if err != nil {
-		return fmt.Errorf("failed to load configuration: %w", err)
+		err = _viper.ReadConfig(bytes.NewBuffer(defaultConfig))
 	}
-	return nil
+
+	if err == nil {
+		_config = &configInstance{}
+		err = _viper.Unmarshal(_config)
+		if err != nil {
+			fmt.Printf("[ Unmarshal Error] %s", err)
+			os.Exit(1)
+		}
+	}
 }
 
 func i() *configInstance {

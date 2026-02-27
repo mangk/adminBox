@@ -2,10 +2,10 @@ package httpServer
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/config"
-	"github.com/mangk/adminBox/pkg/log"
 )
 
 var _waitInitRoter = make([]func(root *gin.Engine), 0)
@@ -22,11 +22,11 @@ func SetBeforeRun(f func()) {
 func httpServer() {
 	gin.DisableConsoleColor()
 
-	adapter := log.GinAdapter()
-	gin.DefaultWriter = adapter
-	gin.DefaultErrorWriter = adapter
+	// adapter := log.GinAdapter()
+	// gin.DefaultWriter = adapter
+	// gin.DefaultErrorWriter = adapter
 
-	gin.SetMode(config.ServerCfg().Env)
+	// gin.SetMode(config.ServerCfg().Env)
 	http := gin.New()
 	http.Use(gin.LoggerWithFormatter(func(p gin.LogFormatterParams) string {
 		m := map[string]interface{}{
@@ -53,5 +53,5 @@ func httpServer() {
 
 	host := config.ServerCfg().Host
 	port := config.ServerCfg().Port
-	http.Run( host + ":" + string(port))
+	http.Run(fmt.Sprintf("%s:%d", host, port))
 }

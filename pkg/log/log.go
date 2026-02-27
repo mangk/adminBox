@@ -22,11 +22,6 @@ var _logInitMutex sync.Mutex
 
 // Init initializes the global logger. It should be called once from the main application.
 func init() {
-	_logInitMutex.Lock()
-	defer _logInitMutex.Unlock()
-	if _log != nil {
-		return
-	}
 
 	// 日志基础配置
 	encoderConfig := zap.NewProductionEncoderConfig()
