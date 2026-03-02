@@ -18,67 +18,59 @@ import (
 )
 
 var _log *LogInstance
-var _logInitMutex sync.Mutex
-
-// Init initializes the global logger. It should be called once from the main application.
-func init() {
-
-	// 日志基础配置
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	encoderConfig.LevelKey = "_l"
-	encoderConfig.TimeKey = "_t"
-	encoderConfig.NameKey = "_n"
-	encoderConfig.CallerKey = "_c"
-	encoderConfig.StacktraceKey = "_s"
-	encoderConfig.FunctionKey = "_f"
-
-	encoder := zapcore.NewConsoleEncoder(encoderConfig)
-	if config.LogCfg().Format == "json" {
-		encoder = zapcore.NewJSONEncoder(encoderConfig)
-	}
-
-	// 日志输出位置
-	writerMap := make(map[string]zapcore.WriteSyncer)
-	for _, output := range config.LogCfg().Output {
-		if output == "console" {
-			writerMap[output] = zapcore.AddSync(os.Stdout)
-		} else {
-			writerMap[output] = zapcore.AddSync(getLogfileWriter(output))
-		}
-	}
-	var writer []zapcore.WriteSyncer
-	for _, w := range writerMap {
-		writer = append(writer, w)
-	}
-	if len(writer) == 0 {
-		writer = append(writer, zapcore.AddSync(os.Stdout))
-	}
-
-	// 其他配置
-	var opt []zap.Option
-	opt = append(opt, zap.WithCaller(true), zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.ErrorLevel))
-
-	core := zapcore.NewCore(
-		encoder,
-		zapcore.NewMultiWriteSyncer(writer...),
-		zap.NewAtomicLevelAt(zap.InfoLevel),
-	)
-
-	logger := zap.New(core, opt...)
-
-	_log = &LogInstance{
-		logger:     logger,
-		callerSkip: 1,
-	}
-}
+var logOnce sync.Once
 
 func i() *LogInstance {
-	if _log == nil {
-		// This will panic if Init() has not been called.
-		// This is intentional to enforce proper initialization.
-		panic("logger has not been initialized. Please call log.Init() in your main function.")
-	}
+	logOnce.Do(func() {
+		// 日志基础配置
+		encoderConfig := zap.NewProductionEncoderConfig()
+		encoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+		encoderConfig.LevelKey = "_l"
+		encoderConfig.TimeKey = "_t"
+		encoderConfig.NameKey = "_n"
+		encoderConfig.CallerKey = "_c"
+		encoderConfig.StacktraceKey = "_s"
+		encoderConfig.FunctionKey = "_f"
+
+		encoder := zapcore.NewConsoleEncoder(encoderConfig)
+		if config.LogCfg().Format == "json" {
+			encoder = zapcore.NewJSONEncoder(encoderConfig)
+		}
+
+		// 日志输出位置
+		writerMap := make(map[string]zapcore.WriteSyncer)
+		for _, output := range config.LogCfg().Output {
+			if output == "console" {
+				writerMap[output] = zapcore.AddSync(os.Stdout)
+			} else {
+				writerMap[output] = zapcore.AddSync(getLogfileWriter(output))
+			}
+		}
+		var writer []zapcore.WriteSyncer
+		for _, w := range writerMap {
+			writer = append(writer, w)
+		}
+		if len(writer) == 0 {
+			writer = append(writer, zapcore.AddSync(os.Stdout))
+		}
+
+		// 其他配置
+		var opt []zap.Option
+		opt = append(opt, zap.WithCaller(true), zap.AddCallerSkip(1), zap.AddStacktrace(zapcore.ErrorLevel))
+
+		core := zapcore.NewCore(
+			encoder,
+			zapcore.NewMultiWriteSyncer(writer...),
+			zap.NewAtomicLevelAt(zap.InfoLevel),
+		)
+
+		logger := zap.New(core, opt...)
+
+		_log = &LogInstance{
+			logger:     logger,
+			callerSkip: 1,
+		}
+	})
 	return _log
 }
 

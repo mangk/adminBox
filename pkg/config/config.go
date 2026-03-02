@@ -4,12 +4,16 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"sync"
 
 	"github.com/spf13/viper"
 )
 
 var _config *configInstance
 var _viper *viper.Viper
+var configInit sync.Once
+var configPathSet sync.Once
+var _configPath = "./config.yaml"
 
 type configInstance struct {
 	Server server           `json:"server,omitempty" yaml:"server,omitempty"`
@@ -18,18 +22,18 @@ type configInstance struct {
 	Cache  map[string]cache `json:"cache,omitempty" yaml:"cache,omitempty"`
 }
 
-// Load initializes the configuration from a given path.
-// This function should be called once from the main application.
-func init() {
-	_viper = viper.New()
-	_viper.SetConfigFile("config.yaml")
-	// _viper.SetConfigType("yaml")
-	err := _viper.ReadInConfig()
+func i() *configInstance {
+	configInit.Do(func() {
+		_viper = viper.New()
+		_viper.SetConfigFile(_configPath)
+		_viper.SetConfigType("yaml")
+		err := _viper.ReadInConfig()
+		fmt.Printf("config path set to %s\n", _configPath)
 
-	if err != nil {
-		// If config file is not found, use a default one
-		fmt.Println("config file not found, using default settings.")
-		defaultConfig := []byte(`
+		if err != nil {
+			// If config file is not found, use a default one
+			fmt.Println("config file not found, using default settings.")
+			defaultConfig := []byte(`
 server:
   name: adminBox
   port: 8910
@@ -39,26 +43,25 @@ log:
   output:
     - console
 `)
-		err = _viper.ReadConfig(bytes.NewBuffer(defaultConfig))
-	}
-
-	if err == nil {
-		_config = &configInstance{}
-		err = _viper.Unmarshal(_config)
-		if err != nil {
-			fmt.Printf("[ Unmarshal Error] %s", err)
-			os.Exit(1)
+			err = _viper.ReadConfig(bytes.NewBuffer(defaultConfig))
 		}
-	}
+
+		if err == nil {
+			_config = &configInstance{}
+			err = _viper.Unmarshal(_config)
+			if err != nil {
+				fmt.Printf("[Unmarshal Error] %s", err)
+				os.Exit(1)
+			}
+		}
+	})
+	return _config
 }
 
-func i() *configInstance {
-	if _config == nil {
-		// This will panic if Load() has not been called.
-		// This is intentional to enforce proper initialization.
-		panic("configuration has not been loaded. Please call config.Load() in your main function.")
-	}
-	return _config
+func SetConfigPath(path string) {
+	configPathSet.Do(func() {
+		_configPath = path
+	})
 }
 
 func Get(path string) any {
@@ -114,9 +117,4 @@ func Custom[T any]() (T, error) {
 		i()
 	}
 	return c, _viper.Unmarshal(&c)
-}
-
-func pathExists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
 }
