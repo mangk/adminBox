@@ -13,7 +13,7 @@ var _config *configInstance
 var _viper *viper.Viper
 var configInit sync.Once
 var configPathSet sync.Once
-var _configPath = "./config.yaml"
+var _configPath = "config.yaml"
 
 type configInstance struct {
 	Server server           `json:"server,omitempty" yaml:"server,omitempty"`

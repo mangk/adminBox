@@ -9,11 +9,11 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${workspaceRoot}/examples",
+            "program": "${workspaceRoot}/example",
             "args": [
                 "serve",
                 "-c",
-                "./examples/config.yaml"
+                "./example/config.yaml"
             ]
         }
     ]

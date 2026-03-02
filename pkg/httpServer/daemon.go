@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/kardianos/service"
+	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/util"
 	"github.com/spf13/cobra"
 )
@@ -26,28 +26,15 @@ func Execute(serviceFileName, desc string) {
 			cmd.Help()
 		},
 	}
-	rootCmd.PersistentFlags().StringVarP(&argsConfigFilePath, "config", "c", "config.yaml", "指定配置文件路径")
-
-	var path string
-	if []rune(argsConfigFilePath)[0] != '/' {
-		path = filepath.Join(execDir, argsConfigFilePath)
-	} else {
-		path = argsConfigFilePath
-	}
-
-	_, err := os.Stat(path)
-	if err != nil {
-		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
-	}
-	if os.IsNotExist(err) {
-		panic("配置文件路径错误，请提供正确的配置文件路径（建议使用绝对路径）")
+	rootCmd.PersistentFlags().StringVarP(&argsConfigFilePath, "config", "c", "", "指定配置文件路径")
+	if argsConfigFilePath != "" {
+		config.SetConfigPath(argsConfigFilePath)
 	}
 
 	s, err := service.New(&program{}, &service.Config{
 		Name:        serviceFileName,
 		DisplayName: desc,
 		Description: desc,
-		Arguments:   []string{"s", "-c", path},
 	})
 	if err != nil {
 		panic(fmt.Sprintf("[Daemon Create Error] %s", err))
