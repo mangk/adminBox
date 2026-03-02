@@ -30,11 +30,11 @@ func IsUseResponseRecover() bool {
 }
 
 type Response struct {
-	Code           int         `json:"code"`
-	Msg            string      `json:"msg"`
-	MsgShowTimeout int64       `json:"msg_show_timeout,omitempty"`
-	Data           interface{} `json:"data,omitempty"`
-	T              int64       `json:"t"`
+	Code           int    `json:"code"`
+	Msg            string `json:"msg"`
+	MsgShowTimeout int64  `json:"msg_show_timeout,omitempty"`
+	Data           any    `json:"data,omitempty"`
+	T              int64  `json:"t"`
 }
 
 type PageResponse struct {

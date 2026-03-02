@@ -1,13 +1,3 @@
--- -------------------------------------------------------------
--- TablePlus 6.8.0(654)
---
--- https://tableplus.com/
---
--- Database: adminbox
--- Generation Time: 2026-03-02 15:29:26.1230
--- -------------------------------------------------------------
-
-
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -34,7 +24,7 @@ CREATE TABLE `sys_api` (
   `method` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'POST' COMMENT '方法:创建POST(默认)|查看GET|更新PUT|删除DELETE',
   PRIMARY KEY (`id`),
   KEY `idx_sys_api_dt` (`dt`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_auth`;
 CREATE TABLE `sys_auth` (
@@ -52,7 +42,7 @@ CREATE TABLE `sys_auth` (
   `set_value` int DEFAULT NULL COMMENT '设置值',
   PRIMARY KEY (`id`),
   KEY `idx_sys_auth_dt` (`dt`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_casbin_rule`;
 CREATE TABLE `sys_casbin_rule` (
@@ -145,7 +135,7 @@ CREATE TABLE `sys_menu` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uni_sys_menu_name` (`name`),
   KEY `idx_sys_menu_dt` (`dt`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
@@ -203,9 +193,12 @@ CREATE TABLE `sys_user_role` (
   `sys_role_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+INSERT INTO `sys_api` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `menu_id`, `name`, `description`, `path`, `method`) VALUES
+(1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'example', '', '/example', 'POST');
+
 INSERT INTO `sys_auth` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `table_id`, `table_module`, `type`, `key`, `set_value`) VALUES
-(1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-100', 1),
-(2, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-100', 1),
+(1, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-100', 1),
+(2, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-100', 1),
 (3, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-101', 1),
 (4, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-102', 1),
 (5, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-103', 1),
@@ -218,16 +211,16 @@ INSERT INTO `sys_auth` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `table_id`, `t
 (12, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-202', 1),
 (13, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-203', 1),
 (14, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-204', 1),
-(15, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-300', 1),
-(16, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-300', 1),
+(15, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-300', 1),
+(16, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-300', 1),
 (17, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-301', 1),
 (18, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-301', 1),
 (19, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-302', 1),
 (20, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-302', 1),
 (21, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-303', 1),
 (22, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-303', 1),
-(23, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-304', 1),
-(24, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-304', 1),
+(23, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-304', 1),
+(24, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-304', 1),
 (25, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-305', 1),
 (26, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '-306', 1),
 (27, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-400', 1),
@@ -258,23 +251,26 @@ INSERT INTO `sys_auth` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `table_id`, `t
 (52, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-708', 1),
 (53, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-709', 1),
 (54, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-710', 1),
-(55, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-711', 1);
+(55, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '-711', 1),
+(56, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'menu', '1', 1),
+(57, NULL, NULL, NULL, NULL, NULL, NULL, 1, 'sys_role', 'api', '1', 1);
 
 INSERT INTO `sys_department` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `pid`, `name`, `description`) VALUES
 (1, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'adminBox', '');
+
+INSERT INTO `sys_menu` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `pid`, `name`, `path`, `hidden`, `component`, `sort`, `title`, `keep_alive`, `default_menu`, `icon`, `auto_close`, `sc_path`, `action_list`) VALUES
+(1, NULL, NULL, NULL, NULL, NULL, NULL, 0, 'example', 'example', 0, 'views/util/serverComponent.vue', 0, 'Example Vue Template', 0, 0, 'Apple', 0, '/example', NULL);
 
 INSERT INTO `sys_role` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `name`, `description`) VALUES
 (1, NULL, NULL, NULL, NULL, NULL, NULL, 'adminBox', '超级管理员拥有所有权限');
 
 INSERT INTO `sys_user` (`id`, `cb`, `ub`, `db`, `ct`, `ut`, `dt`, `uuid`, `username`, `phone`, `email`, `salt`, `password`, `nick_name`, `avatar`, `enable`, `user_config`, `extend_config`, `last_login_at`, `feishu_user_info`) VALUES
-(1, NULL, NULL, NULL, NULL, '2026-03-02 07:28:53', NULL, 'f9209ecc-7b8e-4357-b2f4-389b6a3a1f0a', 'adminbox', '12345678901', 'adminbox@adminbox.com', NULL, '$2a$10$Sm8wwe/It2Y4J2xx3o1uku1wDR95b58fmJbO5q.FPPmZBjaBuoxTG', 'adminbox', '', 1, NULL, NULL, NULL, NULL);
+(1, NULL, NULL, NULL, NULL, NULL, NULL, 'f9209ecc-7b8e-4357-b2f4-389b6a3a1f0a', 'adminbox', '12345678901', 'adminbox@adminbox.com', NULL, '$2a$10$Sm8wwe/It2Y4J2xx3o1uku1wDR95b58fmJbO5q.FPPmZBjaBuoxTG', 'adminbox', '', 1, NULL, NULL, NULL, NULL);
 
 INSERT INTO `sys_user_department` (`sys_user_id`, `sys_department_id`) VALUES
-(1, 1),
 (1, 1);
 
 INSERT INTO `sys_user_role` (`sys_user_id`, `sys_role_id`) VALUES
-(1, 1),
 (1, 1);
 
 
