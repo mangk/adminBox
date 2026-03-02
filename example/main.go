@@ -25,5 +25,5 @@ func main() {
 		})
 	})
 
-	httpServer.Execute("simple_server", "examples")
+	httpServer.Execute("example", "example")
 }

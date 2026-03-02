@@ -14,7 +14,7 @@ server:
     imgHeight: 80
     overtime: 120
   jwt:
-    signingKey: 273628f7-9fb4-4e73-8f8d-ca954710d01d # uuid
+    signingKey: 273628f7-9fb4-4e73-8f8d-ca924710d01d # uuid
     expiresTime: 7d
     bufferTime: 1d
     issuer: qmPlus
@@ -93,7 +93,7 @@ cache:
   #   addr:
   #   password:
 log:
-  prefix: logFilePrefix
+  prefix: adminbox
   maxAge: 30
   level: debug
   format: console
