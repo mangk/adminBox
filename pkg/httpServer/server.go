@@ -3,6 +3,7 @@ package httpServer
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/config"
@@ -72,11 +73,20 @@ type program struct {
 }
 
 func (p *program) Start(s service.Service) error {
-	return httpServer(p.cfgPath)
+	p.ctx, p.cancel = context.WithCancel(context.Background())
+	go func() {
+		if err := httpServer(p.cfgPath); err != nil {
+			fmt.Printf("Server failed: %v\n", err)
+			os.Exit(1)
+		}
+	}()
+	return nil
 }
 
 func (p *program) Stop(s service.Service) error {
-	p.cancel()
+	if p.cancel != nil {
+		p.cancel()
+	}
 	return nil
 }
 
@@ -85,5 +95,6 @@ func newService() (service.Service, error) {
 		Name:        _serverName,
 		DisplayName: _serverName,
 		Description: _serverShort,
+		Arguments:   []string{"run", "-c", cfgFilePath},
 	})
 }

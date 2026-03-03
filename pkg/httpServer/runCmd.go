@@ -9,9 +9,11 @@ var runCmd = &cobra.Command{
 	Short: "运行程序",
 	Long:  "直接以阻塞模式运行程序",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		println(cfgFilePath, 2222)
-		httpServer(cfgFilePath)
-		return nil
+		s, err := newService()
+		if err != nil {
+			return err
+		}
+		return s.Run()
 	},
 }
 
