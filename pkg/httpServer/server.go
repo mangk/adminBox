@@ -91,10 +91,10 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func newService() (service.Service, error) {
-	return service.New(&program{cfgPath: cfgFilePath}, &service.Config{
+	return service.New(&program{cfgPath: _cfgFilePath}, &service.Config{
 		Name:        _serverName,
 		DisplayName: _serverName,
 		Description: _serverShort,
-		Arguments:   []string{"run", "-c", cfgFilePath},
+		Arguments:   []string{"run", "-c", _cfgFilePath},
 	})
 }

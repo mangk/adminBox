@@ -1,22 +1,24 @@
 package httpServer
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/mangk/adminBox/pkg/util"
 	"github.com/spf13/cobra"
 )
 
-var cfgFilePath string
+var _cfgFilePath string
+var _execDir string
 var _serverName string
 var _serverShort string
 
 var rootCmd = &cobra.Command{}
 
 func Execute(serverName, serverShort string) error {
-	dir := util.GetExecPath()
-	os.Chdir(dir)
-	println(dir)
+	_execDir = util.GetExecPath()
+	os.Chdir(_execDir)
+	fmt.Printf("[HttpServer run pwd %s]\n", _execDir)
 
 	_serverName = serverName
 	_serverShort = serverShort
@@ -28,7 +30,7 @@ func Execute(serverName, serverShort string) error {
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(
-		&cfgFilePath,
+		&_cfgFilePath,
 
 		"config",
 		"c",

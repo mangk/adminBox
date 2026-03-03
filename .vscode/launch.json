@@ -11,9 +11,9 @@
             "mode": "auto",
             "program": "${workspaceRoot}/example",
             "args": [
-                "serve",
+                "run",
                 "-c",
-                "./example/config.yaml"
+                "./config.yaml"
             ]
         }
     ]
