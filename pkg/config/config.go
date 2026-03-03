@@ -28,11 +28,11 @@ func i() *configInstance {
 		_viper.SetConfigFile(_configPath)
 		_viper.SetConfigType("yaml")
 		err := _viper.ReadInConfig()
-		fmt.Printf("config path set to %s\n", _configPath)
+		fmt.Printf("[Config file use at %s]\n", _configPath)
 
 		if err != nil {
 			// If config file is not found, use a default one
-			fmt.Println("config file not found, using default settings.")
+			fmt.Printf("[Config file not found, using default settings.]\n")
 			defaultConfig := []byte(`
 server:
   name: adminBox

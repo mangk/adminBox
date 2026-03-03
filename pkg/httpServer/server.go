@@ -6,27 +6,36 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/config"
+	"github.com/mangk/adminBox/pkg/log"
+
+	"context"
+
+	"github.com/kardianos/service"
 )
 
 var _waitInitRoter = make([]func(root *gin.Engine), 0)
 var _waitBrforeRun = make([]func(), 0)
 
-func SetRouter(f func(root *gin.Engine)) {
-	_waitInitRoter = append(_waitInitRoter, f)
-}
-
 func SetBeforeRun(f func()) {
 	_waitBrforeRun = append(_waitBrforeRun, f)
 }
 
-func httpServer() {
+func SetRouter(f func(root *gin.Engine)) {
+	_waitInitRoter = append(_waitInitRoter, f)
+}
+
+func httpServer(cfgPath string) error {
+	if cfgPath != "" {
+		config.SetConfigPath(cfgPath)
+	}
+
 	gin.DisableConsoleColor()
 
-	// adapter := log.GinAdapter()
-	// gin.DefaultWriter = adapter
-	// gin.DefaultErrorWriter = adapter
+	adapter := log.GinAdapter()
+	gin.DefaultWriter = adapter
+	gin.DefaultErrorWriter = adapter
 
-	// gin.SetMode(config.ServerCfg().Env)
+	gin.SetMode(config.ServerCfg().Env)
 	http := gin.New()
 	http.Use(gin.LoggerWithFormatter(func(p gin.LogFormatterParams) string {
 		m := map[string]interface{}{
@@ -53,5 +62,28 @@ func httpServer() {
 
 	host := config.ServerCfg().Host
 	port := config.ServerCfg().Port
-	http.Run(fmt.Sprintf("%s:%d", host, port))
+	return http.Run(fmt.Sprintf("%s:%d", host, port))
+}
+
+type program struct {
+	ctx     context.Context
+	cancel  context.CancelFunc
+	cfgPath string
+}
+
+func (p *program) Start(s service.Service) error {
+	return httpServer(p.cfgPath)
+}
+
+func (p *program) Stop(s service.Service) error {
+	p.cancel()
+	return nil
+}
+
+func newService() (service.Service, error) {
+	return service.New(&program{cfgPath: cfgFilePath}, &service.Config{
+		Name:        _serverName,
+		DisplayName: _serverName,
+		Description: _serverShort,
+	})
 }

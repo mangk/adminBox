@@ -10,7 +10,7 @@ const { proxy } = getCurrentInstance()
 const data = ref("")
 
 onMounted(() => {
-    proxy.$http.post("example").then(res => {
+    proxy.$http.post("api/example").then(res => {
         data.value = res.data.data
     })
 })
