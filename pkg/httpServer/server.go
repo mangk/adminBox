@@ -1,13 +1,13 @@
 package httpServer
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/log"
+	"github.com/mangk/adminBox/pkg/middleware"
 
 	"context"
 
@@ -38,19 +38,8 @@ func httpServer(cfgPath string) error {
 
 	gin.SetMode(config.ServerCfg().Env)
 	http := gin.New()
-	http.Use(gin.LoggerWithFormatter(func(p gin.LogFormatterParams) string {
-		m := map[string]interface{}{
-			"status":       p.StatusCode,
-			"latency":      p.Latency.String(),
-			"clientIP":     p.ClientIP,
-			"method":       p.Method,
-			"path":         p.Path,
-			"errorMessage": p.ErrorMessage,
-		}
-		b, _ := json.Marshal(m)
-		return string(b)
-	}))
 
+	http.Use(middleware.JSONLogger("/assets"))
 	http.Use(gin.Recovery())
 
 	for _, f := range _waitBrforeRun {
