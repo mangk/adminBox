@@ -6,10 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/log"
+	"go.uber.org/zap"
 )
 
-func Cors() gin.HandlerFunc {
-	log.Info("use middleware cors")
+func Cors(why string) gin.HandlerFunc {
+	log.Zaplog().WithOptions(zap.AddCallerSkip(-1)).Sugar().Infof("use middleware cors: %s", why)
 	return func(ctx *gin.Context) {
 		method := ctx.Request.Method
 		origin := ctx.Request.Header.Get("Origin")
@@ -30,7 +31,7 @@ func Cors() gin.HandlerFunc {
 func CorsByRules() gin.HandlerFunc {
 	// 放行全部
 	if config.CORSCfg().Mode == "allowAll" {
-		return Cors()
+		return Cors("allowAll")
 	}
 	return func(c *gin.Context) {
 		whitelist := checkCors(c.GetHeader("origin"))
