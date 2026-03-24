@@ -10,11 +10,11 @@ const ContextRoleUserTypeKey = "__role_user_type__"
 const ContextRoleUserIdKey = "__role_user_id__"
 
 type PublicPageRequest struct {
-	Query    map[string]interface{} `json:"query,omitempty"`
-	Sort     []string               `json:"sort,omitempty"`
-	Id       string                 `json:"id,omitempty"`
-	Ids      []any                  `json:"ids,omitempty"`
-	PageInfo `json:"page_info,omitempty"`
+	Query map[string]interface{} `json:"query,omitempty"`
+	Sort  []string               `json:"sort,omitempty"`
+	Id    string                 `json:"id,omitempty"`
+	Ids   []any                  `json:"ids,omitempty"`
+	PageInfo
 }
 
 func PublicRequest(ctx *gin.Context) PublicPageRequest {
