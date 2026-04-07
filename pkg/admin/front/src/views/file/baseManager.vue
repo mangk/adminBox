@@ -502,11 +502,6 @@ loadData()
     border-radius: 100px;
 }
 
-.main-content {
-    background-color: unset;
-    padding: 0;
-}
-
 .el-col {
     padding: 0;
 }

@@ -9,7 +9,7 @@
       </el-button>
     </el-form-item>
 
-    <el-table :data="tableData" row-key="id" height="var(--global-table)" border highlight-current-row
+    <el-table :data="tableData" row-key="id" height="calc(var(--global-table) + var(--global-padding)*3)" border highlight-current-row
       show-overflow-tooltip default-expand-all>
       <el-table-column prop="id" label="ID" sortable fixed />
       <el-table-column label="菜单名称" min-width="120">

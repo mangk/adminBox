@@ -12,7 +12,7 @@
     <el-table
       :data="tableData"
       row-key="id"
-      height="var(--global-table)"
+      height="calc(var(--global-table) + var(--global-padding)*3)"
       border
       highlight-current-row
       show-overflow-tooltip
