@@ -3,7 +3,7 @@
     <el-header class="box-header" :style="{
       'background-color': darkSidebar ? darkSidebarColor : '',
       color: darkSidebar ? '#fff' : ''
-    }">
+    }" v-show="!$router?.currentRoute?.value?.meta?.default_menu">
       <div class="header-logo-box" :style="{
         boxShadow: headerMenu || mobileDevice ? '2px 0 4px rgba(0, 0, 0, 0.16)' : 'unset'
       }">
@@ -58,7 +58,7 @@
       <el-aside class="box-aside" v-if="!headerMenu && !mobileDevice" :style="{
         'background-color': darkSidebar ? darkSidebarColor : '',
         color: darkSidebar ? '#fff' : ''
-      }">
+      }" v-show="!$router?.currentRoute?.value?.meta?.default_menu">
         <el-scrollbar>
           <transition :duration="{ enter: 800, leave: 100 }" mode="out-in" name="el-fade-in-linear">
             <el-menu :default-active="$route.name" @open="handleOpen" @close="handleClose" :collapse="isCollapse"

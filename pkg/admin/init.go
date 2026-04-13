@@ -15,7 +15,7 @@ func init() {
 
 	httpServer.SetRouter(func(router *gin.Engine) {
 		
-	// router.Use(middleware.Cors()) // TODO 跨域限制基于配置
+	router.Use(middleware.Cors("*")) // TODO 跨域限制基于配置
 
 	backend := router.Group(strings.Trim(config.ServerCfg().BackendRouterPrefix, "/") + "/sys")
 	backend.POST("login", handler.AuthLogin)
