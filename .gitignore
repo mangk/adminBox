@@ -2,3 +2,4 @@
 __debug*
 .idea
 *.log
+pkg/
