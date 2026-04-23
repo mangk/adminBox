@@ -1,6 +1,6 @@
-import { loadModule } from 'vue3-sfc-loader'
 import * as Vue from 'vue'
 import { defineAsyncComponent, markRaw } from 'vue'
+import { compileScript, compileStyle, compileTemplate, parse } from '@vue/compiler-sfc'
 import http from './requester'
 
 // 用一个对象来跟踪已加载的脚本及其回调队列
@@ -30,15 +30,141 @@ export function loadJS(urls, callback = null) {
     callback && callback();
   });
 }
+
+function hashString(input) {
+  let hash = 2166136261
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0).toString(16)
+}
+
+function stripVueMacroImports(source) {
+  const macroSet = new Set([
+    'defineProps',
+    'defineEmits',
+    'defineExpose',
+    'defineOptions',
+    'defineSlots',
+    'withDefaults'
+  ])
+
+  const importRegex = /^import\s+\{([^}]+)\}\s+from\s+['"]vue['"]\s*;?\s*$/gm
+  return source.replace(importRegex, (_, namedPart) => {
+    const keepList = namedPart
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .filter((part) => {
+        const m = part.match(/^([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?$/)
+        if (!m) return true
+        const importedName = m[1]
+        return !macroSet.has(importedName)
+      })
+
+    if (keepList.length === 0) return ''
+    return `import { ${keepList.join(', ')} } from 'vue'`
+  })
+}
+
+function formatCompileErrors(title, errors) {
+  const arr = Array.isArray(errors) ? errors : [errors]
+  return arr
+    .map((err) => {
+      if (!err) return ''
+      if (typeof err === 'string') return err
+      return err.message || String(err)
+    })
+    .filter(Boolean)
+    .map((msg) => `[${title}] ${msg}`)
+    .join('\n')
+}
+
+function transformVueImports(code) {
+  const normalizeNamedImports = (rawNamed) => {
+    return rawNamed
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const match = part.match(/^([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?$/)
+        if (!match) return part
+        return match[2] ? `${match[1]}: ${match[2]}` : match[1]
+      })
+      .join(', ')
+  }
+
+  let output = code
+
+  output = output.replace(
+    /^import\s+([A-Za-z_$][\w$]*)\s*,\s*\{([^}]+)\}\s+from\s+['"]vue['"]\s*;?\s*$/gm,
+    (_, defaultName, namedPart) =>
+      `const ${defaultName} = __deps.vue.default || __deps.vue\nconst { ${normalizeNamedImports(namedPart)} } = __deps.vue`
+  )
+
+  output = output.replace(
+    /^import\s+\{([^}]+)\}\s+from\s+['"]vue['"]\s*;?\s*$/gm,
+    (_, namedPart) => `const { ${normalizeNamedImports(namedPart)} } = __deps.vue`
+  )
+
+  output = output.replace(
+    /^import\s+\*\s+as\s+([A-Za-z_$][\w$]*)\s+from\s+['"]vue['"]\s*;?\s*$/gm,
+    (_, localName) => `const ${localName} = __deps.vue`
+  )
+
+  output = output.replace(
+    /^import\s+([A-Za-z_$][\w$]*)\s+from\s+['"]vue['"]\s*;?\s*$/gm,
+    (_, defaultName) => `const ${defaultName} = __deps.vue.default || __deps.vue`
+  )
+
+  return output
+}
+
+function compileToFactory(code, filename, returnSymbol) {
+  let normalized = transformVueImports(code)
+  normalized = normalized.replace(
+    /export\s*\{\s*([A-Za-z_$][\w$]*)\s+as\s+default\s*\}\s*;?/gm,
+    'const __sfc__ = $1'
+  )
+  normalized = normalized.replace(/export\s+default/g, 'const __sfc__ =')
+  normalized = normalized.replace(/export\s+function\s+render/g, 'function render')
+  normalized = normalized.replace(/export\s+(const|let|var|function|class)\s+/g, '$1 ')
+
+  const wrapped = `
+"use strict"
+${normalized}
+return ${returnSymbol};
+`
+  try {
+    return new Function('__deps', wrapped)
+  } catch (err) {
+    throw new Error(`[${filename}] compile factory failed: ${err && err.message ? err.message : err}`, {
+      cause: err
+    })
+  }
+}
+
+function runComponentScript(code, filename) {
+  const factory = compileToFactory(code, filename, '__sfc__')
+  const component = factory({ vue: Vue })
+  if (!component || (typeof component !== 'object' && typeof component !== 'function')) {
+    throw new Error(`[${filename}] script does not export a valid component`)
+  }
+  return component
+}
+
+function runRenderFactory(code, filename) {
+  const factory = compileToFactory(code, filename, 'render')
+  const render = factory({ vue: Vue })
+  if (typeof render !== 'function') {
+    throw new Error(`[${filename}] template does not export render function`)
+  }
+  return render
+}
+
 /**
- * Robust loader for .vue single-file components fetched as text.
- *
- * @param {string} url - 请求 SFC 文本的 URL（返回值可为 string，或 axios-like response，或 fetch Response）
- * @param {string} name - 用作样式 id / 日志前缀
- * @param {object} userOptions - 可选项:
- *    { number timeout = 15000, boolean devMode = true,
- *      boolean retryOnFail = false, number maxRetries = 2,
- *      Component loadingComponent, Component errorComponent, number delay = 200, number errorTimeout = 0 }
+ * 动态加载并编译远程 .vue SFC（不依赖 vue3-sfc-loader）。
  */
 export function loadTMPL(url, name = 'myConvert', userOptions = {}) {
   const {
@@ -69,123 +195,123 @@ export function loadTMPL(url, name = 'myConvert', userOptions = {}) {
     throw new Error('defineAsyncComponent is not available in this environment')
   }
 
-  // accumulate compiler/runtime logs from vue3-sfc-loader
-  let compileLogs = []
-
-  const options = {
-    moduleCache: { vue: Vue },
-    // getFile must return SFC text. We make it robust to various http wrappers.
-    getFile() {
-      // prefer dev-mode cache busting to avoid stale files
-      const fetchUrl = devMode ? `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}` : url
-
-      // fetch wrapper that supports: plain string, fetch Response, axios-like {data,status}, custom http*
-      const fetchPromise = (async () => {
-        try {
-          const response = await http(fetchUrl, { method: 'GET' })
-          // if using fetch API
-          if (response && typeof Response !== 'undefined' && response instanceof Response) {
-            if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`)
-            return await response.text()
-          }
-          // axios-like (response.data)
-          if (response && typeof response === 'object' && 'data' in response) {
-            // assume response.data is text
-            return typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-          }
-          // plain string (some wrappers directly return text)
-          if (typeof response === 'string') return response
-          // some wrappers put body
-          if (response && typeof response === 'object' && 'body' in response) {
-            return typeof response.body === 'string' ? response.body : JSON.stringify(response.body)
-          }
-
-          // unknown shape
-          throw new Error('Unsupported response shape from http()')
-        } catch (err) {
-          // rethrow to be caught by outer Promise.race
-          throw err
-        }
-      })()
-
-      // timeout guard
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`Request timed out after ${timeout} ms`)), timeout)
-      )
-
-      return Promise.race([fetchPromise, timeoutPromise]).catch((err) => {
-        // normalize message so loader sees a clear error
-        const e = new Error(`[loadTMPL:getFile] ${err && err.message ? err.message : err}`)
-        return Promise.reject(e)
-      })
-    },
-
-    // insert or replace style tag by id to avoid duplicated styles
-    addStyle(styleString) {
-      try {
-        let style = document.getElementById(name)
-        if (!style) {
-          style = document.createElement('style')
-          style.setAttribute('id', name)
-          // append to head end
-          document.head.appendChild(style)
-        }
-        style.textContent = styleString
-      } catch (err) {
-        // don't break loader for style injection errors, but log
-        console.warn(`[${name}] addStyle failed:`, err)
+  const fetchSFC = () => {
+    const fetchUrl = devMode ? `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}` : url
+    const fetchPromise = (async () => {
+      const response = await http(fetchUrl, { method: 'GET' })
+      if (response && typeof Response !== 'undefined' && response instanceof Response) {
+        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`)
+        return await response.text()
       }
-    },
-
-    // hook for vue3-sfc-loader to report compiler/runtime messages
-    log(type, ...args) {
-      try {
-        // record for post-checks (we'll throw if there are compiler errors)
-        compileLogs.push({ type, args })
-        // forward to dev console with a prefix
-        const fn = console[type] || console.log
-        fn.call(console, `[vue3-sfc-loader:${name}]`, ...args)
-      } catch (e) {
-        // swallow any logging errors
+      if (response && typeof response === 'object' && 'data' in response) {
+        return typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
       }
-    },
+      if (typeof response === 'string') return response
+      if (response && typeof response === 'object' && 'body' in response) {
+        return typeof response.body === 'string' ? response.body : JSON.stringify(response.body)
+      }
+      throw new Error('Unsupported response shape from http()')
+    })()
 
-    devMode
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`Request timed out after ${timeout} ms`)), timeout)
+    )
+
+    return Promise.race([fetchPromise, timeoutPromise]).catch((err) => {
+      const e = new Error(`[loadTMPL:getFile] ${err && err.message ? err.message : err}`)
+      return Promise.reject(e)
+    })
   }
 
-  // loader wrapper which will call loadModule and perform sanity checks
-  const loader = async () => {
-    // reset compile logs before each load
-    compileLogs = []
-
-    let mod
+  const applyStyles = (styleId, cssText) => {
+    if (!cssText) return
     try {
-      mod = await loadModule(`${name}.vue`, options)
+      let style = document.getElementById(styleId)
+      if (!style) {
+        style = document.createElement('style')
+        style.setAttribute('id', styleId)
+        document.head.appendChild(style)
+      }
+      style.textContent = cssText
     } catch (err) {
-      // this is likely network / parse errors. normalize and rethrow
-      console.error(`[${name}] loadModule failed:`, err)
+      console.warn(`[${name}] addStyle failed:`, err)
+    }
+  }
+
+  const loader = async () => {
+    const filename = `${name}.vue`
+    const scopeId = `data-v-${hashString(`${name}::${url}`)}`
+    const styleId = `${name}__runtime_style`
+    const source = stripVueMacroImports(await fetchSFC())
+
+    const parsed = parse(source, { filename })
+    const parseErrors = parsed.errors || []
+    if (parseErrors.length > 0) {
+      throw new Error(formatCompileErrors(`${name}:parse`, parseErrors))
+    }
+
+    const descriptor = parsed.descriptor
+    const hasScoped = descriptor.styles.some((styleBlock) => styleBlock.scoped)
+
+    const styles = []
+    for (const styleBlock of descriptor.styles) {
+      const styleRes = compileStyle({
+        filename,
+        id: scopeId,
+        source: styleBlock.content,
+        scoped: styleBlock.scoped
+      })
+      if (styleRes.errors && styleRes.errors.length > 0) {
+        throw new Error(formatCompileErrors(`${name}:style`, styleRes.errors))
+      }
+      styles.push(styleRes.code)
+    }
+    if (styles.length > 0) {
+      applyStyles(styleId, styles.join('\n'))
+    }
+
+    let component = {}
+    let scriptResult = null
+    if (descriptor.script || descriptor.scriptSetup) {
+      scriptResult = compileScript(descriptor, {
+        id: scopeId,
+        inlineTemplate: false
+      })
+      component = runComponentScript(scriptResult.content, filename)
+    }
+
+    if (descriptor.template) {
+      const templateRes = compileTemplate({
+        id: scopeId,
+        filename,
+        source: descriptor.template.content,
+        scoped: hasScoped,
+        compilerOptions: {
+          bindingMetadata: scriptResult ? scriptResult.bindings : undefined
+        }
+      })
+      if (templateRes.errors && templateRes.errors.length > 0) {
+        throw new Error(formatCompileErrors(`${name}:template`, templateRes.errors))
+      }
+      if (templateRes.tips && templateRes.tips.length > 0) {
+        for (const tip of templateRes.tips) {
+          console.warn(`[${name}] template tip:`, tip)
+        }
+      }
+      component.render = runRenderFactory(templateRes.code, filename)
+    }
+
+    if (hasScoped) {
+      component.__scopeId = scopeId
+    }
+    component.__file = filename
+
+    try {
+      return _markRaw(component)
+    } catch (err) {
+      console.error(`[${name}] compile/load failed:`, err)
       throw err
     }
-
-    // if loader emitted any error-level logs during compile, surface them as thrown error
-    const errs = compileLogs
-      .filter((l) => l.type === 'error' || l.type === 'warn')
-      .map((l) => (Array.isArray(l.args) ? l.args.map(String).join(' ') : String(l.args)))
-    if (errs.length > 0) {
-      const aggregated = errs.join('\n')
-      console.error(`[${name}] compile/loader reports:\n${aggregated}`)
-      // Throw a meaningful error so defineAsyncComponent.onError runs and console shows stack
-      throw new Error(`${name} compile/loader errors:\n${aggregated}`)
-    }
-
-    // module shape checks: prefer ES module default export, else module itself
-    const component = mod && (mod.default || mod)
-    if (!component || (typeof component !== 'object' && typeof component !== 'function')) {
-      console.error(`[${name}] module did not export a Vue component:`, mod)
-      throw new Error(`${name} did not export a valid component`)
-    }
-
-    return _markRaw(component)
   }
 
   // default friendly error component (shows minimal message in DOM, instructs to check console)

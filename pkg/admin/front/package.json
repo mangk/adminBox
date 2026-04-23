@@ -22,7 +22,7 @@
     "terser": "^5.46.0",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3",
-    "vue3-sfc-loader": "^0.9.5"
+    "@vue/compiler-sfc": "^3.5.29"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
