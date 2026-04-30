@@ -49,7 +49,7 @@ router.beforeEach(async (to, from) => {
   const userStore = useUserStore()
   if (!routerStore.initialized) {
     await routerStore.loadServerRouter(true)
-    return { path: to.path }
+    return { ...to }
   }
 
   if (!userStore.isLogIn()) {
