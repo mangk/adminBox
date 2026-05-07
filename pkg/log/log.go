@@ -114,13 +114,13 @@ func Panicf(format string, args ...interface{}) {
 	i().Panicf(format, args...)
 }
 
-func JsonMarshal(data any) {
+func Json(data any) {
 	if v, ok := data.(string); ok {
 		i().Info(v)
 		return
 	}
-	v, e := json.Marshal(data)
-	i().Infof("%s; %e", v, e)
+	v, _ := json.Marshal(data)
+	i().Infof("%s", v)
 }
 
 func Sync() {
