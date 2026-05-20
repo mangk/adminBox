@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -35,10 +34,13 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 			return
 		}
 
+		if jwtUserInfo.UserId == 0 {
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "无效用户ID")
+			ctx.Abort()
+			return
+		}
+
 		ctx.Set(request.ContextLoginUserKey, jwtUserInfo.UserId)
-		ctx.Set(request.ContextRoleUserTypeKey, ctx.Request.Header.Get("X-User-Type"))
-		roleUserId, _ := strconv.Atoi(ctx.Request.Header.Get("X-User-Id"))
-		ctx.Set(request.ContextRoleUserIdKey, roleUserId)
 
 		sub := jwtUserInfo.Id
 		obj := ctx.Request.URL.Path

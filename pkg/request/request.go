@@ -6,8 +6,6 @@ import (
 
 const ContextPublicRequestKey = "__public_request__"
 const ContextLoginUserKey = "__login_user__"
-const ContextRoleUserTypeKey = "__role_user_type__"
-const ContextRoleUserIdKey = "__role_user_id__"
 
 type PublicPageRequest struct {
 	Query map[string]interface{} `json:"query,omitempty"`
@@ -28,18 +26,6 @@ func PublicRequestCrud(ctx *gin.Context) CRUDRequest {
 // 获取 JWT 中存储的用户信息
 func JWTLoginUserId(ctx *gin.Context) int {
 	return ctx.GetInt(ContextLoginUserKey)
-}
-
-// Deprecated: 身份与ID可能被客户端篡改，不安全
-// 身份用户ID
-func RoleUserId(ctx *gin.Context) int {
-	return ctx.GetInt(ContextRoleUserIdKey)
-}
-
-// Deprecated: 身份与ID可能被客户端篡改，不安全
-// 身份用类型
-func RoleUserType(ctx *gin.Context) string {
-	return ctx.GetString(ContextRoleUserTypeKey)
 }
 
 type PageQuery[T any] struct {
