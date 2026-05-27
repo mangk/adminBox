@@ -9,8 +9,8 @@
       </el-button>
     </el-form-item>
 
-    <el-table :data="tableData" row-key="id" height="calc(var(--global-table) + var(--global-padding)*3)" border highlight-current-row
-      show-overflow-tooltip default-expand-all>
+    <el-table :data="tableData" row-key="id" height="calc(var(--global-table) + var(--global-padding)*3)" border
+      highlight-current-row show-overflow-tooltip default-expand-all>
       <el-table-column prop="id" label="ID" sortable fixed />
       <el-table-column label="菜单名称" min-width="120">
         <template #default="scope">
@@ -215,7 +215,7 @@ const rules = reactive({
           callback(new Error('父级菜单 不能为空'))
           return
         }
-        if (value === form.id) {
+        if (value === form.id && form.id !== 0) {
           callback(new Error('所选菜单不能为当前编辑菜单'))
           return
         }
