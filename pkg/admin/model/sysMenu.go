@@ -181,14 +181,23 @@ func (s SysMenu) SystemMenu() []SysMenu {
 }
 
 var newWelcome *SysMenu
+var newWelcomeFn func() SysMenu
 
 func (s SysMenu) welcomePage() SysMenu {
-	if newWelcome != nil {
-		return *newWelcome
+	if newWelcomeFn != nil {
+		return newWelcomeFn()
+	} else {
+		if newWelcome != nil {
+			return *newWelcome
+		}
 	}
 	return SysMenu{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: false, Component: "views/welcome.vue", Sort: 999999, Meta: Meta{Title: "欢迎", KeepAlive: true, Icon: "sugar"}}
 }
 
 func RewriteWelcome(title, scPath string) {
 	newWelcome = &SysMenu{Model: Model{ID: -100}, Pid: 0, Name: "welcome", Path: "welcome", Hidden: false, Component: "views/util/serverComponent.vue", Sort: 999999, Meta: Meta{Title: title, KeepAlive: true, SCPath: scPath, Icon: "sugar"}}
+}
+
+func RewriteWelcomeFn(fn func() SysMenu) {
+	newWelcomeFn = fn
 }
