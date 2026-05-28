@@ -65,6 +65,15 @@
               unique-opened router :background-color="darkSidebar ? darkSidebarColor : ''"
               :text-color="darkSidebar ? '#fff' : ''">
               <MenuTree :menus="menuList" />
+              <el-menu-item></el-menu-item>
+              <el-menu-item
+                :style="{ position: 'fixed', bottom: 0, left: 0, backgroundColor: darkSidebar ? darkSidebarColor : '#fff' }"
+                @click="() => isCollapse = !isCollapse">
+                <el-icon>
+                  <DArrowRight v-if="isCollapse" />
+                  <DArrowLeft v-if="!isCollapse" />
+                </el-icon>
+              </el-menu-item>
             </el-menu>
           </transition>
         </el-scrollbar>
@@ -105,7 +114,7 @@
 </template>
 
 <script setup>
-import { ref, onBeforeMount, reactive, getCurrentInstance } from 'vue'
+import { ref, onBeforeMount, reactive, getCurrentInstance, provide } from 'vue'
 import { useUserStore } from '@/pinia/useUserStore'
 import { useRouterStore } from '@/pinia/useRouterStore.js'
 import { useCssVar } from '@vueuse/core'
@@ -180,6 +189,10 @@ const logout = () => {
 
 // aside
 const isCollapse = ref(false)
+provide('isCollapse', {
+  value: isCollapse,
+  toggle: () => isCollapse.value = true
+})
 
 const menuList = await useRouterStore().loadServerRouter()
 
