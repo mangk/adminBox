@@ -306,14 +306,14 @@ func FileMove(ctx *gin.Context) {
 	db.DB().Where("cb = ?", request.JWTLoginUserId(ctx)).First(&group, req.GroupId)
 	if group.ID == 0 {
 		if req.GroupId == 0 {
-			db.DB().Debug().Model(&model.SysFile{}).Where("cb =?", request.JWTLoginUserId(ctx)).Where("id in ?", req.Ids).Update("group_id", nil)
+			db.DB().Model(&model.SysFile{}).Where("cb =?", request.JWTLoginUserId(ctx)).Where("id in ?", req.Ids).Update("group_id", nil)
 			response.OkWithMsg(ctx, "移动成功")
 			return
 		}
 		response.FailWithMsg(ctx, "分组不存在")
 		return
 	}
-	db.DB().Debug().Model(&model.SysFile{}).Where("cb =?", request.JWTLoginUserId(ctx)).Where("id in ?", req.Ids).Update("group_id", req.GroupId)
+	db.DB().Model(&model.SysFile{}).Where("cb =?", request.JWTLoginUserId(ctx)).Where("id in ?", req.Ids).Update("group_id", req.GroupId)
 	response.OkWithMsg(ctx, "移动成功")
 }
 
