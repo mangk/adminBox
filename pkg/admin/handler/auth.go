@@ -9,6 +9,7 @@ import (
 	"github.com/mangk/adminBox/pkg/cache"
 	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/db"
+	"github.com/mangk/adminBox/pkg/jwt"
 	"github.com/mangk/adminBox/pkg/request"
 	"github.com/mangk/adminBox/pkg/response"
 	"github.com/mojocn/base64Captcha"
@@ -39,7 +40,12 @@ func AuthLogin(ctx *gin.Context) {
 		return
 	}
 
-	jwtToken, err := model.NewJWT([]byte(config.JwtCfg().SigningKey)).Create(user, config.JwtCfg())
+	jwtToken, err := jwt.New([]byte(config.JwtCfg().SigningKey)).Create(jwt.Claims{
+		UserId:   user.ID,
+		Username: user.Username,
+		NickName: user.NickName,
+		UUID:     user.UUID,
+	}, config.JwtCfg())
 	if err != nil {
 		response.FailWithError(ctx, err)
 		return

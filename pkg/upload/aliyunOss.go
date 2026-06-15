@@ -34,7 +34,7 @@ func (a *AliyunOSS) MultipartUploadFile(file *multipart.FileHeader, keyPrefix ..
 		return "", "", "", file.Size, errors.New("function file.Open() Failed, err:" + openError.Error())
 	}
 	defer f.Close() // 创建文件 defer 关闭
-	fileKeyBuild := make([]string, file.Size)
+	fileKeyBuild := make([]string, 0)
 	if a.cfg.PrefixPath != "" {
 		fileKeyBuild = append(fileKeyBuild, a.cfg.PrefixPath)
 	}

@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/pkg/admin/model"
+	"github.com/mangk/adminBox/pkg/casbin"
 	"github.com/mangk/adminBox/pkg/config"
+	"github.com/mangk/adminBox/pkg/jwt"
 	"github.com/mangk/adminBox/pkg/request"
 	"github.com/mangk/adminBox/pkg/response"
 )
@@ -21,7 +22,7 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 			return
 		}
 
-		jwtUserInfo, err := model.NewJWT([]byte(config.JwtCfg().SigningKey)).Parse(token[7:])
+		jwtUserInfo, err := jwt.New([]byte(config.JwtCfg().SigningKey)).Parse(token[7:])
 		if err != nil || jwtUserInfo == nil {
 			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "Token解析失败")
 			ctx.Abort()
@@ -52,7 +53,7 @@ func JWTCheckByCasbin() gin.HandlerFunc {
 			obj = objs[len(objs)-1]
 		}
 
-		access, err := model.LoadEnforce().Enforce(sub, obj, act)
+		access, err := casbin.Enforce().Enforce(sub, obj, act)
 		if err != nil {
 			response.FailWithError(ctx, err)
 			ctx.Abort()

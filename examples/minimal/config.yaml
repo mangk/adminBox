@@ -1,0 +1,14 @@
+server:
+  name: minimal
+  env: debug
+  host: 127.0.0.1
+  port: 8910
+  cors:
+    mode: allowAll
+
+log:
+  prefix: minimal
+  level: debug
+  format: console
+  output:
+    - console

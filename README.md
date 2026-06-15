@@ -1,6 +1,7 @@
 # AdminBox
 
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8.svg)](https://go.dev/)
+[![Go Reference](https://pkg.go.dev/badge/github.com/mangk/adminBox.svg)](https://pkg.go.dev/github.com/mangk/adminBox)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Gin Framework](https://img.shields.io/badge/Framework-Gin-blue.svg)](https://gin-gonic.com/)
 [![GORM](https://img.shields.io/badge/ORM-GORM-lightgrey.svg)](https://gorm.io/)
@@ -124,28 +125,51 @@ func main() {
 ### 6. 运行
 
 ```bash
-go run main.go
+go run main.go run
 ```
 
 服务启动后，访问 `http://127.0.0.1:8910` 即可看到 AdminBox 的登录界面。系统会自动初始化数据库表结构。
+
+## 示例
+
+项目提供了多级粒度的示例供参考：
+
+| 示例 | 说明 | 目录 |
+|---|---|---|
+| 最小化服务 | httpServer + 自定义路由，无需数据库 | [examples/minimal](./examples/minimal) |
+| 完整后台管理 | httpServer + 管理后台 + 前端界面 | [examples/with-admin](./examples/with-admin) |
+
+```bash
+# 运行最小化示例
+go run ./examples/minimal/ run
+
+# 运行完整后台管理示例（需 MySQL + Redis）
+go run ./examples/with-admin/ run
+```
 
 ## 项目结构
 
 ```
 /
-├── pkg/            # 核心功能模块 (可被外部引用的公共库)
-│   ├── admin/      # 后台管理核心逻辑 (包含前端资源)
-│   ├── cache/      # 缓存 (Redis)
-│   ├── config/     # 配置加载 (Viper)
-│   ├── db/         # 数据库 (GORM)
-│   ├── httpServer/ # HTTP 服务启动器 (Cobra + Gin)
-│   ├── log/        # 日志 (Zap)
-│   ├── middleware/ # Gin 中间件
-│   ├── upload/     # 文件上传模块
-│   └── util/       # 通用工具函数
-├── example/        # 示例代码
-├── go.mod          # Go 模块文件
-└── README.md       # 项目说明
+├── examples/        # 示例代码
+│   ├── minimal/     # 最小化服务示例 (httpServer only)
+│   └── with-admin/  # 完整后台管理示例
+├── pkg/             # 核心功能模块 (可被外部引用的公共库)
+│   ├── admin/       # 后台管理核心逻辑 (包含前端资源)
+│   ├── cache/       # 缓存 (Redis)
+│   ├── config/      # 配置加载 (Viper)
+│   ├── db/          # 数据库 (GORM)
+│   ├── httpServer/  # HTTP 服务启动器 (Cobra + Gin)
+│   ├── log/         # 日志 (Zap)
+│   ├── middleware/  # Gin 中间件
+│   ├── request/     # 请求参数解析
+│   ├── response/    # 统一响应格式
+│   ├── upload/      # 文件上传模块
+│   └── util/        # 通用工具函数
+├── Makefile         # 构建入口
+├── CHANGELOG.md     # 版本记录
+├── go.mod           # Go 模块文件
+└── README.md        # 项目说明
 ```
 
 ## 贡献
