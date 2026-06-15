@@ -2,180 +2,169 @@
 
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8.svg)](https://go.dev/)
 [![Go Reference](https://pkg.go.dev/badge/github.com/mangk/adminBox.svg)](https://pkg.go.dev/github.com/mangk/adminBox)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/License-AGPLv3-green.svg)](https://www.gnu.org/licenses/agpl-3.0.html)
 [![Gin Framework](https://img.shields.io/badge/Framework-Gin-blue.svg)](https://gin-gonic.com/)
-[![GORM](https://img.shields.io/badge/ORM-GORM-lightgrey.svg)](https://gorm.io/)
 
-**AdminBox** 是一个模块化、可插拔的 Go 后台开发套件，旨在帮助开发者快速构建功能完备、易于扩展的后台管理系统。
+AdminBox 是一个模块化、可组合的 Go 后台开发套件。每个模块可独立导入、独立使用，按需组装。
 
 ## 设计理念
 
-AdminBox 的核心设计哲学是 **“后台优先，按需组装”**。它并非一个大而全的笨重框架，而是一个由多个独立“功能积木”组成的工具箱。您可以根据项目需求，仅选择需要的部分，构建一个轻量、高效、定制化的后台服务。
+**"后台优先，按需组装"** — AdminBox 不是一个大而全的框架，而是一组可独立使用的功能积木：
 
-同时，项目内置了一个基于 Vue 的现代化前端界面，通过 `embed` 特性实现编译时嵌入，只需一行 `import` 即可自动集成，实现真正的“开箱即用”。
-
-## 主要特性
-
--   **高度模块化**: `pkg` 目录下的每个包（如 `log`, `db`, `config`）都是独立的功能模块，可以被任何项目单独引用。
--   **可插拔的前端**: 只需在 `main.go` 中分别匿名导入 `pkg/admin`（后端API）和 `pkg/admin/front`（前端UI），一个功能完善的后台管理界面就会被自动嵌入并提供服务。
--   **清晰的架构**: 遵循 Go 社区推崇的项目结构，清晰地分离了公共库与内部业务逻辑。
--   **丰富的功能集**:
-    -   **配置管理**: 基于 `Viper`，支持 YAML 文件格式，可热加载。
-    -   **结构化日志**: 基于 `Zap`，支持多级别、多输出（控制台、文件）。
-    -   **数据库 ORM**: 基于 `GORM`，支持 `MySQL`, `PostgreSQL`, `SQLServer` 等多种数据库。
-    -   **缓存**: 内置 `Redis` 客户端支持。
-    -   **Web 框架**: 使用高性能的 `Gin` 作为路由和中间件核心。
-    -   **认证与授权**: 内置 `JWT` 和 `Casbin` 的集成方案。
-    -   **文件上传**: 支持本地存储、阿里云 OSS、腾讯云 COS、AWS S3 和七牛云。
-    -   **CRUD 引擎**: 提供通用的增删改查后端引擎，简化业务开发。
--   **易于扩展**: 清晰的职责划分和接口设计，方便进行二次开发或替换任意模块。
+- **`httpServer`** 是底座 — Gin + Cobra + 服务管理，可以独立使用
+- **`admin`** + **`front`** 是可选插件 — 通过 `init()` 注册路由，插上即用
+- **`log` / `config` / `db` / `cache` / `jwt` / `casbin` / `middleware` / `upload` / `util`** 是独立工具包 — 可各自 import 到任何项目
 
 ## 快速上手
 
-以下步骤将引导您快速启动一个最小化的 AdminBox 服务。
-
-### 1. 环境准备
-
--   Go 1.23+
--   MySQL 5.7+ 或其他 GORM 支持的数据库
--   Redis
-
-### 2. 初始化项目
-
-```bash
-# 创建项目目录
-mkdir my-admin && cd my-admin
-
-# 初始化 Go Module
-go mod init my-admin
-
-# 获取 AdminBox
-go get github.com/mangk/adminBox
-```
-
-### 3. 配置文件 `config.yaml`
-
-在项目根目录创建 `config.yaml` 文件。这是一个最小化的配置示例：
-
-```yaml
-server:
-  name: my-admin
-  env: debug
-  port: 8910
-  jwt:
-    signingKey: "a-secret-key-change-it" # 请务必修改为你的密钥
-    expiresTime: 7d
-    bufferTime: 1d
-    issuer: my-admin
-
-db:
-  default:
-    driver: mysql
-    path: 127.0.0.1
-    port: 3306
-    dbname: adminbox # 数据库名
-    username: root # 数据库用户名
-    password: "your-password" # 数据库密码
-    config: "charset=utf8mb4&parseTime=True&loc=Local"
-    logMode: 3 # 日志级别
-
-cache:
-  default:
-    addr: "127.0.0.1:6379"
-    password: ""
-    db: 0
-
-log:
-  level: debug
-  format: console
-  output:
-    - console
-    - logs
-```
-
-### 4. 创建数据库
-
-根据 `config.yaml` 中的配置，创建名为 `adminbox` 的数据库。
-
-### 5. 编写 `main.go`
+### 最小化服务（无需数据库）
 
 ```go
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	// 匿名导入 AdminBox 后端模块，自动注册后台API
-	_ "github.com/mangk/adminBox/pkg/admin"
-	// 匿名导入 AdminBox 前端模块，自动注册UI界面
-	_ "github.com/mangk/adminBox/pkg/admin/front"
-	"github.com/mangk/adminBox/pkg/httpServer"
+    "github.com/gin-gonic/gin"
+    "github.com/mangk/adminBox/pkg/httpServer"
+    "github.com/mangk/adminBox/pkg/response"
 )
 
 func main() {
-	// (可选) 在这里注册你自己的业务路由
-	httpServer.SetRouter(func(root *gin.Engine) {
-		// example: root.GET("/ping", func(c *gin.Context) { c.String(200, "pong") })
-	})
-
-	// 启动服务
-	httpServer.Execute("my-admin", "My First AdminBox Server")
+    httpServer.SetRouter(func(root *gin.Engine) {
+        root.GET("/ping", func(ctx *gin.Context) {
+            response.OkWithMsg(ctx, "pong")
+        })
+    })
+    httpServer.Execute("my-app", "My AdminBox App")
 }
 ```
 
-### 6. 运行
+```yaml
+# config.yaml
+server:
+  name: my-app
+  port: 8910
+log:
+  output:
+    - console
+```
 
 ```bash
 go run main.go run
 ```
 
-服务启动后，访问 `http://127.0.0.1:8910` 即可看到 AdminBox 的登录界面。系统会自动初始化数据库表结构。
+### 完整后台管理（需 MySQL + Redis）
 
-## 示例
+```go
+package main
 
-项目提供了多级粒度的示例供参考：
+import (
+    "github.com/gin-gonic/gin"
+    _ "github.com/mangk/adminBox/pkg/admin"        // 自动注册后台API
+    _ "github.com/mangk/adminBox/pkg/admin/front"   // 嵌入前端UI
+    "github.com/mangk/adminBox/pkg/httpServer"
+)
 
-| 示例 | 说明 | 目录 |
-|---|---|---|
-| 最小化服务 | httpServer + 自定义路由，无需数据库 | [examples/minimal](./examples/minimal) |
-| 完整后台管理 | httpServer + 管理后台 + 前端界面 | [examples/with-admin](./examples/with-admin) |
-
-```bash
-# 运行最小化示例
-go run ./examples/minimal/ run
-
-# 运行完整后台管理示例（需 MySQL + Redis）
-go run ./examples/with-admin/ run
+func main() {
+    httpServer.SetRouter(func(root *gin.Engine) {
+        root.GET("/hello", func(ctx *gin.Context) {
+            ctx.String(200, "Hello AdminBox!")
+        })
+    })
+    httpServer.Execute("my-admin", "My Admin Panel")
+}
 ```
+
+导入 `admin` 和 `admin/front` 后，系统会自动注册所有管理后台接口和前端页面。
+
+### 独立使用工具包
+
+```go
+import "github.com/mangk/adminBox/pkg/log"
+import "github.com/mangk/adminBox/pkg/config"
+import "github.com/mangk/adminBox/pkg/jwt"
+```
+
+每个工具包都可单独引入，不强制依赖其他模块。
+
+## 示例项目
+
+| 示例 | 说明 | 运行 |
+|---|---|---|
+| [minimal](./examples/minimal) | 仅 httpServer + 自定义路由 | `go run ./examples/minimal/ run` |
+| [with-admin](./examples/with-admin) | 完整后台 + 前端管理界面 | `go run ./examples/with-admin/ run` |
+
+## 模块一览
+
+| 包 | 说明 | 独立使用 |
+|---|---|---|
+| `pkg/httpServer` | HTTP 服务底座 (Gin + Cobra + daemon) | ✅ |
+| `pkg/admin` | 后台管理业务模块 | 需 httpServer |
+| `pkg/admin/front` | 嵌入式 Vue 前端界面 | 需 httpServer |
+| `pkg/config` | 配置管理 (Viper, YAML, 热加载) | ✅ |
+| `pkg/log` | 结构化日志 (Zap, 文件轮转) | ✅ |
+| `pkg/db` | 数据库 ORM (GORM, 多驱动) | ✅ |
+| `pkg/cache` | 缓存（本地 + Redis） | ✅ |
+| `pkg/jwt` | JWT 令牌创建与解析 | ✅ |
+| `pkg/casbin` | 权限引擎 (Casbin + GORM) | ✅ |
+| `pkg/middleware` | Gin 中间件集合 | ✅ |
+| `pkg/response` | 统一响应格式 | ✅ |
+| `pkg/request` | 请求参数解析 | ✅ |
+| `pkg/upload` | 文件上传 (local/OSS/COS/S3/Qiniu) | ✅ |
+| `pkg/util` | 通用工具函数 | ✅ |
 
 ## 项目结构
 
 ```
-/
-├── examples/        # 示例代码
-│   ├── minimal/     # 最小化服务示例 (httpServer only)
-│   └── with-admin/  # 完整后台管理示例
-├── pkg/             # 核心功能模块 (可被外部引用的公共库)
-│   ├── admin/       # 后台管理核心逻辑 (包含前端资源)
-│   ├── cache/       # 缓存 (Redis)
-│   ├── config/      # 配置加载 (Viper)
-│   ├── db/          # 数据库 (GORM)
-│   ├── httpServer/  # HTTP 服务启动器 (Cobra + Gin)
-│   ├── log/         # 日志 (Zap)
-│   ├── middleware/  # Gin 中间件
-│   ├── request/     # 请求参数解析
-│   ├── response/    # 统一响应格式
-│   ├── upload/      # 文件上传模块
-│   └── util/        # 通用工具函数
-├── Makefile         # 构建入口
-├── CHANGELOG.md     # 版本记录
-├── go.mod           # Go 模块文件
-└── README.md        # 项目说明
+adminBox/
+├── examples/             # 示例代码
+│   ├── minimal/          # 最小化服务示例
+│   └── with-admin/       # 完整后台管理示例
+├── pkg/                  # 核心功能模块（全部对外公开）
+│   ├── admin/            # 后台管理
+│   │   ├── handler/      #   HTTP 处理器
+│   │   ├── model/        #   GORM 模型
+│   │   └── crud/         #   通用 CRUD 引擎
+│   ├── httpServer/       # HTTP 服务启动器
+│   ├── config/           # 配置管理
+│   ├── log/              # 结构化日志
+│   ├── db/               # 数据库 ORM
+│   ├── cache/            # 缓存
+│   ├── jwt/              # JWT 令牌
+│   ├── casbin/           # 权限引擎
+│   ├── middleware/       # Gin 中间件
+│   ├── request/          # 请求参数
+│   ├── response/         # 响应格式
+│   ├── upload/           # 文件上传
+│   └── util/             # 工具函数
+├── Makefile
+├── CHANGELOG.md
+├── go.mod
+└── README.md
 ```
 
-## 贡献
+## 主要特性
 
-我们欢迎任何形式的贡献！如果您有好的想法或发现了 Bug，请随时提交 Pull Request 或 Issue。
+- **高度模块化**: 每个 `pkg/*` 下的子包都可单独 import，零耦合
+- **可插拔前端**: 嵌入式 Vue 前端，一行 import 即可激活管理界面
+- **配置热加载**: 基于 Viper，支持 YAML，运行时修改即时生效
+- **多数据库**: MySQL / PostgreSQL / SQLServer，多实例连接池
+- **认证授权**: JWT + Casbin RBAC，中间件即插即用
+- **文件上传**: 统一接口，支持本地 / 阿里云 OSS / 腾讯云 COS / AWS S3 / 七牛云
+- **CRUD 引擎**: 根据 GORM 模型自动生成前后端 CRUD 接口
+- **服务管理**: 内置 daemon 模式，支持 install/start/stop/uninstall
+
+## 运行方式
+
+```bash
+# 开发运行
+go run main.go run
+
+# 守护进程模式（需 root）
+go run main.go daemon install
+go run main.go daemon start
+go run main.go daemon stop
+```
 
 ## 许可证
 
-本项目基于 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.en.html) 开源。
+本项目基于 [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) 开源。
