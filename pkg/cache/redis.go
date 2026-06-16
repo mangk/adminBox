@@ -4,18 +4,22 @@ import (
 	"bytes"
 	"context"
 	"encoding/gob"
+	"encoding/json"
+	"errors"
 	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/mangk/adminBox/pkg/config"
 	"github.com/mangk/adminBox/pkg/log"
+	"golang.org/x/sync/singleflight"
 )
 
 var (
 	_redisList      map[string]*redis.Client
 	_redisInitOnce  sync.Once
 	_redisCacheLock sync.Map
+	_redisSG        singleflight.Group
 )
 
 func Redis(driver ...string) *redis.Client {
@@ -69,6 +73,7 @@ func RedisDel(key string) {
 	Redis().Del(ctx, key)
 }
 
+// Deprecated: Use RedisHOQ() instead.
 func RedisHasOrQuery(key string, queryFunc func() (data string, exp time.Duration)) string {
 	data := RedisStrGet(key)
 	if data == "" {
@@ -91,6 +96,7 @@ func RedisHasOrQueryByte(key string, queryFunc func() (data []byte, exp time.Dur
 	return []byte(data)
 }
 
+// Deprecated: Use RedisHOQGob() instead.
 func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFunc func(*T) (expirationTime time.Duration, err error)) error {
 	ctx := context.Background()
 
@@ -148,4 +154,107 @@ func RedisHasOrQuerySerializerGob[T any](key string, resultReceiver *T, queryFun
 	}
 
 	return Redis().Set(ctx, key, buffer.Bytes(), exp).Err()
+}
+
+func RedisHOQGob[T any](key string, queryFunc func() (T, time.Duration, error)) (T, error) {
+	var zero T
+	ctx := context.Background()
+
+	// 先尝试读缓存（无锁）
+	data, err := Redis().Get(ctx, key).Bytes()
+	if err == nil {
+		err = gob.NewDecoder(bytes.NewBuffer(data)).Decode(&zero)
+		return zero, err
+	}
+	if err != redis.Nil {
+		return zero, err
+	}
+
+	// 缓存未命中：singleflight 保证同一 key 只有一个查询执行
+	ret, err, _ := _redisSG.Do(key, func() (interface{}, error) {
+		// 二次检查：可能之前的 singleflight 已经写入
+		data, err := Redis().Get(ctx, key).Bytes()
+		if err == nil {
+			return data, nil
+		}
+		if err != redis.Nil {
+			return nil, err
+		}
+
+		// 执行查询
+		t, exp, err := queryFunc()
+		if err != nil {
+			return nil, err
+		}
+
+		// 序列化
+		var buf bytes.Buffer
+		if err := gob.NewEncoder(&buf).Encode(t); err != nil {
+			return nil, err
+		}
+		return buf.Bytes(), Redis().Set(ctx, key, buf.Bytes(), exp).Err()
+	})
+	if err != nil {
+		return zero, err
+	}
+
+	bytesData, ok := ret.([]byte)
+	if !ok {
+		return zero, errors.New("redis cache: unexpected type in singleflight result")
+	}
+
+	err = gob.NewDecoder(bytes.NewBuffer(bytesData)).Decode(&zero)
+	return zero, err
+}
+
+// RedisHOQ is a generic function that attempts to retrieve data from Redis cache using the provided key. If the data is not found in the cache, it executes the provided query function to fetch the data, caches it, and returns it. It uses singleflight to ensure that only one query is executed for a given key at a time.
+func RedisHOQ[T any](key string, queryFunc func() (data T, exp time.Duration, err error)) (T, error) {
+	var zero T
+	ctx := context.Background()
+
+	data, err := Redis().Get(ctx, key).Bytes()
+	if err == nil {
+		var val T
+		return val, json.Unmarshal(data, &val)
+	}
+	if err != redis.Nil {
+		return zero, err
+	}
+
+	ret, err, _ := _redisSG.Do(key, func() (any, error) {
+		data, err := Redis().Get(ctx, key).Bytes()
+		if err == nil {
+			return data, nil
+		}
+		if err != redis.Nil {
+			return nil, err
+		}
+
+		t, exp, err := queryFunc()
+		if err != nil {
+			return nil, err
+		}
+
+		data, err = json.Marshal(t)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := Redis().Set(ctx, key, data, exp).Err(); err != nil {
+			return nil, err
+		}
+
+		return data, nil
+	})
+	if err != nil {
+		return zero, err
+	}
+
+	data, ok := ret.([]byte)
+	if !ok {
+		return zero, errors.New("redis cache: unexpected type in singleflight result")
+	}
+
+	var val T
+	return val, json.Unmarshal(data, &val)
 }
