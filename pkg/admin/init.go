@@ -7,13 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/admin/handler"
 	"github.com/mangk/adminBox/pkg/config"
-	"github.com/mangk/adminBox/pkg/httpServer"
+	"github.com/mangk/adminBox/pkg/httpx"
 	"github.com/mangk/adminBox/pkg/middleware"
 )
 
 func init() {
 
-	httpServer.SetRouter(func(router *gin.Engine) {
+	httpx.SetRouter(func(router *gin.Engine) {
 		
 	router.Use(middleware.Cors("*")) // TODO 跨域限制基于配置
 

@@ -6,4 +6,4 @@
 //
 // Modules register routes via SetRouter() in their init() functions,
 // making integration pluggable without modifying core code.
-package httpServer
+package httpx

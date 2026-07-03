@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/pkg/httpServer"
+	"github.com/mangk/adminBox/pkg/httpx"
 	"github.com/mangk/adminBox/pkg/response"
 )
 
 func main() {
 	// 注册自定义路由
-	httpServer.SetRouter(func(root *gin.Engine) {
+	httpx.SetRouter(func(root *gin.Engine) {
 		root.GET("/ping", func(ctx *gin.Context) {
 			response.OkWithMsg(ctx, "pong")
 		})
@@ -26,5 +26,5 @@ func main() {
 
 	// 启动服务
 	// 运行命令: go run main.go run
-	httpServer.Execute("minimal", "Minimal AdminBox Server")
+	httpx.Execute("minimal", "Minimal AdminBox Server")
 }

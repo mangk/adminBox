@@ -13,7 +13,7 @@ import (
 	"github.com/mangk/adminBox/pkg/admin/front"
 	"github.com/mangk/adminBox/pkg/admin/model"
 	"github.com/mangk/adminBox/pkg/db"
-	"github.com/mangk/adminBox/pkg/httpServer"
+	"github.com/mangk/adminBox/pkg/httpx"
 	"github.com/mangk/adminBox/pkg/log"
 	"github.com/mangk/adminBox/pkg/middleware"
 	"github.com/mangk/adminBox/pkg/request"
@@ -129,7 +129,7 @@ func (e *Engine) AddField(filed ...Field) *Engine {
 }
 
 func (e *Engine) Register() {
-	httpServer.SetRouter(func(root *gin.Engine) {
+	httpx.SetRouter(func(root *gin.Engine) {
 		for _, handlerFunc := range e.middleware {
 			root.Use(handlerFunc)
 		}
@@ -214,7 +214,7 @@ func (e *Engine) RegisterDeleteHandler(relativePath string, handlerFunc gin.Hand
 }
 
 func (e *Engine) register(relativePath, method string, handlerFunc ...gin.HandlerFunc) {
-	httpServer.SetRouter(func(root *gin.Engine) {
+	httpx.SetRouter(func(root *gin.Engine) {
 		switch method {
 		case "POST":
 			root.POST(e.ap+"/"+relativePath, handlerFunc...)

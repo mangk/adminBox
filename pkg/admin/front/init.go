@@ -11,7 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/pkg/config"
-	"github.com/mangk/adminBox/pkg/httpServer"
+	"github.com/mangk/adminBox/pkg/httpx"
 	"github.com/mangk/adminBox/pkg/log"
 )
 
@@ -22,7 +22,7 @@ var frontFiles embed.FS
 var CrudTemplate string
 
 func init() {
-	httpServer.SetRouter(func(root *gin.Engine) {
+	httpx.SetRouter(func(root *gin.Engine) {
 		path := ""
 		frontPrefix := config.ServerCfg().FrontRouterPrefix
 		if frontPrefix != "" {

@@ -6,8 +6,10 @@ import (
 
 const ContextPublicRequestKey = "__public_request__"
 const ContextLoginUserKey = "__login_user__"
+
 // Deprecated: 身份与ID可能被客户端篡改，不安全
 const ContextRoleUserTypeKey = "__role_user_type__"
+
 // Deprecated: 身份与ID可能被客户端篡改，不安全
 const ContextRoleUserIdKey = "__role_user_id__"
 
@@ -49,8 +51,8 @@ type PageQuery[T any] struct {
 	PageInfo PageInfo `json:"page_info"`
 }
 
-func PageRequest[T any](ctx *gin.Context, query T) (PageQuery[T], error) {
-	req := PageQuery[T]{Query: query}
+func PageRequest[T any](ctx *gin.Context) (PageQuery[T], error) {
+	req := PageQuery[T]{}
 	err := ctx.ShouldBindJSON(&req)
 
 	if req.PageInfo.Page <= 0 {

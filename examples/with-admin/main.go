@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/mangk/adminBox/pkg/admin"
 	"github.com/mangk/adminBox/pkg/admin/front"
-	"github.com/mangk/adminBox/pkg/httpServer"
+	"github.com/mangk/adminBox/pkg/httpx"
 	"github.com/mangk/adminBox/pkg/response"
 )
 
@@ -15,7 +15,7 @@ import (
 var exampleTemplate string
 
 func main() {
-	httpServer.SetRouter(func(root *gin.Engine) {
+	httpx.SetRouter(func(root *gin.Engine) {
 		root.GET("example", front.TemplateBuild("example.vue", exampleTemplate))
 		root.POST("api/example", func(ctx *gin.Context) {
 			response.OkWithData(ctx, response.Response{
@@ -26,5 +26,5 @@ func main() {
 		})
 	})
 
-	httpServer.Execute("example", "Adminbox 的演示程序")
+	httpx.Execute("example", "Adminbox 的演示程序")
 }

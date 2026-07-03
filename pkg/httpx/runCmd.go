@@ -1,4 +1,4 @@
-package httpServer
+package httpx
 
 import (
 	"github.com/spf13/cobra"
