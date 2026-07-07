@@ -24,8 +24,8 @@ package main
 
 import (
     "github.com/gin-gonic/gin"
-    "github.com/mangk/adminBox/pkg/httpServer"
-    "github.com/mangk/adminBox/pkg/response"
+    "github.com/mangk/adminBox/httpServer"
+    "github.com/mangk/adminBox/response"
 )
 
 func main() {
@@ -59,9 +59,9 @@ package main
 
 import (
     "github.com/gin-gonic/gin"
-    _ "github.com/mangk/adminBox/pkg/admin"        // 自动注册后台API
-    _ "github.com/mangk/adminBox/pkg/admin/front"   // 嵌入前端UI
-    "github.com/mangk/adminBox/pkg/httpServer"
+    _ "github.com/mangk/adminBox/admin"        // 自动注册后台API
+    _ "github.com/mangk/adminBox/admin/front"   // 嵌入前端UI
+    "github.com/mangk/adminBox/httpServer"
 )
 
 func main() {
@@ -79,9 +79,9 @@ func main() {
 ### 独立使用工具包
 
 ```go
-import "github.com/mangk/adminBox/pkg/log"
-import "github.com/mangk/adminBox/pkg/config"
-import "github.com/mangk/adminBox/pkg/jwt"
+import "github.com/mangk/adminBox/log"
+import "github.com/mangk/adminBox/config"
+import "github.com/mangk/adminBox/jwt"
 ```
 
 每个工具包都可单独引入，不强制依赖其他模块。

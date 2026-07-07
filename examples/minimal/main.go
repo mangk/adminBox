@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mangk/adminBox/pkg/httpx"
-	"github.com/mangk/adminBox/pkg/response"
+	"github.com/mangk/adminBox/httpx"
+	"github.com/mangk/adminBox/response"
 )
 
 func main() {

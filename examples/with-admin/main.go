@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/mangk/adminBox/pkg/admin"
-	"github.com/mangk/adminBox/pkg/admin/front"
-	"github.com/mangk/adminBox/pkg/httpx"
-	"github.com/mangk/adminBox/pkg/response"
+	_ "github.com/mangk/adminBox/admin"
+	"github.com/mangk/adminBox/admin/front"
+	"github.com/mangk/adminBox/httpx"
+	"github.com/mangk/adminBox/response"
 )
 
 //go:embed example.vue
