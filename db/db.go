@@ -6,6 +6,7 @@ import (
 
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
+	"gorm.io/driver/clickhouse"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlserver"
@@ -76,6 +77,8 @@ func dialectorBuild(g config.DB) gorm.Dialector {
 		return sqlserver.Open("sqlserver://" + g.Username + ":" + g.Password + "@" + g.Path + ":" + g.Port + "?database=" + g.Dbname + "&encrypt=disable")
 	case "pgsql":
 		return postgres.Open("host=" + g.Path + " user=" + g.Username + " password=" + g.Password + " dbname=" + g.Dbname + " port=" + g.Port + " " + g.Config)
+	case "clickhouse":
+		return clickhouse.Open("clickhouse://" + g.Username + ":" + g.Password + "@" + g.Path + ":" + g.Port + "/" + g.Dbname + "?" + g.Config)
 		//case "oracle":
 		//	return "oracle://" + g.Username + ":" + g.Password + "@" + g.Path + ":" + g.Port + "/" + g.Dbname + "?" + g.Config
 	}
