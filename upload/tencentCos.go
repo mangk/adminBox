@@ -99,10 +99,13 @@ func (t *TencentCOS) UploadTokenGet(key string, uuid string) (token string, file
 				Condition: map[string]map[string]interface{}{
 					"string_like_if_exist": {
 						// 只允许上传 content-type 为图片类型
-						"cos:content-type": "image/*", // TODO 这里类型应该有视频和图片和其他的
+						"cos:content-type": []string{
+							"image/*",
+							"video/*",
+						}, // TODO 这里的类型应该从外部传递
 					},
 					"numeric_less_than_equal": {
-						// 上传大小限制不能超过5MB(只对简单上传生效)
+						// 上传大小限制不能超过50MB(只对简单上传生效)
 						"cos:content-length": 50 * 1024 * 1024,
 					},
 				},
