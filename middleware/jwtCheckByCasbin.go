@@ -14,6 +14,40 @@ import (
 	"github.com/mangk/adminBox/response"
 )
 
+func JWTCheck() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := ctx.Request.Header.Get("Authorization")
+		if token == "" || len(token) <= 6 {
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "无效Token")
+			ctx.Abort()
+			return
+		}
+
+		jwtUserInfo, err := jwt.New([]byte(config.JwtCfg().SigningKey)).Parse(token[7:])
+		if err != nil || jwtUserInfo == nil {
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "Token解析失败")
+			ctx.Abort()
+			return
+		}
+
+		if time.Now().Unix() > jwtUserInfo.ExpiresAt {
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "授权已过期")
+			ctx.Abort()
+			return
+		}
+
+		if jwtUserInfo.UserId == 0 {
+			response.FailWithCodeAndNeedReload(ctx, http.StatusUnauthorized, "无效用户ID")
+			ctx.Abort()
+			return
+		}
+
+		ctx.Set(request.ContextLoginUserKey, jwtUserInfo.UserId)
+
+		ctx.Next()
+	}
+}
+
 func JWTCheckByCasbin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("Authorization")
