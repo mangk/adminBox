@@ -2,16 +2,11 @@ package httpx
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/mangk/adminBox/config"
 	"github.com/mangk/adminBox/log"
 	"github.com/mangk/adminBox/middleware"
-
-	"context"
-
-	"github.com/kardianos/service"
 )
 
 var _waitInitRoter = make([]func(root *gin.Engine), 0)
@@ -53,37 +48,4 @@ func httpServer(cfgPath string) error {
 	host := config.ServerCfg().Host
 	port := config.ServerCfg().Port
 	return http.Run(fmt.Sprintf("%s:%d", host, port))
-}
-
-type program struct {
-	ctx     context.Context
-	cancel  context.CancelFunc
-	cfgPath string
-}
-
-func (p *program) Start(s service.Service) error {
-	p.ctx, p.cancel = context.WithCancel(context.Background())
-	go func() {
-		if err := httpServer(p.cfgPath); err != nil {
-			fmt.Printf("Server failed: %v\n", err)
-			os.Exit(1)
-		}
-	}()
-	return nil
-}
-
-func (p *program) Stop(s service.Service) error {
-	if p.cancel != nil {
-		p.cancel()
-	}
-	return nil
-}
-
-func newService() (service.Service, error) {
-	return service.New(&program{cfgPath: _cfgFilePath}, &service.Config{
-		Name:        _serverName,
-		DisplayName: _serverName,
-		Description: _serverShort,
-		Arguments:   []string{"run", "-c", _cfgFilePath},
-	})
 }

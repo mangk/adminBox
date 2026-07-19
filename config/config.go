@@ -28,7 +28,6 @@ func i() *configInstance {
 		_viper.SetConfigFile(_configPath)
 		_viper.SetConfigType("yaml")
 		err := _viper.ReadInConfig()
-		fmt.Printf("[Config file use at %s]\n", _configPath)
 
 		if err != nil {
 			// If config file is not found, use a default one
