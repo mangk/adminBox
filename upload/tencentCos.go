@@ -82,6 +82,7 @@ func (t *TencentCOS) UploadTokenGet(key string, uuid string) (token string, file
 				Action: []string{
 					// 简单上传
 					"name/cos:PutObject",
+					"name/cos:PostObject",
 
 					// 简单上传
 					"name/cos:InitiateMultipartUpload",
