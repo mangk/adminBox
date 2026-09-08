@@ -156,12 +156,21 @@ adminBox/
 
 ```bash
 # 开发运行
+# 未指定 --config 时，读取"当前工作目录"下的 config.yaml；-c 可指定其他（绝对）路径
 go run main.go run
 
 # 守护进程模式（需 root）
-go run main.go daemon install
-go run main.go daemon start
-go run main.go daemon stop
+# 注意：安装服务请使用编译好的二进制，不要用 `go run main.go daemon install` ——
+# go run 的可执行文件位于临时构建目录，注册进系统服务后该路径即失效，
+# 服务启动时会找不到程序与配置文件。
+go build -o adminBox main.go
+# 建议先 cd 到放置 config.yaml 的目录再安装：服务的"当前目录"= 安装时的当前目录，
+# 未用 -c 安装时服务启动会加载该目录下的 config.yaml；也可用 -c 指定绝对路径安装
+cd /path/to/deploy
+sudo ./adminBox daemon install      # 可选: 加 -c /abs/path/config.yaml 指定配置
+sudo ./adminBox daemon start
+sudo ./adminBox daemon stop
+sudo ./adminBox daemon uninstall
 ```
 
 ## 许可证
