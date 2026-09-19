@@ -69,9 +69,8 @@ func (s *Stream) Send(event Event) error {
 	}
 
 	if !s.started {
-		if err := s.Start(); err != nil {
-			return err
-		}
+		// 已持有 s.mu，不能再调 Start()（会重复加锁导致死锁），直接置位
+		s.started = true
 	}
 
 	var builder strings.Builder
