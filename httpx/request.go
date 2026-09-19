@@ -1,6 +1,9 @@
 package httpx
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/mangk/adminBox/request"
+)
 
 type PageInfo struct {
 	PageSize int64 `json:"page_size,omitempty"`
@@ -23,4 +26,8 @@ func PageRequest[T any](ctx *gin.Context) (req Req[T], err error) {
 	req = Req[T]{}
 	err = ctx.ShouldBindJSON(&req)
 	return
+}
+
+func JWTLoginUserId(ctx *gin.Context) int {
+	return ctx.GetInt(request.ContextLoginUserKey)
 }

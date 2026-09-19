@@ -1,6 +1,7 @@
 package httpx
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
@@ -50,6 +51,17 @@ func WithError(err error, code ...int) RespOption {
 			r.Code = -1
 		}
 		r.error = err
+	}
+}
+
+func WithErrorMsg(msg string, code ...int) RespOption {
+	return func(c *gin.Context, r *Resp) {
+		if len(code) == 1 {
+			r.Code = code[0]
+		} else {
+			r.Code = -1
+		}
+		r.error = fmt.Errorf("%s", msg)
 	}
 }
 
