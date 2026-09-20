@@ -5,6 +5,9 @@ import (
 	"github.com/mangk/adminBox/request"
 )
 
+const ContextLoginUserKey = request.ContextLoginUserKey
+const ContextPublicRequestKey = request.ContextPublicRequestKey
+
 type PageInfo struct {
 	PageSize int64 `json:"page_size,omitempty"`
 	Page     int64 `json:"page,omitempty"`
@@ -29,5 +32,5 @@ func PageRequest[T any](ctx *gin.Context) (req Req[T], err error) {
 }
 
 func JWTLoginUserId(ctx *gin.Context) int {
-	return ctx.GetInt(request.ContextLoginUserKey)
+	return ctx.GetInt(ContextLoginUserKey)
 }
