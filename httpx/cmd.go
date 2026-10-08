@@ -129,9 +129,9 @@ func Execute(serverName, serverShort string) {
 
 	daemonCmd.AddCommand(
 		&cobra.Command{
-			Use:   "install",
+			Use:     "install",
 			Aliases: []string{"i"},
-			Short: "安装服务到系统",
+			Short:   "安装服务到系统",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				// 未提供 -c 时校验 <当前目录>/config.yaml 是否存在，避免装上一个启动即失败的服务
 				if err := validateCfgPath(); err != nil {
@@ -151,9 +151,9 @@ func Execute(serverName, serverShort string) {
 		},
 
 		&cobra.Command{
-			Use:   "uninstall",
+			Use:     "uninstall",
 			Aliases: []string{"u"},
-			Short: "卸载系统服务",
+			Short:   "卸载系统服务",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				s := getService(serverName, serverShort, "")
 				if err := s.Uninstall(); err != nil {
@@ -165,9 +165,9 @@ func Execute(serverName, serverShort string) {
 		},
 
 		&cobra.Command{
-			Use:   "start",
+			Use:     "start",
 			Aliases: []string{"s"},
-			Short: "启动系统服务",
+			Short:   "启动系统服务",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				s := getService(serverName, serverShort, "")
 				if err := s.Start(); err != nil {
@@ -179,15 +179,29 @@ func Execute(serverName, serverShort string) {
 		},
 
 		&cobra.Command{
-			Use:   "stop",
+			Use:     "stop",
 			Aliases: []string{"p"},
-			Short: "停止系统服务",
+			Short:   "停止系统服务",
 			RunE: func(cmd *cobra.Command, args []string) error {
 				s := getService(serverName, serverShort, "")
 				if err := s.Stop(); err != nil {
 					return fmt.Errorf("停止失败: %w", err)
 				}
 				fmt.Println("✓ 服务停止成功！")
+				return nil
+			},
+		},
+
+		&cobra.Command{
+			Use:     "restart",
+			Aliases: []string{"r"},
+			Short:   "重启系统服务",
+			RunE: func(cmd *cobra.Command, args []string) error {
+				s := getService(serverName, serverShort, "")
+				if err := s.Restart(); err != nil {
+					return fmt.Errorf("重启失败: %w", err)
+				}
+				fmt.Println("✓ 服务重启成功！")
 				return nil
 			},
 		},
